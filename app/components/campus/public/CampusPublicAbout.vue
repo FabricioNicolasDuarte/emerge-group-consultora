@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { CAMPUS_PUBLIC_PILLARS } from '~/data/campus-public-content'
+
+const { brand } = useAppBrand()
 </script>
 
 <template>
@@ -9,7 +11,7 @@ import { CAMPUS_PUBLIC_PILLARS } from '~/data/campus-public-content'
         <span class="campus-public__kicker">Sobre el Campus</span>
         <h2 class="campus-public__title">Aprender para transformar</h2>
         <p class="campus-public__lead">
-          Campus Emerge es el espacio de formación de EmergeGroup Consultora, creado para
+          Campus Emerge es el espacio de formación de {{ brand.name }}, creado para
           acompañar el desarrollo de competencias que se convierten en acciones y resultados.
         </p>
       </div>

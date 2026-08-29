@@ -1,8 +1,9 @@
 export default defineAppConfig({
+  // Fuente única de contacto y marca. También podés usar NUXT_PUBLIC_CONTACT_* en .env
   contact: {
     email: 'emergegroup.fsa@gmail.com',
     whatsapp: '5493704297563',
-    whatsappMessage: 'Hola, vi la pagina de EmergeGroup Consultora y quiero informacion.',
+    whatsappMessage: 'Hola, vi la página y quiero información.',
   },
   colors: {
     /** Conversión en sitio público y campus marketing (CTAs principales) */
@@ -18,6 +19,7 @@ export default defineAppConfig({
     bg: '#f6f8fb',
   },
   social: {
+    // Completar con URLs reales cuando estén disponibles (el footer las oculta si están vacías)
     linkedin: '',
     instagram: '',
     facebook: '',

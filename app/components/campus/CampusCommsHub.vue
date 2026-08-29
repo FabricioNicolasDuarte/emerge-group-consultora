@@ -71,7 +71,7 @@ const {
 
 .hub-card.featured {
   border-color: rgba(242, 140, 40, 0.45);
-  background: linear-gradient(180deg, var(--eg-surface), #fff9f3);
+  background: linear-gradient(180deg, var(--eg-surface), var(--eg-accent-bg));
 }
 
 .icon { font-size: 28px; }

@@ -4,34 +4,41 @@ const admin = useAdminCampusData()
 
 <template>
   <div>
-    <div v-if="admin.showCourseForm" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-new-course-title" @click.self="admin.showCourseForm = false">
+    <div
+      v-if="admin.showCourseForm"
+      class="modal-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-new-course-title"
+      @click.self="admin.showCourseForm = false"
+    >
       <div class="modal-card">
         <h2 id="modal-new-course-title">Nuevo curso</h2>
         <form @submit.prevent="admin.onCreateCourse">
-          <label>Título</label>
-          <input v-model="admin.newCourse.title" required placeholder="Nombre del programa">
-          <label>Categoría</label>
-          <input v-model="admin.newCourse.category" placeholder="Ej: Liderazgo">
-          <label>Descripción</label>
-          <textarea v-model="admin.newCourse.description" rows="4" placeholder="Breve descripción" />
-          <label>Estado</label>
-          <select v-model="admin.newCourse.status">
+          <label for="new-course-title">Título</label>
+          <input id="new-course-title" v-model="admin.newCourse.title" required placeholder="Nombre del programa">
+          <label for="new-course-category">Categoría</label>
+          <input id="new-course-category" v-model="admin.newCourse.category" placeholder="Ej: Liderazgo">
+          <label for="new-course-description">Descripción</label>
+          <textarea id="new-course-description" v-model="admin.newCourse.description" rows="4" placeholder="Breve descripción" />
+          <label for="new-course-status">Estado</label>
+          <select id="new-course-status" v-model="admin.newCourse.status">
             <option value="draft">Borrador</option>
             <option value="published">Publicado</option>
           </select>
-          <label>Precio (ARS, 0 = gratuito)</label>
-          <input v-model.number="admin.newCourse.price_amount" type="number" min="0" step="1">
+          <label for="new-course-price">Precio (ARS, 0 = gratuito)</label>
+          <input id="new-course-price" v-model.number="admin.newCourse.price_amount" type="number" min="0" step="1">
           <p class="modal-section-title">Cohorte e inscripción (opcional)</p>
-          <label>Inicio de cohorte</label>
-          <input v-model="admin.newCourse.cohort_start_date" type="date">
-          <label>Fin de cohorte</label>
-          <input v-model="admin.newCourse.cohort_end_date" type="date">
-          <label>Cupo máximo (vacío = ilimitado)</label>
-          <input v-model.number="admin.newCourse.enrollment_cap" type="number" min="1" step="1" placeholder="Ej: 30">
-          <label>Apertura de inscripción</label>
-          <input v-model="admin.newCourse.enrollment_starts_at" type="datetime-local">
-          <label>Cierre de inscripción</label>
-          <input v-model="admin.newCourse.enrollment_ends_at" type="datetime-local">
+          <label for="new-course-cohort-start">Inicio de cohorte</label>
+          <input id="new-course-cohort-start" v-model="admin.newCourse.cohort_start_date" type="date">
+          <label for="new-course-cohort-end">Fin de cohorte</label>
+          <input id="new-course-cohort-end" v-model="admin.newCourse.cohort_end_date" type="date">
+          <label for="new-course-cap">Cupo máximo (vacío = ilimitado)</label>
+          <input id="new-course-cap" v-model.number="admin.newCourse.enrollment_cap" type="number" min="1" step="1" placeholder="Ej: 30">
+          <label for="new-course-enroll-start">Apertura de inscripción</label>
+          <input id="new-course-enroll-start" v-model="admin.newCourse.enrollment_starts_at" type="datetime-local">
+          <label for="new-course-enroll-end">Cierre de inscripción</label>
+          <input id="new-course-enroll-end" v-model="admin.newCourse.enrollment_ends_at" type="datetime-local">
           <div class="modal-actions">
             <button type="button" class="btn-secondary" @click="admin.showCourseForm = false">Cancelar</button>
             <button type="submit" class="btn-primary" :disabled="admin.formLoading">
@@ -42,21 +49,28 @@ const admin = useAdminCampusData()
       </div>
     </div>
 
-    <div v-if="admin.showCohortForm" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-cohort-title" @click.self="admin.showCohortForm = false">
+    <div
+      v-if="admin.showCohortForm"
+      class="modal-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-cohort-title"
+      @click.self="admin.showCohortForm = false"
+    >
       <div class="modal-card modal-card--wide">
         <h2 id="modal-cohort-title">Cohorte e inscripción</h2>
         <p class="modal-hint">{{ admin.cohortEdit.title }}</p>
         <form @submit.prevent="admin.onUpdateCohort">
-          <label>Inicio de cohorte</label>
-          <input v-model="admin.cohortEdit.cohort_start_date" type="date">
-          <label>Fin de cohorte</label>
-          <input v-model="admin.cohortEdit.cohort_end_date" type="date">
-          <label>Cupo máximo (vacío = ilimitado)</label>
-          <input v-model.number="admin.cohortEdit.enrollment_cap" type="number" min="1" step="1" placeholder="Ej: 30">
-          <label>Apertura de inscripción</label>
-          <input v-model="admin.cohortEdit.enrollment_starts_at" type="datetime-local">
-          <label>Cierre de inscripción</label>
-          <input v-model="admin.cohortEdit.enrollment_ends_at" type="datetime-local">
+          <label for="cohort-start">Inicio de cohorte</label>
+          <input id="cohort-start" v-model="admin.cohortEdit.cohort_start_date" type="date">
+          <label for="cohort-end">Fin de cohorte</label>
+          <input id="cohort-end" v-model="admin.cohortEdit.cohort_end_date" type="date">
+          <label for="cohort-cap">Cupo máximo (vacío = ilimitado)</label>
+          <input id="cohort-cap" v-model.number="admin.cohortEdit.enrollment_cap" type="number" min="1" step="1" placeholder="Ej: 30">
+          <label for="cohort-enroll-start">Apertura de inscripción</label>
+          <input id="cohort-enroll-start" v-model="admin.cohortEdit.enrollment_starts_at" type="datetime-local">
+          <label for="cohort-enroll-end">Cierre de inscripción</label>
+          <input id="cohort-enroll-end" v-model="admin.cohortEdit.enrollment_ends_at" type="datetime-local">
           <p class="modal-hint">Dejá los campos vacíos para no limitar fechas o cupos.</p>
           <div class="modal-actions">
             <button type="button" class="btn-secondary" @click="admin.showCohortForm = false">Cancelar</button>
@@ -66,13 +80,20 @@ const admin = useAdminCampusData()
       </div>
     </div>
 
-    <div v-if="admin.showPriceForm" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-price-title" @click.self="admin.showPriceForm = false">
+    <div
+      v-if="admin.showPriceForm"
+      class="modal-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-price-title"
+      @click.self="admin.showPriceForm = false"
+    >
       <div class="modal-card">
         <h2 id="modal-price-title">Precio del curso</h2>
         <p class="modal-hint">{{ admin.priceEdit.title }}</p>
         <form @submit.prevent="admin.onUpdatePrice">
-          <label>Precio (ARS, 0 = gratuito)</label>
-          <input v-model.number="admin.priceEdit.price_amount" type="number" min="0" step="1" required>
+          <label for="course-price-amount">Precio (ARS, 0 = gratuito)</label>
+          <input id="course-price-amount" v-model.number="admin.priceEdit.price_amount" type="number" min="0" step="1" required>
           <div class="modal-actions">
             <button type="button" class="btn-secondary" @click="admin.showPriceForm = false">Cancelar</button>
             <button type="submit" class="btn-primary" :disabled="admin.formLoading">Guardar precio</button>
@@ -81,20 +102,27 @@ const admin = useAdminCampusData()
       </div>
     </div>
 
-    <div v-if="admin.showTeacherForm" class="modal-overlay" @click.self="admin.showTeacherForm = false">
+    <div
+      v-if="admin.showTeacherForm"
+      class="modal-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-teacher-title"
+      @click.self="admin.showTeacherForm = false"
+    >
       <div class="modal-card">
-        <h2>Asignar docente</h2>
+        <h2 id="modal-teacher-title">Asignar docente</h2>
         <p class="modal-hint">{{ admin.teacherAssignment.course_title }}</p>
         <form @submit.prevent="admin.onAssignTeacher">
-          <label>Docente o tutor</label>
-          <select v-model="admin.teacherAssignment.teacher_id" required>
+          <label for="teacher-assign-select">Docente o tutor</label>
+          <select id="teacher-assign-select" v-model="admin.teacherAssignment.teacher_id" required>
             <option value="">Seleccionar</option>
             <option v-for="teacher in admin.teachers" :key="teacher.id" :value="teacher.id">
               {{ teacher.full_name }} ({{ teacher.email }})
             </option>
           </select>
-          <label>Rol en el curso</label>
-          <select v-model="admin.teacherAssignment.role">
+          <label for="teacher-assign-role">Rol en el curso</label>
+          <select id="teacher-assign-role" v-model="admin.teacherAssignment.role">
             <option value="docente">Docente</option>
             <option value="tutor">Tutor</option>
           </select>
@@ -106,19 +134,26 @@ const admin = useAdminCampusData()
       </div>
     </div>
 
-    <div v-if="admin.showEnrollmentForm" class="modal-overlay" @click.self="admin.showEnrollmentForm = false">
+    <div
+      v-if="admin.showEnrollmentForm"
+      class="modal-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-enrollment-title"
+      @click.self="admin.showEnrollmentForm = false"
+    >
       <div class="modal-card">
-        <h2>Nueva inscripción</h2>
+        <h2 id="modal-enrollment-title">Nueva inscripción</h2>
         <form @submit.prevent="admin.onCreateEnrollment">
-          <label>Curso</label>
-          <select v-model="admin.newEnrollment.course_id" required>
+          <label for="enrollment-course">Curso</label>
+          <select id="enrollment-course" v-model="admin.newEnrollment.course_id" required>
             <option value="">Seleccionar curso</option>
             <option v-for="course in admin.courses" :key="course.id" :value="course.id">
               {{ course.title }}
             </option>
           </select>
-          <label>Alumno</label>
-          <select v-model="admin.newEnrollment.student_id" required>
+          <label for="enrollment-student">Alumno</label>
+          <select id="enrollment-student" v-model="admin.newEnrollment.student_id" required>
             <option value="">Seleccionar alumno</option>
             <option v-for="student in admin.students" :key="student.id" :value="student.id">
               {{ student.full_name }} ({{ student.email }})

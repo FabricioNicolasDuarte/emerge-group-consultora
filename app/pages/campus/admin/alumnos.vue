@@ -24,7 +24,7 @@ const admin = useAdminCampusData()
     </CampusPageHeader>
 
     <div class="table-toolbar">
-      <input v-model="admin.studentSearch" type="search" placeholder="Buscar alumno…" class="table-search">
+      <input v-model="admin.studentSearch" type="search" placeholder="Buscar alumno…" class="table-search" aria-label="Buscar alumno">
     </div>
 
     <div class="table-card campus-card">

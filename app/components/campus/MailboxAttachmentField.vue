@@ -82,8 +82,8 @@ function formatSize(bytes: number) {
 }
 
 .field-head button {
-  border: 1px solid #dce3ed;
-  background: white;
+  border: 1px solid var(--eg-field-border);
+  background: var(--eg-surface);
   padding: 8px 12px;
   border-radius: 8px;
   font-weight: 700;
@@ -104,7 +104,7 @@ function formatSize(bytes: number) {
   justify-content: space-between;
   gap: 12px;
   padding: 10px 12px;
-  background: #f8fafc;
+  background: var(--eg-highlight-bg);
   border-radius: 8px;
   font-size: 13px;
 }
@@ -112,7 +112,7 @@ function formatSize(bytes: number) {
 .file-list button {
   border: none;
   background: none;
-  color: #b42318;
+  color: var(--eg-error);
   font-weight: 700;
   cursor: pointer;
   font-family: inherit;
@@ -120,7 +120,7 @@ function formatSize(bytes: number) {
 
 .hint {
   margin: 0;
-  color: #8390A2;
+  color: var(--eg-subtle);
   font-size: 13px;
 }
 </style>

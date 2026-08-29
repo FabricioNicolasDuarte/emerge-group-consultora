@@ -24,7 +24,7 @@ const emit = defineEmits<{
 
 const { enrollFree, createPaymentPreference } = useCampusCommerce()
 const { paymentsEnabled } = useCampusFeatures()
-const { contact } = useAppContact()
+const { contact, buildEmailHref } = useAppContact()
 const route = useRoute()
 
 const loginUrl = computed(() =>
@@ -59,11 +59,18 @@ const canEnroll = computed(() => !enrollmentClosed.value)
 const priceLabel = computed(() =>
   formatProgramPriceLabel(props.priceAmount, props.priceCurrency ?? 'ARS'),
 )
-const enrollmentMailto = computed(() => {
-  const subject = encodeURIComponent(`Inscripción a ${props.courseTitle}`)
-  const body = encodeURIComponent(`Hola, quiero inscribirme al programa "${props.courseTitle}".`)
-  return `mailto:${contact.email}?subject=${subject}&body=${body}`
-})
+const enrollmentMailto = computed(() =>
+  buildEmailHref({
+    subject: `Inscripción a ${props.courseTitle}`,
+    body: `Hola, quiero inscribirme al programa "${props.courseTitle}".`,
+  }),
+)
+const supportMailto = computed(() =>
+  buildEmailHref({
+    subject: `Consulta — ${props.courseTitle}`,
+    body: `Hola, consulto por el programa "${props.courseTitle}".`,
+  }),
+)
 
 async function onEnrollFree() {
   loading.value = true
@@ -107,7 +114,7 @@ async function onPay() {
       </p>
       <p v-else-if="enrollmentClosed">
         {{ closedLabel }}. Si necesitás más información, escribinos a
-        <a href="mailto:emergegroup.fsa@gmail.com">emergegroup.fsa@gmail.com</a>.
+        <a :href="supportMailto">{{ contact.email }}</a>.
       </p>
       <template v-else>
         <p v-if="cohortLabel || seatsHint" class="cohort-meta">
@@ -124,7 +131,7 @@ async function onPay() {
         <p v-else-if="isPaid">
           Este programa tiene un arancel de <strong>{{ priceLabel }}</strong>.
           El pago online se habilitará próximamente. Escribinos a
-          <a href="mailto:emergegroup.fsa@gmail.com">emergegroup.fsa@gmail.com</a>
+          <a :href="supportMailto">{{ contact.email }}</a>
           para coordinar tu inscripción.
         </p>
         <p v-else>

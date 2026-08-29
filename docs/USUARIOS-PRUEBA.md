@@ -10,7 +10,7 @@ Generados automáticamente. **No usar en producción.**
 
 Login: http://localhost:3000/campus/login
 
-## IDs (referencia)
+Los UUID en este archivo pueden cambiar si regenerás usuarios con `npm run seed:test-users`.
 
 - **alumno**: `15e7717d-ada2-47ac-a45c-3164b63662b2`
 - **docente**: `0e397480-9fd9-4a90-8194-88357ac982bf`

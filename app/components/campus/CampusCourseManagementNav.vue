@@ -42,17 +42,17 @@ const tabs = computed(() => [
 .course-mgmt-nav__item {
   padding: 0.5rem 0.9rem;
   border-radius: 999px;
-  border: 1px solid rgba(13, 44, 84, 0.12);
-  background: white;
-  color: #4a5d73;
+  border: 1px solid var(--eg-border);
+  background: var(--eg-surface);
+  color: var(--eg-ink-soft);
   font-size: 0.82rem;
   font-weight: 700;
   text-decoration: none;
 }
 
 .course-mgmt-nav__item.is-active {
-  background: #0D2C54;
-  border-color: #0D2C54;
-  color: white;
+  background: var(--eg-ink);
+  border-color: var(--eg-ink);
+  color: var(--eg-surface);
 }
 </style>

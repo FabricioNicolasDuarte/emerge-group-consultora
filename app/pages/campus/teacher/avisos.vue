@@ -17,6 +17,6 @@ await navigateTo(TEACHER_COMMS_HUB_PATH, { replace: true })
 <style scoped>
 .redirect-hint {
   padding: 2rem;
-  color: #66768a;
+  color: var(--campus-muted);
 }
 </style>

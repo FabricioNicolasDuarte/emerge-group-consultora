@@ -6,10 +6,12 @@ definePageMeta({
   layout: false,
 })
 
-usePublicSeo({
-  title: 'Campus Emerge — Formación EmergeGroup Consultora',
-  description: 'Programas de formación online para personas, equipos y organizaciones. Campus virtual de EmergeGroup Consultora.',
-})
+const { brand } = useAppBrand()
+
+usePublicSeo(computed(() => ({
+  title: `Campus ${brand.shortName} — Formación ${brand.name}`,
+  description: `Programas de formación online para personas, equipos y organizaciones. Campus virtual de ${brand.name}.`,
+})))
 
 const { fetchPublishedCourses } = useAcademic()
 const { fetchPublicAnnouncements } = useCampusComms()

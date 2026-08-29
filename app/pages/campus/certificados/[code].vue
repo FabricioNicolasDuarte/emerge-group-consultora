@@ -20,13 +20,15 @@ const publicUrl = computed(() =>
   import.meta.client ? `${window.location.origin}/campus/certificados/${code.value}` : '',
 )
 
+const { brand } = useAppBrand()
+
 usePublicSeo(() => ({
   title: certificate.value
-    ? `Certificado de ${certificate.value.student_name} — Campus Emerge`
-    : 'Verificar certificado — Campus Emerge',
+    ? `Certificado de ${certificate.value.student_name} — Campus ${brand.shortName}`
+    : `Verificar certificado — Campus ${brand.shortName}`,
   description: certificate.value
-    ? `Certificado de finalización del programa «${certificate.value.course_title}» emitido por EmergeGroup Consultora.`
-    : 'Verificá la autenticidad de un certificado del Campus Emerge con su código de verificación.',
+    ? `Certificado de finalización del programa «${certificate.value.course_title}» emitido por ${brand.name}.`
+    : `Verificá la autenticidad de un certificado del Campus ${brand.shortName} con su código de verificación.`,
 }))
 
 async function copyCode() {
@@ -130,7 +132,7 @@ onMounted(async () => {
               <strong>{{ certificate.certificate_code }}</strong>
             </p>
             <div class="certificate-card__signature">
-              <span>EmergeGroup Consultora</span>
+              <span>{{ brand.name }}</span>
             </div>
           </div>
         </div>

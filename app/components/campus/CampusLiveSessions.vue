@@ -64,7 +64,7 @@ function formatDate(value: string, time: string | null) {
 }
 
 .section-label {
-  color: #F28C28;
+  color: var(--eg-accent);
   font-size: 12px;
   font-weight: 800;
   letter-spacing: 2px;
@@ -76,7 +76,7 @@ function formatDate(value: string, time: string | null) {
 }
 
 .empty-copy {
-  color: #8390A2;
+  color: var(--eg-subtle);
   margin: 0;
   line-height: 1.6;
 }
@@ -93,23 +93,23 @@ function formatDate(value: string, time: string | null) {
   gap: 16px;
   padding: 18px 20px;
   border-radius: 14px;
-  background: white;
-  border: 1px solid rgba(13, 44, 84, 0.08);
+  background: var(--eg-surface);
+  border: 1px solid var(--eg-border);
 }
 
 .session-card p {
   margin: 4px 0;
-  color: #5f6f82;
+  color: var(--eg-ink-soft);
 }
 
 .session-card small {
-  color: #8390A2;
+  color: var(--eg-subtle);
 }
 
 .join-btn {
   text-decoration: none;
-  background: #2563EB;
-  color: white;
+  background: var(--eg-action);
+  color: var(--eg-surface);
   padding: 10px 14px;
   border-radius: 8px;
   font-weight: 700;
@@ -117,7 +117,7 @@ function formatDate(value: string, time: string | null) {
 }
 
 .pending-link {
-  color: #8390A2;
+  color: var(--eg-subtle);
   font-size: 13px;
   font-weight: 600;
 }

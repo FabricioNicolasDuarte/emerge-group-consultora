@@ -62,6 +62,7 @@ const filteredPrograms = computed(() => {
             type="search"
             class="programs-search"
             placeholder="Buscar por nombre o categoría…"
+            aria-label="Buscar programa"
           >
           <CampusSegmented
             v-model="programCategory"

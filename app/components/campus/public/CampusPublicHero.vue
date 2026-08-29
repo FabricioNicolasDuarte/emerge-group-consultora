@@ -4,6 +4,8 @@ import {
   CAMPUS_PUBLIC_HERO_VIDEO,
   CAMPUS_PUBLIC_TRUST,
 } from '~/data/campus-public-content'
+
+const { brand } = useAppBrand()
 </script>
 
 <template>
@@ -21,7 +23,7 @@ import {
     </video>
     <div class="cp-hero__backdrop" aria-hidden="true" />
     <div class="campus-public__container cp-hero__content">
-      <p class="cp-hero__kicker">EmergeGroup Consultora</p>
+      <p class="cp-hero__kicker">{{ brand.name }}</p>
       <h1>Campus <strong>Emerge</strong></h1>
       <p class="cp-hero__tagline">Formación para transformar conocimiento en acción</p>
       <p class="cp-hero__desc">

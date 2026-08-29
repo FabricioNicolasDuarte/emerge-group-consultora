@@ -144,7 +144,7 @@ provide('campusMobileNav', { mobileOpen, toggleMobileNav, closeMobileNav })
   padding: 0.7rem 0.6rem 0.75rem;
   border-radius: 0;
   box-shadow: 4px 0 24px rgba(13, 44, 84, 0.12);
-  color: #e8f1f2;
+  color: var(--eg-sidebar-text);
   background:
     radial-gradient(ellipse 80% 40% at 0% 0%, rgba(37, 99, 235, 0.22), transparent 55%),
     linear-gradient(180deg, var(--eg-ink) 0%, var(--eg-ink-mid) 100%);
@@ -303,12 +303,12 @@ provide('campusMobileNav', { mobileOpen, toggleMobileNav, closeMobileNav })
 .cp-nav a:hover,
 .cp-sidebar-foot a:hover {
   background: rgba(255, 255, 255, 0.08);
-  color: #fff;
+  color: var(--eg-surface);
 }
 
 .cp-nav a.router-link-active {
   background: linear-gradient(90deg, rgba(37, 99, 235, 0.45), rgba(242, 140, 40, 0.16));
-  color: #fff;
+  color: var(--eg-surface);
   box-shadow: inset 2px 0 0 var(--eg-accent);
 }
 

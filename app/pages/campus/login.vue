@@ -5,14 +5,13 @@ definePageMeta({
   layout: false,
 })
 
-usePublicSeo({
-  title: 'Ingresar — Campus Emerge',
-  description: 'Accedé a tu cuenta del Campus virtual de EmergeGroup Consultora.',
-  noindex: true,
-})
-
-const route = useRoute()
 const { brand } = useAppBrand()
+
+usePublicSeo(computed(() => ({
+  title: `Ingresar — Campus ${brand.shortName}`,
+  description: `Accedé a tu cuenta del Campus virtual de ${brand.name}.`,
+  noindex: true,
+})))
 const { emailHref } = useAppContact()
 const { signIn, dashboardPath, requestPasswordReset } = useCampusAuth()
 

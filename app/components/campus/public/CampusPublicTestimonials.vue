@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { SITE_TESTIMONIALS } from '~/data/site-content'
+
+const { brand } = useAppBrand()
 </script>
 
 <template>
@@ -9,7 +11,7 @@ import { SITE_TESTIMONIALS } from '~/data/site-content'
         <span class="public-kicker">Experiencias</span>
         <h2 class="public-title">Lo que generan nuestros procesos</h2>
         <p class="public-lead">
-          Organizaciones y equipos que confiaron en EmergeGroup para su desarrollo.
+          Organizaciones y equipos que confiaron en {{ brand.shortName }} para su desarrollo.
         </p>
       </div>
 

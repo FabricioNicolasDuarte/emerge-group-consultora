@@ -191,11 +191,11 @@ onMounted(loadData)
       <section class="campus-admin-panel campus-card">
         <h2>Sesiones</h2>
         <div class="campus-inline-form campus-inline-form--stack">
-          <input v-model="newSession.title" type="text" placeholder="Título del encuentro">
-          <input v-model="newSession.session_date" type="date">
-          <input v-model="newSession.start_time" type="time">
-          <input v-model="newSession.meeting_url" type="url" placeholder="Link videoconferencia (opcional)">
-          <select v-model="newSession.meeting_provider">
+          <input v-model="newSession.title" type="text" placeholder="Título del encuentro" aria-label="Título del encuentro">
+          <input v-model="newSession.session_date" type="date" aria-label="Fecha del encuentro">
+          <input v-model="newSession.start_time" type="time" aria-label="Hora de inicio">
+          <input v-model="newSession.meeting_url" type="url" placeholder="Link videoconferencia (opcional)" aria-label="Link de videoconferencia">
+          <select v-model="newSession.meeting_provider" aria-label="Plataforma de videoconferencia">
             <option value="jitsi">Jitsi Meet</option>
             <option value="zoom">Zoom</option>
             <option value="meet">Google Meet</option>

@@ -23,6 +23,10 @@ const props = defineProps<{
 
 
 const { getAnnouncementMediaUrl } = useCampusComms()
+const { colors } = useAppConfig()
+
+const defaultBackground = colors.surface
+const defaultAccent = colors.ink
 
 
 
@@ -84,9 +88,9 @@ function formatDate(value: string | null | undefined) {
 
     :style="{
 
-      backgroundColor: announcement.background_color || '#ffffff',
+      backgroundColor: announcement.background_color || defaultBackground,
 
-      '--accent': announcement.accent_color || '#0D2C54',
+      '--accent': announcement.accent_color || defaultAccent,
 
     }"
 
@@ -206,9 +210,9 @@ function formatDate(value: string | null | undefined) {
 
   z-index: 2;
 
-  background: #F28C28;
+  background: var(--eg-accent);
 
-  color: white;
+  color: var(--eg-surface);
 
   font-size: 11px;
 
@@ -268,7 +272,7 @@ header h2 {
 
 header small {
 
-  color: #8390A2;
+  color: var(--eg-subtle);
 
 }
 
@@ -276,7 +280,7 @@ header small {
 
 .excerpt {
 
-  color: #5f6f82;
+  color: var(--eg-ink-soft);
 
   margin-top: 10px;
 
@@ -306,7 +310,7 @@ header small {
 
   line-height: 1.75;
 
-  color: #334155;
+  color: var(--eg-ink-soft);
 
 }
 
@@ -314,7 +318,7 @@ header small {
 
 .rich-body :deep(a) {
 
-  color: #2563EB;
+  color: var(--eg-action);
 
   font-weight: 700;
 
@@ -376,7 +380,7 @@ header small {
 
 .media-gallery figcaption {
 
-  color: #8390A2;
+  color: var(--eg-subtle);
 
   font-size: 13px;
 

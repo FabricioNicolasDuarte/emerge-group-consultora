@@ -52,7 +52,7 @@ function toggle() {
 .campus-switch__label {
   font-size: 0.84rem;
   font-weight: 600;
-  color: var(--campus-ink, #0D2C54);
+  color: var(--campus-ink);
 }
 
 .campus-switch__track {
@@ -62,13 +62,13 @@ function toggle() {
   padding: 0;
   border: none;
   border-radius: var(--campus-radius-pill, 999px);
-  background: #c9d4e3;
+  background: var(--eg-switch-track);
   cursor: pointer;
   transition: background 0.2s var(--campus-ease, ease);
 }
 
 .campus-switch__track[aria-checked='true'] {
-  background: linear-gradient(135deg, #2563EB 0%, #1d4ed8 100%);
+  background: linear-gradient(135deg, var(--eg-action) 0%, var(--eg-action-hover) 100%);
 }
 
 .campus-switch__thumb {
@@ -78,7 +78,7 @@ function toggle() {
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: #fff;
+  background: var(--eg-surface);
   box-shadow: 0 2px 6px rgba(13, 44, 84, 0.2);
   transition: transform 0.2s var(--campus-ease, ease);
 }

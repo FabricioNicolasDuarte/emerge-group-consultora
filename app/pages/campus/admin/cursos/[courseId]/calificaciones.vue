@@ -194,10 +194,10 @@ onMounted(loadData)
     <section v-if="!loading && course" class="campus-admin-panel campus-card">
       <h2>Nueva evaluación</h2>
       <div class="campus-inline-form">
-        <input v-model="newAssessment.title" type="text" placeholder="Título de la evaluación">
-        <input v-model.number="newAssessment.max_score" type="number" min="1" placeholder="Puntaje máximo">
-        <input v-model.number="newAssessment.weight_percent" type="number" min="1" max="100" placeholder="Peso %">
-        <input v-model="newAssessment.due_date" type="date">
+        <input v-model="newAssessment.title" type="text" placeholder="Título de la evaluación" aria-label="Título de la evaluación">
+        <input v-model.number="newAssessment.max_score" type="number" min="1" placeholder="Puntaje máximo" aria-label="Puntaje máximo">
+        <input v-model.number="newAssessment.weight_percent" type="number" min="1" max="100" placeholder="Peso %" aria-label="Peso porcentual">
+        <input v-model="newAssessment.due_date" type="date" aria-label="Fecha de entrega">
         <button type="button" class="campus-btn campus-btn--primary" :disabled="saving" @click="onCreateAssessment">
           + Evaluación
         </button>

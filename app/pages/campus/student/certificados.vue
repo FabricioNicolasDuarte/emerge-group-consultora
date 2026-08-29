@@ -49,6 +49,6 @@ const { certificates, completedCourses, loading } = useStudentCampusData()
 }
 .certificate-card p {
   margin: 0;
-  color: var(--campus-muted, #66768a);
+  color: var(--campus-muted);
 }
 </style>

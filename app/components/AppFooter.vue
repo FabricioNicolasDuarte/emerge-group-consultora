@@ -1,7 +1,7 @@
 <script setup lang="ts">
-const { brand, contact } = useAppConfig()
+const { brand } = useAppConfig()
 const { public: { appVersion } } = useRuntimeConfig()
-const { emailHref, whatsappHref } = useAppContact()
+const { contact, emailHref, whatsappHref } = useAppContact()
 const { links: socialLinks, hasLinks } = useAppSocial()
 
 const year = new Date().getFullYear()
@@ -39,6 +39,7 @@ const year = new Date().getFullYear()
             :href="item.href"
             target="_blank"
             rel="noopener noreferrer"
+            :aria-label="item.label"
           >
             {{ item.label }}
           </a>

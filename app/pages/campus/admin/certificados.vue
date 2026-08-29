@@ -127,7 +127,7 @@ useCampusAutoRefresh(loadData)
     <section v-if="!loading" class="campus-admin-panel campus-card">
       <h2>Certificados del campus</h2>
       <div class="table-toolbar">
-        <input v-model="certSearch" type="search" placeholder="Buscar por alumno, curso o código…" class="table-search">
+        <input v-model="certSearch" type="search" placeholder="Buscar por alumno, curso o código…" class="table-search" aria-label="Buscar certificado">
       </div>
       <p v-if="!filteredCertificates.length" class="campus-admin-empty">No hay certificados que coincidan con la búsqueda.</p>
 

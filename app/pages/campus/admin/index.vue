@@ -82,9 +82,9 @@ const admin = useAdminCampusData()
 .preview-links { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.65rem; }
 .quick-actions { display: flex; gap: 0.65rem; flex-wrap: wrap; }
 .muted { color: var(--campus-muted); margin: 0; }
-.form-banner { margin-bottom: 1rem; padding: 0.7rem 1rem; border-radius: 10px; font-size: 0.88rem; background: #eef4fb; }
-.form-banner.error { background: #fef2f2; color: #b91c1c; }
-.form-banner.success { background: #ecfdf5; color: #047857; }
-.form-banner.info { background: #fffbeb; color: #92400e; }
+.form-banner { margin-bottom: 1rem; padding: 0.7rem 1rem; border-radius: 10px; font-size: 0.88rem; background: var(--eg-info-bg); }
+.form-banner.error { background: var(--eg-error-bg); color: var(--eg-error); }
+.form-banner.success { background: var(--eg-success-bg); color: var(--eg-success); }
+.form-banner.info { background: var(--eg-accent-bg); color: var(--eg-ink-soft); }
 @media (max-width: 900px) { .kpi-grid, .preview-grid, .preview-links { grid-template-columns: 1fr; } }
 </style>

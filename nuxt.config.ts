@@ -20,6 +20,10 @@ export default defineNuxtConfig({
       appUrl: process.env.NUXT_PUBLIC_APP_URL || 'http://localhost:3000',
       appVersion: pkg.version || '1.0.0',
       paymentsEnabled: Boolean(process.env.MERCADOPAGO_ACCESS_TOKEN),
+      /** Opcional: sobreescribe app.config.ts → contact.email */
+      contactEmail: process.env.NUXT_PUBLIC_CONTACT_EMAIL || '',
+      /** Opcional: sobreescribe app.config.ts → contact.whatsapp (solo dígitos) */
+      contactWhatsapp: process.env.NUXT_PUBLIC_CONTACT_WHATSAPP || '',
     },
   },
 

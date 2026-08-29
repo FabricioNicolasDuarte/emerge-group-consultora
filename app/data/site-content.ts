@@ -172,37 +172,33 @@ export const SITE_CONTACT = [
     id: 'asesoramiento',
     label: 'Asesoramiento',
     description: 'Consultas generales, diagnóstico inicial y orientación sobre el tipo de proceso que necesitás.',
-    href: 'https://wa.me/5493704297563?text=Hola%2C%20vi%20la%20pagina%20de%20EmergeGroup%20Consultora%20y%20quiero%20informacion%20sobre%20asesoramiento.',
     type: 'whatsapp' as const,
     cta: 'Escribir por WhatsApp',
+    whatsappTopic: 'asesoramiento',
   },
   {
     id: 'capacitacion',
     label: 'Capacitación',
     description: 'Talleres, formaciones y propuestas de training para equipos, docentes y organizaciones.',
-    href: 'https://wa.me/5493704577491?text=Hola%2C%20vi%20la%20pagina%20de%20EmergeGroup%20Consultora%20y%20quiero%20informacion%20sobre%20capacitacion.',
     type: 'whatsapp' as const,
     cta: 'Consultar capacitación',
+    whatsapp: '5493704577491',
+    whatsappTopic: 'capacitación',
   },
   {
     id: 'consultoria',
     label: 'Consultoría',
     description: 'Proyectos de consultoría estratégica, acompañamiento organizacional y procesos a medida.',
-    href: 'https://wa.me/5493704326924?text=Hola%2C%20vi%20la%20pagina%20de%20EmergeGroup%20Consultora%20y%20quiero%20informacion%20sobre%20consultoria.',
     type: 'whatsapp' as const,
     cta: 'Iniciar consultoría',
+    whatsapp: '5493704326924',
+    whatsappTopic: 'consultoría',
   },
   {
     id: 'email',
     label: 'Email',
     description: 'Escribinos con tu consulta y te respondemos a la brevedad con la información que necesitás.',
-    href: 'mailto:emergegroup.fsa@gmail.com?subject=Consulta%20EmergeGroup&body=Hola%2C%20quiero%20informacion%20sobre%20sus%20servicios.',
     type: 'email' as const,
     cta: 'Enviar email',
   },
 ] as const
-
-export const SITE_WHATSAPP =
-  'https://wa.me/5493704297563?text=Hola%2C%20vi%20la%20pagina%20de%20EmergeGroup%20Consultora%20y%20quiero%20informacion.'
-
-export const SITE_EMAIL = 'emergegroup.fsa@gmail.com'

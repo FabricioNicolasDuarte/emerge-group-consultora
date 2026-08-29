@@ -100,6 +100,8 @@ async function openMediaPicker() {
   mediaInput.value?.click()
 }
 
+const { colors } = useAppConfig()
+
 const form = reactive({
   title: '',
   body_html: '',
@@ -110,8 +112,8 @@ const form = reactive({
   status: 'draft' as 'draft' | 'published' | 'archived',
   is_pinned: false,
   expires_at: '',
-  background_color: '#ffffff',
-  accent_color: '#0D2C54',
+  background_color: colors.surface,
+  accent_color: colors.ink,
   layout_style: 'card' as AnnouncementLayoutStyle,
   cover_image_path: '' as string | null,
 })
@@ -138,8 +140,8 @@ async function loadAnnouncement() {
     form.status = row.status
     form.is_pinned = row.is_pinned
     form.expires_at = row.expires_at ? row.expires_at.slice(0, 16) : ''
-    form.background_color = row.background_color || '#ffffff'
-    form.accent_color = row.accent_color || '#0D2C54'
+    form.background_color = row.background_color || colors.surface
+    form.accent_color = row.accent_color || colors.ink
     form.layout_style = (row.layout_style as AnnouncementLayoutStyle) || 'card'
     form.cover_image_path = row.cover_image_path
     media.value = row.media ?? []
@@ -307,6 +309,7 @@ onMounted(async () => {
             type="file"
             accept="image/*"
             class="file-input"
+            aria-label="Subir imagen de portada"
             @change="onCoverSelected"
           >
         </div>
@@ -328,6 +331,7 @@ onMounted(async () => {
             type="file"
             accept="image/*,video/*,.pdf"
             class="file-input"
+            aria-label="Subir archivo multimedia"
             @change="onMediaSelected"
           >
         </div>

@@ -67,7 +67,7 @@
 .campus-public__section--dark,
 .public-section--dark {
   background: var(--eg-ink);
-  color: #fff;
+  color: var(--eg-on-dark);
 }
 
 .site-section__head,
@@ -164,7 +164,7 @@
 .campus-public__btn--primary,
 .public-btn--primary {
   background: var(--eg-accent);
-  color: #fff;
+  color: var(--eg-on-dark);
   box-shadow: 0 8px 24px rgba(242, 140, 40, 0.28);
 }
 
@@ -178,7 +178,7 @@
 .campus-public__btn--secondary,
 .public-btn--action {
   background: var(--eg-action);
-  color: #fff;
+  color: var(--eg-on-dark);
 }
 
 .site-btn--action:hover,
@@ -191,7 +191,7 @@
 .campus-public__btn--ghost,
 .public-btn--ghost {
   background: transparent;
-  color: #fff;
+  color: var(--eg-on-dark);
   border-color: rgba(255, 255, 255, 0.35);
 }
 
@@ -221,7 +221,7 @@
 .campus-public__btn--outline-light,
 .public-btn--outline-light {
   background: transparent;
-  color: #fff;
+  color: var(--eg-on-dark);
   border-color: rgba(255, 255, 255, 0.3);
 }
 
@@ -229,13 +229,13 @@
 .public-btn--outline-light:hover {
   border-color: var(--eg-accent);
   background: rgba(255, 255, 255, 0.06);
-  color: #fff;
+  color: var(--eg-on-dark);
 }
 
 .site-btn--whatsapp,
 .public-btn--whatsapp {
-  background: #25d366;
-  color: #fff;
+  background: var(--eg-whatsapp);
+  color: var(--eg-on-dark);
 }
 
 .site-grid-3,
@@ -352,12 +352,12 @@
 .public-segment--dark .public-segment__btn.is-active,
 .site-switch--dark .site-switch__btn.is-active {
   background: rgba(255, 255, 255, 0.12);
-  color: #fff;
+  color: var(--eg-on-dark);
 }
 
 .campus-segmented__item.is-active {
-  background: linear-gradient(135deg, var(--eg-ink) 0%, #164b8a 100%);
-  color: #fff;
+  background: linear-gradient(135deg, var(--eg-ink) 0%, var(--eg-ink-mid) 100%);
+  color: var(--eg-on-dark);
   box-shadow: 0 4px 12px rgba(13, 44, 84, 0.18);
 }
 
@@ -384,7 +384,7 @@
   display: flex;
   align-items: center;
   overflow: hidden;
-  background: #0a2342;
+  background: var(--eg-ink-deep);
 }
 .site-page .site-hero__video {
   position: absolute;
@@ -431,7 +431,7 @@
   font-size: clamp(2.25rem, 5.5vw, 3.5rem);
   font-weight: 600;
   line-height: 1.08;
-  color: #fff;
+  color: var(--eg-on-dark);
 }
 .site-page .site-hero__desc {
   margin: 0 0 2rem;
@@ -446,7 +446,7 @@
 }
 .site-page .site-trust {
   background: var(--eg-ink);
-  color: #fff;
+  color: var(--eg-on-dark);
   padding-block: 1.5rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
@@ -821,7 +821,7 @@
   margin-inline: auto;
 }
 .site-page .site-kicker--light { color: rgba(242, 140, 40, 0.95); }
-.site-page .site-title--light { color: #fff; }
+.site-page .site-title--light { color: var(--eg-on-dark); }
 .site-page .site-lead--light { color: rgba(255, 255, 255, 0.72); }
 .site-page .contact-layout {
   display: grid;
@@ -834,7 +834,7 @@
   font-family: var(--eg-display);
   font-size: 1.2rem;
   font-weight: 600;
-  color: #fff;
+  color: var(--eg-on-dark);
 }
 .site-page .contact-info p, .site-page .contact-form__body p {
   margin: 0;
@@ -899,8 +899,8 @@
   width: 52px;
   height: 52px;
   border-radius: 50%;
-  background: #25d366;
-  color: #fff;
+  background: var(--eg-whatsapp);
+  color: var(--eg-on-dark);
   text-decoration: none;
   box-shadow: 0 8px 24px rgba(37, 211, 102, 0.35);
   transition: transform 0.2s ease;
@@ -919,7 +919,7 @@
   display: flex;
   align-items: center;
   overflow: hidden;
-  background: #0a2342;
+  background: var(--eg-ink-deep);
 }
 .campus-public .cp-hero__video {
   position: absolute;
@@ -964,7 +964,7 @@
   font-size: clamp(2.5rem, 6vw, 3.75rem);
   font-weight: 600;
   line-height: 1.05;
-  color: #fff;
+  color: var(--eg-on-dark);
 }
 .campus-public .cp-hero h1 strong { color: var(--eg-accent); }
 .campus-public .cp-hero__tagline {
@@ -986,7 +986,7 @@
 }
 .campus-public .cp-trust {
   background: var(--eg-ink);
-  color: #fff;
+  color: var(--eg-on-dark);
   padding-block: 1.35rem;
 }
 .campus-public .cp-trust__grid {
@@ -1234,7 +1234,7 @@
 /* ── CampusPublicAudience ── */
 
 .campus-public .audience-kicker { color: rgba(242, 140, 40, 0.95); }
-.campus-public .audience-title { color: #fff; }
+.campus-public .audience-title { color: var(--eg-on-dark); }
 .campus-public .audience-lead { color: rgba(255, 255, 255, 0.75); }
 .campus-public .audience-panel {
   display: grid;
@@ -1250,7 +1250,7 @@
   font-family: var(--eg-display);
   font-size: 1.25rem;
   font-weight: 600;
-  color: #fff;
+  color: var(--eg-on-dark);
 }
 .campus-public .audience-body p {
   margin: 0 0 1rem;
@@ -1348,7 +1348,7 @@
 }
 .campus-public .announcement-card.is-pinned {
   border-color: rgba(242, 140, 40, 0.35);
-  background: linear-gradient(180deg, #fff9f3 0%, var(--eg-bg) 100%);
+  background: linear-gradient(180deg, var(--eg-accent-bg) 0%, var(--eg-bg) 100%);
 }
 .campus-public .announcement-link {
   font-size: 0.82rem;
@@ -1412,8 +1412,8 @@
   width: 52px;
   height: 52px;
   border-radius: 50%;
-  background: #25d366;
-  color: #fff;
+  background: var(--eg-whatsapp);
+  color: var(--eg-on-dark);
   text-decoration: none;
   box-shadow: 0 8px 24px rgba(37, 211, 102, 0.35);
   transition: transform 0.2s ease;
@@ -1474,13 +1474,13 @@
 
 .public-header__cta--dark {
   background: var(--eg-ink) !important;
-  color: #fff !important;
+  color: var(--eg-on-dark) !important;
   border-color: transparent !important;
 }
 
 .public-header__cta--dark:hover {
-  background: #123d73 !important;
-  color: #fff !important;
+  background: var(--eg-ink-strong) !important;
+  color: var(--eg-on-dark) !important;
 }
 
 .public-header__toggle {
@@ -1493,7 +1493,7 @@
   padding: 0;
   border: 1px solid var(--eg-border);
   border-radius: var(--eg-radius-sm);
-  background: #fff;
+  background: var(--eg-surface);
   cursor: pointer;
 }
 
@@ -1517,7 +1517,7 @@
     align-items: stretch;
     gap: 0;
     padding: 0.75rem 1.25rem 1.25rem;
-    background: #fff;
+    background: var(--eg-surface);
     border-bottom: 1px solid var(--eg-border);
     display: none;
   }
@@ -1562,7 +1562,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  color: #fff;
+  color: var(--eg-on-dark);
   text-decoration: none;
   font-weight: 700;
   font-size: 0.9rem;
@@ -1665,7 +1665,7 @@
 }
 
 .app-footer__social a:hover {
-  color: #fff;
+  color: var(--eg-on-dark);
 }
 
 /* ── Transactional pages (pago, etc.) ── */
@@ -1982,7 +1982,7 @@
   }
 
   .certificate-page {
-    background: #fff;
+    background: var(--eg-surface);
     padding: 0;
   }
 

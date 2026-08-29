@@ -3,10 +3,12 @@ definePageMeta({
   layout: false,
 })
 
-usePublicSeo({
-  title: 'EmergeGroup Consultora — Consultoría estratégica y desarrollo humano',
+const { brand } = useAppBrand()
+
+usePublicSeo(computed(() => ({
+  title: `${brand.name} — Consultoría estratégica y desarrollo humano`,
   description: 'Consultoría estratégica, coaching ontológico y desarrollo humano para organizaciones y equipos.',
-})
+})))
 </script>
 
 <template>

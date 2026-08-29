@@ -32,18 +32,18 @@ defineProps<{
 .section-preview h3 {
   margin: 0 0 0.35rem;
   font-size: 1rem;
-  color: var(--campus-ink, #0D2C54);
+  color: var(--campus-ink);
 }
 
 .section-preview p {
   margin: 0;
-  color: var(--campus-muted, #66768a);
+  color: var(--campus-muted);
   font-size: 0.86rem;
 }
 
 .section-preview__link {
   flex-shrink: 0;
-  color: #2563EB;
+  color: var(--eg-action);
   font-weight: 700;
   font-size: 0.84rem;
   text-decoration: none;

@@ -103,28 +103,28 @@ onMounted(() => {
     <section v-if="!loading" class="campus-admin-panel campus-card">
       <h2>Filtros</h2>
       <div class="campus-filters-grid">
-        <select v-model="filters.action">
+        <select v-model="filters.action" aria-label="Filtrar por acción">
           <option value="">Todas las acciones</option>
           <option v-for="(label, key) in ACTION_LABELS" :key="key" :value="key">
             {{ label }}
           </option>
         </select>
 
-        <select v-model="filters.entity_type">
+        <select v-model="filters.entity_type" aria-label="Filtrar por tipo de entidad">
           <option value="">Todos los tipos</option>
           <option v-for="(label, key) in ENTITY_LABELS" :key="key" :value="key">
             {{ label }}
           </option>
         </select>
 
-        <select v-model="filters.course_id">
+        <select v-model="filters.course_id" aria-label="Filtrar por curso">
           <option value="">Todos los cursos</option>
           <option v-for="course in courses" :key="course.id" :value="course.id">
             {{ course.title }}
           </option>
         </select>
 
-        <select v-model.number="filters.days">
+        <select v-model.number="filters.days" aria-label="Filtrar por período">
           <option :value="7">Últimos 7 días</option>
           <option :value="30">Últimos 30 días</option>
           <option :value="90">Últimos 90 días</option>

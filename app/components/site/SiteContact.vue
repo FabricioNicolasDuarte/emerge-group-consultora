@@ -1,23 +1,14 @@
 <script setup lang="ts">
-import { SITE_CONTACT } from '~/data/site-content'
+const { contact, emailHref, whatsappHref } = useAppContact()
+const { channels, switchOptions } = useSiteContactChannels()
 
-const { contact, whatsappHref, emailHref } = useAppContact()
-
-const activeId = ref(SITE_CONTACT[0].id)
-
-const switchOptions = computed(() =>
-  SITE_CONTACT.map(ch => ({ id: ch.id, label: ch.label })),
-)
+const activeId = ref(channels.value[0]?.id ?? 'asesoramiento')
 
 const activeChannel = computed(() =>
-  SITE_CONTACT.find(ch => ch.id === activeId.value) ?? SITE_CONTACT[0],
+  channels.value.find(ch => ch.id === activeId.value) ?? channels.value[0],
 )
 
-const activeChannelHref = computed(() => {
-  const channel = activeChannel.value
-  if (channel.type === 'email') return emailHref.value
-  return channel.href
-})
+const activeChannelHref = computed(() => activeChannel.value?.href ?? whatsappHref.value)
 </script>
 
 <template>
@@ -61,8 +52,8 @@ const activeChannelHref = computed(() => {
           />
 
           <div class="contact-form__body">
-            <h3>{{ activeChannel.label }}</h3>
-            <p>{{ activeChannel.description }}</p>
+            <h3>{{ activeChannel?.label }}</h3>
+            <p>{{ activeChannel?.description }}</p>
 
             <div class="contact-form__actions">
               <a
@@ -70,10 +61,10 @@ const activeChannelHref = computed(() => {
                 target="_blank"
                 rel="noopener noreferrer"
                 class="public-btn public-btn--lg"
-                :class="activeChannel.type === 'whatsapp' ? 'public-btn--whatsapp' : 'public-btn--primary'"
+                :class="activeChannel?.type === 'whatsapp' ? 'public-btn--whatsapp' : 'public-btn--primary'"
               >
                 <svg
-                  v-if="activeChannel.type === 'whatsapp'"
+                  v-if="activeChannel?.type === 'whatsapp'"
                   viewBox="0 0 24 24"
                   width="18"
                   height="18"
@@ -90,7 +81,7 @@ const activeChannelHref = computed(() => {
                     d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 2v.5L12 13 4 6.5V6h16zM4 18V8.2l7.4 6.5a1 1 0 0 0 1.2 0L20 8.2V18H4z"
                   />
                 </svg>
-                {{ activeChannel.cta }}
+                {{ activeChannel?.cta }}
               </a>
               <a href="#servicios" class="public-btn public-btn--outline-light public-btn--lg">
                 Ver servicios
@@ -117,4 +108,3 @@ const activeChannelHref = computed(() => {
     </svg>
   </a>
 </template>
-

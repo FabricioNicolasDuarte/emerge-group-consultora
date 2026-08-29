@@ -30,7 +30,7 @@ const maxValue = computed(() => {
           class="mini-chart__fill"
           :style="{
             width: `${Math.round((bar.value / maxValue) * 100)}%`,
-            background: bar.color || 'linear-gradient(90deg, #2563EB, #F28C28)',
+            ...(bar.color ? { background: bar.color } : {}),
           }"
         />
       </div>
@@ -55,7 +55,7 @@ const maxValue = computed(() => {
 .mini-chart__label {
   font-size: 0.78rem;
   font-weight: 600;
-  color: var(--campus-muted, #66768a);
+  color: var(--campus-muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -72,13 +72,14 @@ const maxValue = computed(() => {
   height: 100%;
   border-radius: 999px;
   min-width: 4px;
+  background: linear-gradient(90deg, var(--eg-action), var(--eg-accent));
   transition: width 0.4s var(--campus-ease, ease);
 }
 
 .mini-chart__value {
   font-size: 0.78rem;
   font-weight: 800;
-  color: var(--campus-ink, #0D2C54);
+  color: var(--campus-ink);
   min-width: 1.5rem;
   text-align: right;
 }

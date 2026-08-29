@@ -41,7 +41,7 @@ const embed = computed(() => parseVideoUrl(props.url))
   aspect-ratio: 16 / 9;
   border-radius: 18px;
   overflow: hidden;
-  background: #0D2C54;
+  background: var(--eg-ink);
   box-shadow: 0 18px 45px rgba(13, 44, 84, 0.18);
 }
 
@@ -76,7 +76,7 @@ const embed = computed(() => parseVideoUrl(props.url))
   align-items: center;
   justify-content: center;
   background: rgba(242, 140, 40, 0.2);
-  color: #F28C28;
+  color: var(--eg-accent);
   font-size: 28px;
 }
 

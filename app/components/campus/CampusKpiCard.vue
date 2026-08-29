@@ -21,7 +21,7 @@ defineProps<{
 }
 
 .campus-kpi__label {
-  color: var(--campus-muted, #66768a);
+  color: var(--campus-muted);
   font-size: 0.68rem;
   font-weight: 800;
   letter-spacing: 0.12em;
@@ -31,21 +31,21 @@ defineProps<{
 .campus-kpi__value {
   display: block;
   font-size: clamp(1.6rem, 3vw, 2rem);
-  color: var(--campus-ink, #0D2C54);
+  color: var(--campus-ink);
   margin: 0.45rem 0 0.15rem;
   line-height: 1.1;
 }
 
 .campus-kpi__hint {
   margin: 0;
-  color: var(--campus-muted, #66768a);
+  color: var(--campus-muted);
   font-size: 0.82rem;
 }
 
 .campus-kpi--accent {
-  background: linear-gradient(135deg, #0D2C54 0%, #164B8A 100%);
+  background: linear-gradient(135deg, var(--eg-ink) 0%, var(--eg-ink-mid) 100%);
   border-color: transparent;
-  color: #fff;
+  color: var(--eg-surface);
 }
 
 .campus-kpi--accent .campus-kpi__label,
@@ -54,6 +54,6 @@ defineProps<{
 }
 
 .campus-kpi--accent .campus-kpi__value {
-  color: #fff;
+  color: var(--eg-surface);
 }
 </style>

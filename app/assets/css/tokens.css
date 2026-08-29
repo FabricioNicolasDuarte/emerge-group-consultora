@@ -32,6 +32,13 @@
   --eg-row-border: #edf1f6;
   --eg-row-bg: #f7f9fc;
   --eg-field-border: #dce3ed;
+  --eg-accent-bg: #fff9f3;
+  --eg-sidebar-text: #e8f1f2;
+  --eg-switch-track: #c9d4e3;
+  --eg-whatsapp: #25d366;
+  --eg-ink-deep: #0a2342;
+  --eg-ink-strong: #123d73;
+  --eg-on-dark: #ffffff;
 
   /* Typography */
   --eg-font-body: 'Montserrat', system-ui, -apple-system, sans-serif;

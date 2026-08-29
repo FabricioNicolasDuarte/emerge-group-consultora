@@ -135,6 +135,7 @@ onMounted(async () => {
         type="search"
         placeholder="Buscar conversación…"
         class="mailbox-search"
+        aria-label="Buscar conversación"
       >
     </div>
 

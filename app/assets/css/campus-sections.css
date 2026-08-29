@@ -25,7 +25,7 @@
 }
 
 .course-card p {
-  color: var(--campus-muted, #66768a);
+  color: var(--campus-muted);
   line-height: 1.55;
   min-height: 3.5rem;
   margin: 0;
@@ -76,12 +76,12 @@
 
 .tracking-card p {
   margin: 0;
-  color: var(--campus-muted, #66768a);
+  color: var(--campus-muted);
   font-size: 0.86rem;
 }
 
 .records-list {
-  background: var(--campus-card, #fff);
+  background: var(--campus-card);
   border-radius: var(--campus-radius-lg, 18px);
   border: 1px solid var(--campus-border, rgba(13, 44, 84, 0.08));
   padding: 0.35rem 1.1rem;
@@ -141,7 +141,7 @@
 
 .empty-message,
 .empty-copy {
-  color: var(--campus-muted, #66768a);
+  color: var(--campus-muted);
   line-height: 1.6;
 }
 
@@ -161,7 +161,7 @@
 }
 
 .progress-stat {
-  background: var(--campus-card, #fff);
+  background: var(--campus-card);
   border-radius: var(--campus-radius-md, 14px);
   padding: 1rem;
   border: 1px solid var(--campus-border);
@@ -189,7 +189,7 @@
 
 .certificate-card {
   margin-top: 0.85rem;
-  background: var(--campus-card, #fff);
+  background: var(--campus-card);
   border: 1px solid var(--campus-border);
   border-radius: var(--campus-radius-lg, 18px);
   padding: 1.1rem 1.25rem;
@@ -263,7 +263,7 @@
 
 .mailbox-unread-pill {
   background: var(--campus-primary);
-  color: #fff;
+  color: var(--eg-surface);
   padding: 0.45rem 0.75rem;
   border-radius: var(--campus-radius-pill);
   font-size: 0.82rem;
@@ -295,7 +295,7 @@
 
 .mailbox-thread-card--unread {
   border-color: rgba(37, 99, 235, 0.3);
-  background: #f8fbff;
+  background: var(--eg-highlight-bg);
 }
 
 .mailbox-thread-link {
@@ -333,7 +333,7 @@
 
 .mailbox-unread-dot {
   background: var(--campus-primary);
-  color: #fff;
+  color: var(--eg-surface);
   font-size: 0.68rem;
   padding: 0.15rem 0.5rem;
   border-radius: var(--campus-radius-pill);
@@ -384,7 +384,7 @@
 
 .mailbox-message--mine {
   border-color: rgba(37, 99, 235, 0.25);
-  background: #f8fbff;
+  background: var(--eg-highlight-bg);
 }
 
 .mailbox-message header {

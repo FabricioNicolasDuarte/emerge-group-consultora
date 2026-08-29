@@ -142,34 +142,34 @@ async function onMediaSelected(event: Event) {
 
 <template>
   <div class="rich-editor">
-    <div v-if="editor" class="toolbar">
+    <div v-if="editor" class="toolbar" role="toolbar" aria-label="Formato de texto">
       <div class="toolbar-group">
-        <button type="button" title="Negrita" :class="{ active: editor.isActive('bold') }" @click="run(() => editor!.chain().focus().toggleBold().run())">B</button>
-        <button type="button" title="Cursiva" :class="{ active: editor.isActive('italic') }" @click="run(() => editor!.chain().focus().toggleItalic().run())"><em>I</em></button>
-        <button type="button" title="Subrayado" :class="{ active: editor.isActive('underline') }" @click="run(() => editor!.chain().focus().toggleUnderline().run())"><u>U</u></button>
+        <button type="button" title="Negrita" aria-label="Negrita" :class="{ active: editor.isActive('bold') }" @click="run(() => editor!.chain().focus().toggleBold().run())">B</button>
+        <button type="button" title="Cursiva" aria-label="Cursiva" :class="{ active: editor.isActive('italic') }" @click="run(() => editor!.chain().focus().toggleItalic().run())"><em>I</em></button>
+        <button type="button" title="Subrayado" aria-label="Subrayado" :class="{ active: editor.isActive('underline') }" @click="run(() => editor!.chain().focus().toggleUnderline().run())"><u>U</u></button>
       </div>
       <div class="toolbar-group">
-        <button type="button" :class="{ active: editor.isActive('heading', { level: 1 }) }" @click="run(() => editor!.chain().focus().toggleHeading({ level: 1 }).run())">H1</button>
-        <button type="button" :class="{ active: editor.isActive('heading', { level: 2 }) }" @click="run(() => editor!.chain().focus().toggleHeading({ level: 2 }).run())">H2</button>
-        <button type="button" :class="{ active: editor.isActive('heading', { level: 3 }) }" @click="run(() => editor!.chain().focus().toggleHeading({ level: 3 }).run())">H3</button>
+        <button type="button" aria-label="Título nivel 1" :class="{ active: editor.isActive('heading', { level: 1 }) }" @click="run(() => editor!.chain().focus().toggleHeading({ level: 1 }).run())">H1</button>
+        <button type="button" aria-label="Título nivel 2" :class="{ active: editor.isActive('heading', { level: 2 }) }" @click="run(() => editor!.chain().focus().toggleHeading({ level: 2 }).run())">H2</button>
+        <button type="button" aria-label="Título nivel 3" :class="{ active: editor.isActive('heading', { level: 3 }) }" @click="run(() => editor!.chain().focus().toggleHeading({ level: 3 }).run())">H3</button>
       </div>
       <div class="toolbar-group">
-        <button type="button" @click="run(() => editor!.chain().focus().setTextAlign('left').run())">⬅</button>
-        <button type="button" @click="run(() => editor!.chain().focus().setTextAlign('center').run())">↔</button>
-        <button type="button" @click="run(() => editor!.chain().focus().setTextAlign('right').run())">➡</button>
+        <button type="button" aria-label="Alinear a la izquierda" @click="run(() => editor!.chain().focus().setTextAlign('left').run())">⬅</button>
+        <button type="button" aria-label="Centrar" @click="run(() => editor!.chain().focus().setTextAlign('center').run())">↔</button>
+        <button type="button" aria-label="Alinear a la derecha" @click="run(() => editor!.chain().focus().setTextAlign('right').run())">➡</button>
       </div>
       <div class="toolbar-group">
-        <button type="button" @click="run(() => editor!.chain().focus().toggleBulletList().run())">• Lista</button>
-        <button type="button" @click="run(() => editor!.chain().focus().toggleOrderedList().run())">1. Lista</button>
-        <button type="button" @click="run(() => editor!.chain().focus().toggleBlockquote().run())">❝</button>
+        <button type="button" aria-label="Lista con viñetas" @click="run(() => editor!.chain().focus().toggleBulletList().run())">• Lista</button>
+        <button type="button" aria-label="Lista numerada" @click="run(() => editor!.chain().focus().toggleOrderedList().run())">1. Lista</button>
+        <button type="button" aria-label="Cita" @click="run(() => editor!.chain().focus().toggleBlockquote().run())">❝</button>
       </div>
       <div class="toolbar-group">
-        <select @change="(e) => run(() => editor!.chain().focus().setFontFamily((e.target as HTMLSelectElement).value).run())">
+        <select aria-label="Fuente" @change="(e) => run(() => editor!.chain().focus().setFontFamily((e.target as HTMLSelectElement).value).run())">
           <option value="">Fuente</option>
           <option v-for="font in FONT_OPTIONS" :key="font.value" :value="font.value">{{ font.label }}</option>
         </select>
-        <input type="color" title="Color de texto" @input="(e) => run(() => editor!.chain().focus().setColor((e.target as HTMLInputElement).value).run())">
-        <button type="button" @click="setLink">🔗</button>
+        <input type="color" title="Color de texto" aria-label="Color de texto" @input="(e) => run(() => editor!.chain().focus().setColor((e.target as HTMLInputElement).value).run())">
+        <button type="button" aria-label="Insertar enlace" @click="setLink">🔗</button>
       </div>
       <div class="toolbar-group icons">
         <button
@@ -178,16 +178,17 @@ async function onMediaSelected(event: Event) {
           type="button"
           class="icon-btn"
           :title="icon"
+          :aria-label="`Insertar icono ${icon}`"
           @click="insertIcon(icon)"
         >
           <Icon :icon="icon" width="18" />
         </button>
       </div>
       <div class="toolbar-group">
-        <button type="button" class="media-btn" :disabled="uploading" @click="triggerMediaUpload">
+        <button type="button" class="media-btn" :disabled="uploading" aria-label="Subir imagen o video" @click="triggerMediaUpload">
           {{ uploading ? 'Subiendo…' : '📎 Imagen / Video' }}
         </button>
-        <input ref="fileInput" type="file" accept="image/*,video/*" hidden @change="onMediaSelected">
+        <input ref="fileInput" type="file" accept="image/*,video/*" hidden aria-label="Seleccionar archivo multimedia" @change="onMediaSelected">
       </div>
     </div>
 

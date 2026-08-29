@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { SITE_TEAM } from '~/data/site-content'
+
+const { brand } = useAppBrand()
 </script>
 
 <template>
@@ -9,7 +11,7 @@ import { SITE_TEAM } from '~/data/site-content'
         <span class="public-kicker">Equipo</span>
         <h2 class="public-title">Quién forma en el Campus</h2>
         <p class="public-lead">
-          Programas diseñados y facilitados por profesionales de EmergeGroup con trayectoria
+          Programas diseñados y facilitados por profesionales de {{ brand.shortName }} con trayectoria
           en consultoría, coaching ontológico y desarrollo organizacional.
         </p>
       </div>

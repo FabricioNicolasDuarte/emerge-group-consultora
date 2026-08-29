@@ -64,13 +64,13 @@ onBeforeUnmount(() => {
   height: 18px;
   padding: 0 5px;
   border-radius: 999px;
-  background: #F28C28;
-  color: white;
+  background: var(--eg-accent);
+  color: var(--eg-surface);
   font-size: 10px;
   font-weight: 800;
   line-height: 1;
   flex-shrink: 0;
-  border: 2px solid #fff;
+  border: 2px solid var(--eg-surface);
 }
 
 .mailbox-badge.sidebar {

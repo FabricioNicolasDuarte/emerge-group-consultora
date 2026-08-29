@@ -56,7 +56,11 @@ declare module 'nuxt/schema' {
   }
 
   interface PublicRuntimeConfig {
+    appUrl: string
     appVersion: string
+    paymentsEnabled: boolean
+    contactEmail: string
+    contactWhatsapp: string
   }
 }
 

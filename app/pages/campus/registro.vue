@@ -5,11 +5,13 @@ definePageMeta({
   layout: false,
 })
 
-usePublicSeo({
-  title: 'Crear cuenta — Campus Emerge',
-  description: 'Registrate en el Campus virtual de EmergeGroup Consultora.',
+const { brand } = useAppBrand()
+
+usePublicSeo(computed(() => ({
+  title: `Crear cuenta — Campus ${brand.shortName}`,
+  description: `Registrate en el Campus virtual de ${brand.name}.`,
   noindex: true,
-})
+})))
 
 const route = useRoute()
 const { signUp, signIn, dashboardPath } = useCampusAuth()

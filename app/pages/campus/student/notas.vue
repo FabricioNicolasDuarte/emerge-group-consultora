@@ -64,7 +64,7 @@ const { grades, courseAverages, loading } = useStudentCampusData()
 <style scoped>
 .feedback {
   margin: 0.4rem 0 0;
-  color: var(--campus-muted, #66768a);
+  color: var(--campus-muted);
   font-size: 0.84rem;
 }
 </style>

@@ -85,7 +85,7 @@
   padding: 0.55rem 1rem;
   border-radius: var(--campus-radius-sm);
   border: 1px solid var(--campus-border-strong);
-  background: #fff;
+  background: var(--eg-surface);
   color: var(--campus-ink);
   font-family: inherit;
   font-size: 0.86rem;
@@ -103,7 +103,7 @@
 .campus-btn--primary {
   background: linear-gradient(135deg, var(--eg-action) 0%, var(--eg-action-hover) 100%);
   border-color: transparent;
-  color: #fff;
+  color: var(--eg-surface);
 }
 
 .campus-btn--primary:hover {

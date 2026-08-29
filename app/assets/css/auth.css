@@ -19,8 +19,8 @@
   flex-direction: column;
   justify-content: center;
   background:
-    linear-gradient(135deg, var(--eg-ink) 0%, #164b8a 55%, var(--eg-action) 100%);
-  color: #fff;
+    linear-gradient(135deg, var(--eg-ink) 0%, var(--eg-ink-mid) 55%, var(--eg-action) 100%);
+  color: var(--eg-surface);
 }
 
 .auth-brand__logo {
@@ -70,7 +70,7 @@
 .auth-brand__back {
   display: inline-block;
   margin-top: 2rem;
-  color: #fff;
+  color: var(--eg-surface);
   text-decoration: none;
   font-weight: 600;
   font-size: 0.9rem;
@@ -151,7 +151,7 @@
   box-sizing: border-box;
   padding: 0.8rem 0.9rem;
   border-radius: var(--eg-radius-sm);
-  border: 1px solid #dce3ed;
+  border: 1px solid var(--eg-field-border);
   font-family: inherit;
   font-size: 0.92rem;
   outline: none;
@@ -197,7 +197,7 @@
   border-radius: var(--eg-radius-sm);
   padding: 0.9rem 1.25rem;
   background: var(--eg-accent);
-  color: #fff;
+  color: var(--eg-surface);
   font-family: inherit;
   font-size: 1rem;
   font-weight: 700;

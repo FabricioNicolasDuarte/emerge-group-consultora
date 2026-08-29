@@ -270,7 +270,7 @@ onMounted(loadData)
     <section v-if="!loading && course" class="campus-admin-panel campus-card">
       <h2>Nuevo módulo</h2>
       <div class="campus-inline-form">
-        <input v-model="newModuleTitle" type="text" placeholder="Título del módulo">
+        <input v-model="newModuleTitle" type="text" placeholder="Título del módulo" aria-label="Título del módulo">
         <button type="button" class="campus-btn campus-btn--primary" :disabled="saving" @click="onCreateModule">
           + Agregar módulo
         </button>
@@ -328,8 +328,8 @@ onMounted(loadData)
         </div>
 
         <div class="campus-inline-form">
-          <input v-model="getLessonForm(mod.id).title" type="text" placeholder="Título de la clase">
-          <input v-model="getLessonForm(mod.id).video_url" type="url" placeholder="URL de YouTube/Vimeo (opcional)">
+          <input v-model="getLessonForm(mod.id).title" type="text" placeholder="Título de la clase" aria-label="Título de la clase">
+          <input v-model="getLessonForm(mod.id).video_url" type="url" placeholder="URL de YouTube/Vimeo (opcional)" aria-label="URL de video de la clase">
           <button type="button" class="campus-btn campus-btn--primary" :disabled="saving" @click="onCreateLesson(mod.id)">
             + Agregar clase
           </button>
