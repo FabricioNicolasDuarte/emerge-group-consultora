@@ -17,6 +17,9 @@ logs
 .DS_Store
 .fleet
 .idea
+campus_db_extract/
+campus_emerge.zip
+temp-course-styles.css
 
 # Local env files
 .env

@@ -1,0 +1,126 @@
+/* ── EmergeGroup design tokens (single source of truth) ── */
+/*
+ * Regla de color (producto):
+ * - --eg-accent (naranja): conversión en marketing — CTAs del sitio público y campus landing.
+ * - --eg-action (azul): app interna — panel, enlaces operativos, botones secundarios del campus.
+ * - --eg-ink (navy): marca, texto principal y fondos oscuros de sección.
+ * Valores espejo en app.config.ts → colors (para uso en JS).
+ */
+:root {  /* Brand */
+  --eg-ink: #0d2c54;
+  --eg-ink-mid: #164b8a;
+  --eg-ink-soft: #4a6278;
+  --eg-subtle: #8390a2;
+  --eg-muted: #66768a;
+  --eg-accent: #f28c28;
+  --eg-accent-hover: #dc7d22;
+  --eg-action: #2563eb;
+  --eg-action-hover: #1d4ed8;
+  --eg-surface: #ffffff;
+  --eg-bg: #f6f8fb;
+  --eg-bg-alt: #eef2f7;
+  --eg-border: rgba(13, 44, 84, 0.1);
+  --eg-border-strong: rgba(13, 44, 84, 0.14);
+  --eg-success: #047857;
+  --eg-success-bg: #ecfdf5;
+  --eg-success-border: #a7f3d0;
+  --eg-error: #b91c1c;
+  --eg-error-bg: #fef2f2;
+  --eg-error-border: #fecaca;
+  --eg-info-bg: rgba(37, 99, 235, 0.08);
+  --eg-highlight-bg: #f8fbff;
+  --eg-row-border: #edf1f6;
+  --eg-row-bg: #f7f9fc;
+  --eg-field-border: #dce3ed;
+
+  /* Typography */
+  --eg-font-body: 'Montserrat', system-ui, -apple-system, sans-serif;
+  --eg-font-display: 'Cinzel', Georgia, serif;
+  --eg-display: var(--eg-font-display);
+  --eg-text-kicker: 0.72rem;
+  --eg-weight-kicker: 700;
+  --eg-tracking-kicker: 0.14em;
+  --eg-text-title: clamp(1.75rem, 3.5vw, 2.35rem);
+  --eg-text-lead: clamp(1rem, 1.6vw, 1.125rem);
+
+  /* Layout */
+  --eg-container: min(1120px, calc(100% - 2.5rem));
+  --eg-container-footer: min(1120px, calc(100% - 2.5rem));
+  --eg-section-y: clamp(4rem, 8vw, 6rem);
+  --eg-header-h: 72px;
+  --eg-scroll-offset: var(--eg-header-h);
+
+  /* Radius */
+  --eg-radius-sm: 10px;
+  --eg-radius-md: 16px;
+  --eg-radius-lg: 22px;
+  --eg-radius: var(--eg-radius-md);
+  --eg-radius-pill: 999px;
+
+  /* Shadows & motion */
+  --eg-shadow-sm: 0 4px 14px rgba(13, 44, 84, 0.05);
+  --eg-shadow-md: 0 12px 30px rgba(13, 44, 84, 0.07);
+  --eg-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --eg-duration-fast: 0.15s;
+  --eg-duration-normal: 0.2s;
+
+  /* Breakpoints (reference) */
+  --eg-bp-sm: 560px;
+  --eg-bp-md: 768px;
+  --eg-bp-lg: 992px;
+  --eg-bp-xl: 1200px;
+
+  /* Legacy aliases — site */
+  --site-ink: var(--eg-ink);
+  --site-ink-soft: var(--eg-ink-soft);
+  --site-muted: var(--eg-muted);
+  --site-accent: var(--eg-accent);
+  --site-accent-hover: var(--eg-accent-hover);
+  --site-surface: var(--eg-surface);
+  --site-bg: var(--eg-bg);
+  --site-bg-alt: var(--eg-bg-alt);
+  --site-border: var(--eg-border);
+  --site-radius: var(--eg-radius-md);
+  --site-radius-lg: var(--eg-radius-lg);
+  --site-container: var(--eg-container);
+  --site-section-y: var(--eg-section-y);
+  --site-font: var(--eg-font-body);
+  --site-display: var(--eg-font-display);
+
+  /* Legacy aliases — campus public */
+  --cp-ink: var(--eg-ink);
+  --cp-muted: var(--eg-muted);
+  --cp-accent: var(--eg-accent);
+  --cp-primary: var(--eg-action);
+  --cp-surface: var(--eg-surface);
+  --cp-bg: var(--eg-bg);
+  --cp-bg-alt: var(--eg-bg-alt);
+  --cp-border: var(--eg-border);
+  --cp-radius: var(--eg-radius-md);
+  --cp-radius-lg: var(--eg-radius-lg);
+  --cp-container: var(--eg-container);
+  --cp-section-y: var(--eg-section-y);
+  --cp-font: var(--eg-font-body);
+  --cp-display: var(--eg-font-display);
+
+  /* Legacy aliases — campus panel */
+  --campus-ink: var(--eg-ink);
+  --campus-ink-soft: var(--eg-ink-soft);
+  --campus-muted: var(--eg-muted);
+  --campus-subtle: var(--eg-subtle);
+  --campus-surface: var(--eg-bg);
+  --campus-card: var(--eg-surface);
+  --campus-border: rgba(13, 44, 84, 0.08);
+  --campus-border-strong: var(--eg-border-strong);
+  --campus-accent: var(--eg-accent);
+  --campus-primary: var(--eg-action);
+  --campus-radius-sm: var(--eg-radius-sm);
+  --campus-radius-md: 14px;
+  --campus-radius-lg: 18px;
+  --campus-radius-pill: var(--eg-radius-pill);
+  --campus-shadow-sm: var(--eg-shadow-sm);
+  --campus-shadow-md: var(--eg-shadow-md);
+  --campus-ease: var(--eg-ease);
+  --campus-font-body: var(--eg-font-body);
+  --campus-font-display: var(--eg-font-display);
+}

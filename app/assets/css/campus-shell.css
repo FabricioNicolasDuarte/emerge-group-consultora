@@ -1,0 +1,116 @@
+/* Panel-specific rules (design tokens live in tokens.css) */
+.campus-page {
+  padding: 2rem clamp(1.25rem, 4vw, 3.5rem) 2.75rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.campus-eyebrow,
+.header-label,
+.section-label {
+  color: var(--campus-accent);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.campus-page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.75rem;
+}
+
+.campus-page-header h1 {
+  font-family: var(--campus-font-display);
+  font-size: clamp(1.85rem, 2.8vw, 2.5rem);
+  font-weight: 700;
+  margin: 0.35rem 0 0.5rem;
+  color: var(--campus-ink);
+  line-height: 1.12;
+  letter-spacing: 0.01em;
+}
+
+.campus-page-header p {
+  margin: 0;
+  color: var(--campus-muted);
+  font-size: 1rem;
+  line-height: 1.55;
+  max-width: 52ch;
+}
+
+.campus-page-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.campus-card {
+  background: var(--campus-card);
+  border: 1px solid var(--campus-border);
+  border-radius: var(--campus-radius-lg);
+  box-shadow: var(--campus-shadow-sm);
+}
+
+.campus-section {
+  margin-bottom: 2.25rem;
+  scroll-margin-top: 5rem;
+}
+
+.campus-section__head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.campus-section__head h2 {
+  margin: 0.25rem 0 0;
+  font-family: var(--campus-font-display);
+  font-size: clamp(1.35rem, 2vw, 1.75rem);
+  font-weight: 600;
+  color: var(--campus-ink);
+  letter-spacing: 0.02em;
+}
+
+.campus-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.55rem 1rem;
+  border-radius: var(--campus-radius-sm);
+  border: 1px solid var(--campus-border-strong);
+  background: #fff;
+  color: var(--campus-ink);
+  font-family: inherit;
+  font-size: 0.86rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.campus-btn:hover {
+  border-color: rgba(37, 99, 235, 0.35);
+  box-shadow: var(--campus-shadow-sm);
+}
+
+.campus-btn--primary {
+  background: linear-gradient(135deg, var(--eg-action) 0%, var(--eg-action-hover) 100%);
+  border-color: transparent;
+  color: #fff;
+}
+
+.campus-btn--primary:hover {
+  filter: brightness(1.04);
+}
+
+.campus-btn.danger {
+  color: var(--eg-error);
+  border-color: var(--eg-error-border);
+}

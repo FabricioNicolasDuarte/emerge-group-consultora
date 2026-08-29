@@ -1,2 +1,15 @@
-User-Agent: *
-Disallow:
+User-agent: *
+Allow: /
+
+Disallow: /campus/login
+Disallow: /campus/registro
+Disallow: /campus/restablecer-contrasena
+Disallow: /campus/dashboard
+Disallow: /campus/panel
+Disallow: /campus/student/
+Disallow: /campus/teacher/
+Disallow: /campus/admin/
+Disallow: /campus/buzon/
+Disallow: /campus/pagos/
+
+Sitemap: /sitemap.xml

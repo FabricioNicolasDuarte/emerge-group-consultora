@@ -1,0 +1,22 @@
+export type BrandLogoVariant =
+  | 'full'
+  | 'fullWhiteBg'
+  | 'fullVertical'
+  | 'mark'
+  | 'markOnDark'
+
+export type CampusIconKey =
+  | 'inicio'
+  | 'misCursos'
+  | 'notificaciones'
+  | 'miBuzon'
+  | 'redactar'
+  | 'anuncios'
+  | 'comunicaciones'
+  | 'progreso'
+  | 'horarios'
+  | 'analitica'
+  | 'alertas'
+  | 'descargas'
+  | 'facturacion'
+  | 'pagos'

@@ -1,5 +1,6 @@
 {
   "name": "emergegroup-consultora",
+  "version": "1.0.0",
   "type": "module",
   "private": true,
   "scripts": {
@@ -7,11 +8,35 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "db:types": "npx supabase gen types typescript --project-id vxbuafyolbvbxktqbqao --schema public > app/types/database.types.ts",
+    "test:smoke": "node scripts/smoke-test-comms.mjs",
+    "test:integration": "node scripts/integration-test-campus.mjs",
+    "seed:test-users": "node scripts/seed-test-users.mjs",
+    "seed:demo": "node scripts/seed-demo-campus.mjs",
+    "seed:all": "node scripts/seed-test-users.mjs && node scripts/seed-demo-campus.mjs",
+    "db:migrate": "node scripts/run-migrations.mjs"
   },
   "dependencies": {
+    "@iconify/vue": "^5.0.1",
+    "@nuxtjs/supabase": "^2.0.10",
+    "@tiptap/extension-color": "^3.30.5",
+    "@tiptap/extension-font-family": "^3.30.5",
+    "@tiptap/extension-image": "^3.30.5",
+    "@tiptap/extension-link": "^3.30.5",
+    "@tiptap/extension-placeholder": "^3.30.5",
+    "@tiptap/extension-text-align": "^3.30.5",
+    "@tiptap/extension-text-style": "^3.30.5",
+    "@tiptap/extension-underline": "^3.30.5",
+    "@tiptap/extension-youtube": "^3.30.5",
+    "@tiptap/starter-kit": "^3.30.5",
+    "@tiptap/vue-3": "^3.30.5",
+    "isomorphic-dompurify": "^3.23.0",
     "nuxt": "^4.4.2",
     "vue": "^3.5.32",
     "vue-router": "^5.0.4"
+  },
+  "devDependencies": {
+    "pg": "^8.23.0"
   }
 }

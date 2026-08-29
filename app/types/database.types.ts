@@ -1,0 +1,1 @@
+{"_tag":"Error","error":{"code":"LegacyGenTypesUnexpectedStatusError","message":"failed to retrieve generated types: {\"message\":\"Your account does not have the necessary privileges to access this endpoint. For more details, refer to our documentation https://supabase.com/docs/guides/platform/access-control\"}"}}

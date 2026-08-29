@@ -1,0 +1,75 @@
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: var(--eg-scroll-offset);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100%;
+}
+
+body {
+  font-family: var(--eg-font-body);
+  color: var(--eg-ink);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.app-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.app-shell__content {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: 100%;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+:focus-visible {
+  outline: 2px solid var(--eg-action);
+  outline-offset: 2px;
+}
+
+.skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 200;
+  padding: 0.65rem 1rem;
+  border-radius: var(--eg-radius-sm);
+  background: var(--eg-ink);
+  color: var(--eg-surface);
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: var(--eg-shadow-md);
+  transform: translateY(-160%);
+  transition: transform var(--eg-duration-normal) var(--eg-ease);
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
