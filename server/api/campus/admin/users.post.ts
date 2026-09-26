@@ -15,6 +15,30 @@ function assertUuid(value: unknown, label: string): string {
   return value
 }
 
+function isAlreadyRegisteredError(message: string) {
+  const lower = message.toLowerCase()
+  return lower.includes('already') || lower.includes('registered') || lower.includes('exists')
+}
+
+async function findUserIdByEmail(
+  admin: ReturnType<typeof serverSupabaseServiceRole>,
+  email: string,
+): Promise<string | null> {
+  const { data: profile } = await admin
+    .from('profiles')
+    .select('id')
+    .eq('email', email)
+    .maybeSingle()
+
+  if (profile?.id) return assertUuid(profile.id, 'ID de perfil')
+
+  // Fallback Auth (por si el perfil no tiene email sincronizado)
+  const { data: listed, error } = await admin.auth.admin.listUsers({ page: 1, perPage: 1000 })
+  if (error) return null
+  const match = (listed?.users ?? []).find((u) => (u.email || '').toLowerCase() === email)
+  return match?.id ? assertUuid(match.id, 'ID de Auth') : null
+}
+
 async function assignCampusRole(
   admin: ReturnType<typeof serverSupabaseServiceRole>,
   userId: string,
@@ -42,25 +66,51 @@ async function assignCampusRole(
     })
   }
 
-  // Reemplazar roles previos (el trigger deja «alumno» al crear la cuenta).
-  const { error: deleteError } = await admin
+  // Mantener roles de staff; reemplazar alumno/docente/tutor por el pedido.
+  const { data: currentRoles, error: currentError } = await admin
     .from('user_roles')
-    .delete()
+    .select('role_id, roles!inner(slug)')
     .eq('user_id', safeUserId)
 
-  if (deleteError) {
+  if (currentError) {
     throw createError({
       statusCode: 500,
-      statusMessage: `No se pudo limpiar roles previos: ${deleteError.message}`,
+      statusMessage: `No se pudieron leer roles actuales: ${currentError.message}`,
     })
+  }
+
+  const keepSlugs = new Set(['superadmin', 'admin', 'coordinador'])
+  const removeIds: number[] = []
+  for (const row of currentRoles ?? []) {
+    const roleMeta = row.roles as { slug?: string } | { slug?: string }[] | null
+    const slug = Array.isArray(roleMeta) ? roleMeta[0]?.slug : roleMeta?.slug
+    if (!slug || keepSlugs.has(slug) || slug === roleSlug) continue
+    removeIds.push(row.role_id as number)
+  }
+
+  if (removeIds.length) {
+    const { error: deleteError } = await admin
+      .from('user_roles')
+      .delete()
+      .eq('user_id', safeUserId)
+      .in('role_id', removeIds)
+
+    if (deleteError) {
+      throw createError({
+        statusCode: 500,
+        statusMessage: `No se pudo actualizar roles previos: ${deleteError.message}`,
+      })
+    }
   }
 
   const { error: insertError } = await admin
     .from('user_roles')
-    .insert({ user_id: safeUserId, role_id: roleRow.id })
+    .upsert(
+      { user_id: safeUserId, role_id: roleRow.id },
+      { onConflict: 'user_id,role_id', ignoreDuplicates: true },
+    )
 
   if (insertError) {
-    // Fallback a RPC solo si el insert directo falla por RLS/permisos
     const { error: rpcError } = await admin.rpc('dev_assign_campus_role', {
       p_user_id: safeUserId,
       p_role_slug: roleSlug,
@@ -68,7 +118,7 @@ async function assignCampusRole(
     if (rpcError) {
       throw createError({
         statusCode: 500,
-        statusMessage: `Usuario creado, pero falló el rol: ${insertError.message}`,
+        statusMessage: `No se pudo asignar el rol: ${insertError.message}`,
       })
     }
   }
@@ -126,10 +176,10 @@ export default defineEventHandler(async (event) => {
   const challenge = body?.challenge?.trim() || null
   const role = (body?.role ?? 'alumno') as CampusRoleSlug
 
-  if (!email || !fullName || password.length < 8) {
+  if (!email || !fullName) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Nombre, correo y contraseña (mín. 8) son obligatorios',
+      statusMessage: 'Nombre y correo son obligatorios',
     })
   }
 
@@ -141,44 +191,83 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 403, statusMessage: 'Solo superadmin puede crear admins' })
   }
 
-  const { data: created, error: authCreateError } = await admin.auth.admin.createUser({
-    email,
-    password,
-    email_confirm: true,
-    user_metadata: { full_name: fullName },
-  })
+  let userId = await findUserIdByEmail(admin, email)
+  let created = false
+  let promoted = false
 
-  if (authCreateError || !created?.user) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: authCreateError?.message || 'No se pudo crear el usuario',
+  if (!userId) {
+    if (password.length < 8) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: 'Para un correo nuevo la contraseña es obligatoria (mín. 8 caracteres)',
+      })
+    }
+
+    const { data: createdUser, error: authCreateError } = await admin.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+      user_metadata: { full_name: fullName },
     })
+
+    if (authCreateError || !createdUser?.user) {
+      const message = authCreateError?.message || 'No se pudo crear el usuario'
+      if (isAlreadyRegisteredError(message)) {
+        userId = await findUserIdByEmail(admin, email)
+        if (!userId) {
+          throw createError({
+            statusCode: 400,
+            statusMessage: 'El correo ya existe en Auth pero no se pudo localizar el perfil. Revisá en Supabase.',
+          })
+        }
+        promoted = true
+      } else {
+        throw createError({ statusCode: 400, statusMessage: message })
+      }
+    } else {
+      userId = assertUuid(createdUser.user.id, 'ID del usuario creado')
+      created = true
+    }
+  } else {
+    promoted = true
   }
 
-  const userId = assertUuid(created.user.id, 'ID del usuario creado')
+  userId = assertUuid(userId, 'ID de usuario')
+
+  if (promoted && password.length >= 8) {
+    const { error: passwordError } = await admin.auth.admin.updateUserById(userId, { password })
+    if (passwordError) {
+      throw createError({
+        statusCode: 500,
+        statusMessage: `Cuenta encontrada, pero no se pudo actualizar la contraseña: ${passwordError.message}`,
+      })
+    }
+  }
 
   if (role !== 'alumno') {
     await assignCampusRole(admin, userId, role)
   }
 
+  const profilePatch: Record<string, string | null> = {
+    full_name: fullName,
+    email,
+  }
+  if (phone !== null) profilePatch.phone = phone
+  if (city !== null) profilePatch.city = city
+  if (jobRole !== null) profilePatch.job_role = jobRole
+  if (occupation !== null) profilePatch.occupation = occupation
+  if (audience !== null) profilePatch.audience = audience
+  if (challenge !== null) profilePatch.challenge = challenge
+
   const { error: profileError } = await admin
     .from('profiles')
-    .update({
-      full_name: fullName,
-      email,
-      phone,
-      city,
-      job_role: jobRole,
-      occupation,
-      audience,
-      challenge,
-    })
+    .update(profilePatch)
     .eq('id', userId)
 
   if (profileError) {
     throw createError({
       statusCode: 500,
-      statusMessage: `Usuario creado, pero falló el perfil: ${profileError.message}`,
+      statusMessage: `Rol ok, pero falló actualizar el perfil: ${profileError.message}`,
     })
   }
 
@@ -193,5 +282,7 @@ export default defineEventHandler(async (event) => {
     audience,
     challenge,
     role,
+    created,
+    promoted,
   }
 })

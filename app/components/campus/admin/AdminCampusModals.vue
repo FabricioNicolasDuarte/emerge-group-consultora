@@ -178,15 +178,25 @@ const admin = useAdminCampusData()
     >
       <div class="modal-card">
         <h2 id="modal-new-teacher-title">Nuevo docente</h2>
-        <p class="modal-hint">Crea un usuario con acceso al panel docente.</p>
+        <p class="modal-hint">
+          Si el correo ya existe, se le asigna el rol docente/tutor (no se crea otra cuenta).
+        </p>
         <p v-if="admin.errorMessage" class="modal-hint" style="color: var(--eg-error, #b42318);">{{ admin.errorMessage }}</p>
         <form @submit.prevent="admin.onCreateTeacher">
           <label for="new-teacher-name">Nombre completo</label>
           <input id="new-teacher-name" v-model="admin.newTeacher.full_name" required placeholder="Nombre y apellido">
           <label for="new-teacher-email">Correo</label>
           <input id="new-teacher-email" v-model="admin.newTeacher.email" type="email" required placeholder="correo@ejemplo.com">
-          <label for="new-teacher-password">Contraseña temporal</label>
-          <input id="new-teacher-password" v-model="admin.newTeacher.password" type="text" required minlength="8" placeholder="Mínimo 8 caracteres" autocomplete="new-password">
+          <label for="new-teacher-password">Contraseña</label>
+          <input
+            id="new-teacher-password"
+            v-model="admin.newTeacher.password"
+            type="text"
+            minlength="8"
+            placeholder="Vacía si ya tiene cuenta; mín. 8 si es nuevo"
+            autocomplete="new-password"
+          >
+          <p class="modal-hint">Obligatoria solo para correos nuevos. Si ya existe, opcional (resetea la clave).</p>
           <label for="new-teacher-role">Rol</label>
           <select id="new-teacher-role" v-model="admin.newTeacher.role">
             <option value="docente">Docente</option>
@@ -195,7 +205,7 @@ const admin = useAdminCampusData()
           <div class="modal-actions">
             <button type="button" class="btn-secondary" @click="admin.showTeacherUserForm = false">Cancelar</button>
             <button type="submit" class="btn-primary" :disabled="admin.formLoading">
-              {{ admin.formLoading ? 'Creando…' : 'Crear docente' }}
+              {{ admin.formLoading ? 'Guardando…' : 'Guardar docente' }}
             </button>
           </div>
         </form>

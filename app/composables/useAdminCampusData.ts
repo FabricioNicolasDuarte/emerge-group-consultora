@@ -529,20 +529,25 @@ function createAdminCampusData() {
   }
 
   async function onCreateTeacher() {
-    if (!newTeacher.full_name.trim() || !newTeacher.email.trim() || newTeacher.password.length < 8) {
-      errorMessage.value = 'Completá nombre, correo y una contraseña de al menos 8 caracteres.'
+    if (!newTeacher.full_name.trim() || !newTeacher.email.trim()) {
+      errorMessage.value = 'Completá nombre y correo.'
+      return
+    }
+    const password = newTeacher.password.trim()
+    if (password && password.length < 8) {
+      errorMessage.value = 'Si cargás contraseña, debe tener al menos 8 caracteres.'
       return
     }
     formLoading.value = true
     errorMessage.value = ''
     successMessage.value = ''
     try {
-      await $fetch('/api/campus/admin/users', {
+      const result = await $fetch<{ created?: boolean, promoted?: boolean }>('/api/campus/admin/users', {
         method: 'POST',
         body: {
           fullName: newTeacher.full_name.trim(),
           email: newTeacher.email.trim(),
-          password: newTeacher.password,
+          password,
           role: newTeacher.role,
         },
       })
@@ -553,7 +558,9 @@ function createAdminCampusData() {
         password: '',
         role: 'docente',
       })
-      successMessage.value = 'Docente creado. Ya podés asignarle cursos.'
+      successMessage.value = result.promoted && !result.created
+        ? 'Cuenta existente actualizada a docente/tutor. Ya podés asignarle cursos.'
+        : 'Docente creado. Ya podés asignarle cursos.'
       await loadData(true)
     } catch (error: unknown) {
       errorMessage.value = extractFetchError(error, 'No se pudo crear el docente')
