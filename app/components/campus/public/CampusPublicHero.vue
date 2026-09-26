@@ -6,11 +6,21 @@ import {
 } from '~/data/campus-public-content'
 
 const { brand } = useAppBrand()
+const videoFailed = ref(false)
+
+function onVideoError() {
+  videoFailed.value = true
+}
 </script>
 
 <template>
-  <section id="inicio" class="cp-hero">
+  <section
+    id="inicio"
+    class="cp-hero"
+    :style="{ backgroundImage: `url('${CAMPUS_PUBLIC_HERO_POSTER}')` }"
+  >
     <video
+      v-if="!videoFailed"
       autoplay
       muted
       loop
@@ -18,6 +28,7 @@ const { brand } = useAppBrand()
       preload="metadata"
       :poster="CAMPUS_PUBLIC_HERO_POSTER"
       class="cp-hero__video"
+      @error="onVideoError"
     >
       <source :src="CAMPUS_PUBLIC_HERO_VIDEO" type="video/mp4">
     </video>

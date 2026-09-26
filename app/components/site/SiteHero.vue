@@ -1,10 +1,20 @@
 <script setup lang="ts">
 import { SITE_HERO_POSTER, SITE_HERO_VIDEO, SITE_TRUST } from '~/data/site-content'
+
+const videoFailed = ref(false)
+
+function onVideoError() {
+  videoFailed.value = true
+}
 </script>
 
 <template>
-  <section class="site-hero">
+  <section
+    class="site-hero"
+    :style="{ backgroundImage: `url('${SITE_HERO_POSTER}')` }"
+  >
     <video
+      v-if="!videoFailed"
       autoplay
       muted
       loop
@@ -12,6 +22,7 @@ import { SITE_HERO_POSTER, SITE_HERO_VIDEO, SITE_TRUST } from '~/data/site-conte
       preload="metadata"
       :poster="SITE_HERO_POSTER"
       class="site-hero__video"
+      @error="onVideoError"
     >
       <source :src="SITE_HERO_VIDEO" type="video/mp4">
     </video>
@@ -42,4 +53,3 @@ import { SITE_HERO_POSTER, SITE_HERO_VIDEO, SITE_TRUST } from '~/data/site-conte
     </div>
   </div>
 </template>
-
