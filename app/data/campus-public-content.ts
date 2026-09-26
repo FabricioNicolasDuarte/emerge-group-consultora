@@ -71,3 +71,35 @@ export const CAMPUS_PUBLIC_AUDIENCE = [
     highlights: ['Liderazgo educativo', 'Bienestar docente', 'Metodologías activas'],
   },
 ] as const
+
+/** Equipo del Campus (solo /campus). Orden: Fabio → Teresa → Luis → Mariana */
+export const CAMPUS_FACULTY = [
+  {
+    image: '/equipo-fabio.jpg',
+    name: 'Fabio Rodolfo Martinez',
+    role: 'Senior Coach Ontológico · Mediador',
+    bio: 'Especialista en liderazgo, comunicación política y acompañamiento de procesos estratégicos institucionales.',
+    tags: ['Liderazgo', 'Mediación', 'Estrategia'],
+  },
+  {
+    image: '/equipo-teresa.jpg',
+    name: 'María Teresa Zamboni',
+    role: 'Coach Ontológico · Programadora · Docente',
+    bio: 'Integra educación, tecnología y desarrollo humano para acompañar procesos de aprendizaje, liderazgo y transformación.',
+    tags: ['Educación', 'Tecnología', 'Coaching'],
+  },
+  {
+    image: '/equipo-luis.jpg',
+    name: 'Luis Alberto Sebriano',
+    role: 'Coach Ontológico · Gestión Empresarial · Desarrollo Emprendedor',
+    bio: 'Integra coaching y gestión para acompañar procesos de desarrollo organizacional, liderazgo y fortalecimiento de proyectos y emprendimientos.',
+    tags: ['Gestión', 'Liderazgo', 'Emprendimiento'],
+  },
+  {
+    image: '/equipo-mariana.jpg',
+    name: 'Mariana Edith Bedoya',
+    role: 'Senior Coach · Ceremonial y Protocolo',
+    bio: 'Especialista en imagen institucional, protocolo y comunicación estratégica en espacios de representación.',
+    tags: ['Protocolo', 'Comunicación', 'Institucional'],
+  },
+] as const
