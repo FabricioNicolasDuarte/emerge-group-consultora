@@ -1,15 +1,42 @@
-import { serverSupabaseServiceRole, serverSupabaseUser } from '#supabase/server'
+import { createClient } from '@supabase/supabase-js'
+import { serverSupabaseUser } from '#supabase/server'
+import type { H3Event } from 'h3'
 import type { CampusRoleSlug } from '~/types/campus'
 
 const ALLOWED_ROLES: CampusRoleSlug[] = ['alumno', 'docente', 'tutor', 'coordinador', 'admin']
 const STAFF_SLUGS = ['superadmin', 'admin', 'coordinador'] as const
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 
-function assertUuid(value: unknown, label: string): string {
+function serviceClient(event: H3Event) {
+  const config = useRuntimeConfig(event)
+  const url = String(config.public.supabase?.url || process.env.NUXT_PUBLIC_SUPABASE_URL || '')
+  const key = String(
+    config.supabase?.secretKey
+    || config.supabase?.serviceKey
+    || process.env.SUPABASE_SERVICE_ROLE_KEY
+    || process.env.NUXT_SUPABASE_SECRET_KEY
+    || '',
+  )
+  if (!url || !key) {
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Falta SUPABASE_SERVICE_ROLE_KEY (o NUXT_SUPABASE_SECRET_KEY) en el servidor',
+    })
+  }
+  return {
+    url,
+    key,
+    admin: createClient(url, key, {
+      auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+    }),
+  }
+}
+
+function requireUuid(value: unknown, label: string): string {
   if (typeof value !== 'string' || !UUID_RE.test(value)) {
     throw createError({
       statusCode: 500,
-      statusMessage: `${label} inválido (${String(value)})`,
+      statusMessage: `${label}: se recibió un id inválido (${String(value)})`,
     })
   }
   return value
@@ -21,8 +48,10 @@ function isAlreadyRegisteredError(message: string) {
 }
 
 async function findUserIdByEmail(
-  admin: ReturnType<typeof serverSupabaseServiceRole>,
+  admin: ReturnType<typeof createClient>,
   email: string,
+  url: string,
+  key: string,
 ): Promise<string | null> {
   const { data: profile } = await admin
     .from('profiles')
@@ -30,95 +59,94 @@ async function findUserIdByEmail(
     .eq('email', email)
     .maybeSingle()
 
-  if (profile?.id) return assertUuid(profile.id, 'ID de perfil')
+  if (typeof profile?.id === 'string' && UUID_RE.test(profile.id)) {
+    return profile.id
+  }
 
-  // Fallback Auth (por si el perfil no tiene email sincronizado)
-  const { data: listed, error } = await admin.auth.admin.listUsers({ page: 1, perPage: 1000 })
-  if (error) return null
-  const match = (listed?.users ?? []).find((u) => (u.email || '').toLowerCase() === email)
-  return match?.id ? assertUuid(match.id, 'ID de Auth') : null
+  // Búsqueda directa en Auth Admin
+  const endpoint = `${url}/auth/v1/admin/users?email=${encodeURIComponent(email)}`
+  const res = await fetch(endpoint, {
+    headers: {
+      Authorization: `Bearer ${key}`,
+      apikey: key,
+    },
+  })
+  if (res.ok) {
+    const payload = await res.json() as { users?: Array<{ id?: string, email?: string }> } | Array<{ id?: string, email?: string }>
+    const users = Array.isArray(payload) ? payload : (payload.users ?? [])
+    const match = users.find((u) => (u.email || '').toLowerCase() === email)
+    if (typeof match?.id === 'string' && UUID_RE.test(match.id)) return match.id
+  }
+
+  for (let page = 1; page <= 10; page += 1) {
+    const { data, error } = await admin.auth.admin.listUsers({ page, perPage: 200 })
+    if (error) break
+    const users = data?.users ?? []
+    const match = users.find((u) => (u.email || '').toLowerCase() === email)
+    if (match?.id && UUID_RE.test(match.id)) return match.id
+    if (users.length < 200) break
+  }
+
+  return null
 }
 
-async function assignCampusRole(
-  admin: ReturnType<typeof serverSupabaseServiceRole>,
+async function assignTeachingRole(
+  admin: ReturnType<typeof createClient>,
   userId: string,
   roleSlug: CampusRoleSlug,
 ) {
-  const safeUserId = assertUuid(userId, 'ID de usuario')
+  const safeUserId = requireUuid(userId, 'Asignar rol')
 
-  const { data: roleRow, error: roleLookupError } = await admin
+  const { data: roleRows, error: rolesError } = await admin
     .from('roles')
-    .select('id')
-    .eq('slug', roleSlug)
-    .maybeSingle()
+    .select('id, slug')
+    .in('slug', ['alumno', 'docente', 'tutor', roleSlug])
 
-  if (roleLookupError) {
+  if (rolesError) {
     throw createError({
       statusCode: 500,
-      statusMessage: `No se pudo leer el rol «${roleSlug}»: ${roleLookupError.message}`,
+      statusMessage: `No se pudieron leer roles: ${rolesError.message}`,
     })
   }
 
-  if (roleRow?.id == null) {
+  const target = (roleRows ?? []).find((r) => r.slug === roleSlug)
+  if (target?.id == null) {
     throw createError({
       statusCode: 500,
-      statusMessage: `Rol «${roleSlug}» no encontrado en la base`,
+      statusMessage: `Rol «${roleSlug}» no existe en la tabla roles`,
     })
   }
 
-  // Mantener roles de staff; reemplazar alumno/docente/tutor por el pedido.
-  const { data: currentRoles, error: currentError } = await admin
-    .from('user_roles')
-    .select('role_id, roles!inner(slug)')
-    .eq('user_id', safeUserId)
+  const swapIds = (roleRows ?? [])
+    .filter((r) => r.slug === 'alumno' || r.slug === 'docente' || r.slug === 'tutor')
+    .map((r) => r.id)
+    .filter((id) => id != null)
 
-  if (currentError) {
-    throw createError({
-      statusCode: 500,
-      statusMessage: `No se pudieron leer roles actuales: ${currentError.message}`,
-    })
-  }
-
-  const keepSlugs = new Set(['superadmin', 'admin', 'coordinador'])
-  const removeIds: number[] = []
-  for (const row of currentRoles ?? []) {
-    const roleMeta = row.roles as { slug?: string } | { slug?: string }[] | null
-    const slug = Array.isArray(roleMeta) ? roleMeta[0]?.slug : roleMeta?.slug
-    if (!slug || keepSlugs.has(slug) || slug === roleSlug) continue
-    removeIds.push(row.role_id as number)
-  }
-
-  if (removeIds.length) {
+  if (swapIds.length) {
     const { error: deleteError } = await admin
       .from('user_roles')
       .delete()
       .eq('user_id', safeUserId)
-      .in('role_id', removeIds)
+      .in('role_id', swapIds)
 
     if (deleteError) {
       throw createError({
         statusCode: 500,
-        statusMessage: `No se pudo actualizar roles previos: ${deleteError.message}`,
+        statusMessage: `No se pudo limpiar roles previos: ${deleteError.message}`,
       })
     }
   }
 
   const { error: insertError } = await admin
     .from('user_roles')
-    .upsert(
-      { user_id: safeUserId, role_id: roleRow.id },
-      { onConflict: 'user_id,role_id', ignoreDuplicates: true },
-    )
+    .insert({ user_id: safeUserId, role_id: target.id })
 
   if (insertError) {
-    const { error: rpcError } = await admin.rpc('dev_assign_campus_role', {
-      p_user_id: safeUserId,
-      p_role_slug: roleSlug,
-    })
-    if (rpcError) {
+    // Si ya estaba, ignorar conflicto de unique
+    if (!String(insertError.message || '').toLowerCase().includes('duplicate')) {
       throw createError({
         statusCode: 500,
-        statusMessage: `No se pudo asignar el rol: ${insertError.message}`,
+        statusMessage: `No se pudo insertar rol «${roleSlug}»: ${insertError.message}`,
       })
     }
   }
@@ -126,11 +154,11 @@ async function assignCampusRole(
 
 export default defineEventHandler(async (event) => {
   const caller = await serverSupabaseUser(event)
-  if (!caller) {
+  if (!caller?.id) {
     throw createError({ statusCode: 401, statusMessage: 'No autenticado' })
   }
 
-  const admin = serverSupabaseServiceRole(event)
+  const { admin, url, key } = serviceClient(event)
 
   const { data: callerRoles, error: rolesError } = await admin
     .from('user_roles')
@@ -165,9 +193,9 @@ export default defineEventHandler(async (event) => {
     challenge?: string
   }>(event)
 
-  const email = body?.email?.trim().toLowerCase() ?? ''
-  const fullName = body?.fullName?.trim() ?? ''
-  const password = body?.password ?? ''
+  const email = String(body?.email ?? '').trim().toLowerCase()
+  const fullName = String(body?.fullName ?? '').trim()
+  const password = String(body?.password ?? '')
   const phone = body?.phone?.trim() || null
   const city = body?.city?.trim() || null
   const jobRole = body?.jobRole?.trim() || null
@@ -191,15 +219,29 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 403, statusMessage: 'Solo superadmin puede crear admins' })
   }
 
-  let userId = await findUserIdByEmail(admin, email)
+  let userId = await findUserIdByEmail(admin, email, url, key)
   let created = false
   let promoted = false
 
-  if (!userId) {
+  if (userId) {
+    promoted = true
+    if (password.length >= 8) {
+      const { error: passwordError } = await admin.auth.admin.updateUserById(userId, {
+        password,
+        email_confirm: true,
+      })
+      if (passwordError) {
+        throw createError({
+          statusCode: 500,
+          statusMessage: `Cuenta existente: no se pudo actualizar contraseña (${passwordError.message})`,
+        })
+      }
+    }
+  } else {
     if (password.length < 8) {
       throw createError({
         statusCode: 400,
-        statusMessage: 'Para un correo nuevo la contraseña es obligatoria (mín. 8 caracteres)',
+        statusMessage: 'Correo nuevo: la contraseña es obligatoria (mín. 8 caracteres)',
       })
     }
 
@@ -210,42 +252,33 @@ export default defineEventHandler(async (event) => {
       user_metadata: { full_name: fullName },
     })
 
-    if (authCreateError || !createdUser?.user) {
+    if (authCreateError || !createdUser?.user?.id) {
       const message = authCreateError?.message || 'No se pudo crear el usuario'
       if (isAlreadyRegisteredError(message)) {
-        userId = await findUserIdByEmail(admin, email)
+        userId = await findUserIdByEmail(admin, email, url, key)
         if (!userId) {
           throw createError({
             statusCode: 400,
-            statusMessage: 'El correo ya existe en Auth pero no se pudo localizar el perfil. Revisá en Supabase.',
+            statusMessage: 'El correo figura en Auth pero no se pudo obtener su id. Revisá usuarios en Supabase.',
           })
         }
         promoted = true
+        if (password.length >= 8) {
+          await admin.auth.admin.updateUserById(userId, { password, email_confirm: true })
+        }
       } else {
         throw createError({ statusCode: 400, statusMessage: message })
       }
     } else {
-      userId = assertUuid(createdUser.user.id, 'ID del usuario creado')
+      userId = requireUuid(createdUser.user.id, 'Usuario creado')
       created = true
     }
-  } else {
-    promoted = true
   }
 
-  userId = assertUuid(userId, 'ID de usuario')
-
-  if (promoted && password.length >= 8) {
-    const { error: passwordError } = await admin.auth.admin.updateUserById(userId, { password })
-    if (passwordError) {
-      throw createError({
-        statusCode: 500,
-        statusMessage: `Cuenta encontrada, pero no se pudo actualizar la contraseña: ${passwordError.message}`,
-      })
-    }
-  }
+  userId = requireUuid(userId, 'Usuario final')
 
   if (role !== 'alumno') {
-    await assignCampusRole(admin, userId, role)
+    await assignTeachingRole(admin, userId, role)
   }
 
   const profilePatch: Record<string, string | null> = {
@@ -267,7 +300,7 @@ export default defineEventHandler(async (event) => {
   if (profileError) {
     throw createError({
       statusCode: 500,
-      statusMessage: `Rol ok, pero falló actualizar el perfil: ${profileError.message}`,
+      statusMessage: `Rol ok, pero falló el perfil: ${profileError.message}`,
     })
   }
 
@@ -275,12 +308,6 @@ export default defineEventHandler(async (event) => {
     id: userId,
     email,
     full_name: fullName,
-    phone,
-    city,
-    job_role: jobRole,
-    occupation,
-    audience,
-    challenge,
     role,
     created,
     promoted,
