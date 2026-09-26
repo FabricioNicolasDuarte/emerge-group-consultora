@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { SITE_TEAM } from '~/data/site-content'
+import { CAMPUS_FACULTY } from '~/data/campus-public-content'
 
 const { brand } = useAppBrand()
 </script>
@@ -17,7 +17,7 @@ const { brand } = useAppBrand()
       </div>
 
       <div class="faculty-grid">
-        <article v-for="member in SITE_TEAM" :key="member.name" class="faculty-card">
+        <article v-for="member in CAMPUS_FACULTY" :key="member.name" class="faculty-card">
           <div class="faculty-card__image">
             <img :src="member.image" :alt="member.name" loading="lazy" width="320" height="320">
           </div>
