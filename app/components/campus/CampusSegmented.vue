@@ -21,7 +21,7 @@ function onUpdate(value: string) {
 </script>
 
 <template>
-  <SegmentControl
+  <PublicSegmentControl
     :model-value="modelValue ?? ''"
     :options="options"
     :aria-label="ariaLabel"

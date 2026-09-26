@@ -34,7 +34,7 @@ function normalizeRoutePath(path: string) {
 }
 
 export function buildCampusNavFromRoutes(
-  routes: Array<{ path: string, meta: Record<string, unknown> }>,
+  routes: Array<{ path: string, meta: Record<string, unknown>, aliasOf?: unknown }>,
   panel: CampusPanelRole,
   hasRole: (...roles: CampusRoleSlug[]) => boolean,
 ): CampusPanelNavGroup[] {
@@ -42,6 +42,10 @@ export function buildCampusNavFromRoutes(
   const seen = new Set<string>()
 
   for (const route of routes) {
+    // Los alias (p. ej. /campus/teacher/comunicaciones) reutilizan el mismo meta
+    // y duplicaban entradas en el sidebar del admin.
+    if (route.aliasOf) continue
+
     const navMeta = route.meta.campusNav as CampusNavEntry | CampusNavEntry[] | undefined
     if (!navMeta) continue
 
@@ -58,6 +62,11 @@ export function buildCampusNavFromRoutes(
       const key = `${panel}:${to}`
       if (seen.has(key)) continue
       seen.add(key)
+
+      // Evitar dos ítems con el mismo label en el mismo grupo (alias mal tipados).
+      const labelKey = `${panel}:${entry.group}:${entry.label}`
+      if (seen.has(labelKey)) continue
+      seen.add(labelKey)
 
       items.push({
         to,

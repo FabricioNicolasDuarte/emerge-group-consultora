@@ -166,6 +166,50 @@ const admin = useAdminCampusData()
         </form>
       </div>
     </div>
+
+    <div
+      v-if="admin.showStudentForm"
+      class="modal-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-student-title"
+      @click.self="admin.showStudentForm = false"
+    >
+      <div class="modal-card modal-card--wide">
+        <h2 id="modal-student-title">Nuevo alumno</h2>
+        <p class="modal-hint">Creá la cuenta con acceso al campus. Completá la ficha si la tenés; después podés inscribirlo a un curso.</p>
+        <form @submit.prevent="admin.onCreateStudent">
+          <p class="modal-section-title">Cuenta</p>
+          <label for="new-student-name">Nombre completo</label>
+          <input id="new-student-name" v-model="admin.newStudent.full_name" required placeholder="Nombre y apellido">
+          <label for="new-student-email">Correo electrónico</label>
+          <input id="new-student-email" v-model="admin.newStudent.email" type="email" required placeholder="alumno@correo.com" autocomplete="off">
+          <label for="new-student-password">Contraseña temporal</label>
+          <input id="new-student-password" v-model="admin.newStudent.password" type="text" required minlength="8" placeholder="Mínimo 8 caracteres" autocomplete="new-password">
+
+          <p class="modal-section-title">Ficha</p>
+          <label for="new-student-phone">WhatsApp / teléfono</label>
+          <input id="new-student-phone" v-model="admin.newStudent.phone" type="tel" placeholder="5493704…" autocomplete="off">
+          <label for="new-student-city">Ciudad / provincia</label>
+          <input id="new-student-city" v-model="admin.newStudent.city" type="text" placeholder="Resistencia, Chaco">
+          <label for="new-student-job-role">Rol laboral</label>
+          <input id="new-student-job-role" v-model="admin.newStudent.job_role" type="text" placeholder="Gerente, analista, emprendedor…">
+          <label for="new-student-occupation">Ocupación / rubro</label>
+          <input id="new-student-occupation" v-model="admin.newStudent.occupation" type="text" placeholder="Comercio, industria, servicios…">
+          <label for="new-student-audience">Audiencia / perfil</label>
+          <input id="new-student-audience" v-model="admin.newStudent.audience" type="text" placeholder="PyME, equipo, individual…">
+          <label for="new-student-challenge">Desafío / objetivo</label>
+          <textarea id="new-student-challenge" v-model="admin.newStudent.challenge" rows="3" placeholder="Qué quiere resolver con el programa" />
+
+          <div class="modal-actions">
+            <button type="button" class="btn-secondary" @click="admin.showStudentForm = false">Cancelar</button>
+            <button type="submit" class="btn-primary" :disabled="admin.formLoading">
+              {{ admin.formLoading ? 'Creando…' : 'Crear alumno' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   </div>
 </template>
 

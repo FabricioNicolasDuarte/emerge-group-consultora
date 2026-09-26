@@ -7,6 +7,7 @@
 | Cursos y contenido | Admin → crear curso → Contenido / Asistencia / Notas |
 | Inscripción gratuita | Curso con precio **0** → alumno → **Inscribirme gratis** |
 | Inscripción manual | Admin → **+ Nueva inscripción** |
+| Alta masiva Diplomatura | Admin → **Solicitudes** → Importar Excel (verdes/naranjas) |
 | Certificados | Completar 100% o admin → `/campus/admin/certificados` |
 | Videoconferencia | Asistencia del curso → link de reunión |
 | Comunicaciones | `/campus/admin/comunicaciones` |

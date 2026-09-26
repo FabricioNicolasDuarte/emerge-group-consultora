@@ -12,6 +12,11 @@ export interface CampusProfile {
   full_name: string
   avatar_url: string | null
   phone: string | null
+  city?: string | null
+  job_role?: string | null
+  occupation?: string | null
+  audience?: string | null
+  challenge?: string | null
   is_active: boolean
   role_slugs: CampusRoleSlug[]
   role_names: string[]

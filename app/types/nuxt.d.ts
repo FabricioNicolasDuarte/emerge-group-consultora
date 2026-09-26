@@ -6,6 +6,11 @@ declare module '#app' {
     campusRoles?: CampusRoleSlug[]
     campusNav?: CampusNavEntry | CampusNavEntry[]
   }
+
+  interface NuxtApp {
+    _adminCampusData?: unknown
+    _adminCampusLoad?: Promise<void>
+  }
 }
 
 declare module 'vue-router' {

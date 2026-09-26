@@ -128,6 +128,7 @@ Buckets usados por la app: `announcement-media`, uploads del editor, etc. Las po
 
 - [ ] Crear curso, módulos y clases (admin)
 - [ ] Inscripción manual o gratuita
+- [ ] **Solicitudes** → Importar Excel → Crear listos → CSV de claves
 - [ ] Progreso y certificado al 100%
 - [ ] Certificado público `/campus/certificados/[codigo]`
 
@@ -140,6 +141,18 @@ Buckets usados por la app: `announcement-media`, uploads del editor, etc. Las po
 
 - [ ] Checkout Mercado Pago en curso de pago
 - [ ] Webhook `POST /api/payments/webhook` configurado en MP
+
+---
+
+## Alta de usuarios reales (producción)
+
+**No** uses `campus.*@test.emerge.local` ni `npm run seed:all` / `seed:manual` en prod.
+
+Opciones:
+
+1. **Admin → Alumnos → Nuevo alumno** (ficha + contraseña temporal)
+2. **Admin → Solicitudes → Importar Excel** → Crear listos → descargar CSV
+3. Crear el primer `superadmin` desde Supabase (SQL de roles en `SETUP-SUPABASE.md`)
 
 ---
 

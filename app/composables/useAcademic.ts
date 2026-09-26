@@ -68,8 +68,9 @@ export function useAcademic() {
 
     const { data: profiles, error } = await supabase
       .from('profiles')
-      .select('id, full_name, email')
+      .select('id, full_name, email, phone, city, job_role, occupation, audience, challenge')
       .in('id', ids)
+      .order('full_name')
 
     if (error) throw error
     return (profiles ?? []) as StudentProfile[]

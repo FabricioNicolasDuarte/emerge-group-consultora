@@ -22,7 +22,7 @@ const mappedOptions = computed(() =>
 </script>
 
 <template>
-  <SegmentControl
+  <PublicSegmentControl
     :model-value="modelValue"
     :options="mappedOptions"
     :variant="variant"

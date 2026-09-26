@@ -6,6 +6,7 @@ definePageMeta({
 })
 
 const { brand } = useAppBrand()
+const route = useRoute()
 
 usePublicSeo(computed(() => ({
   title: `Ingresar — Campus ${brand.shortName}`,

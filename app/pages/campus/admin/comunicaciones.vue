@@ -19,6 +19,7 @@ definePageMeta({
       label: 'Comunicaciones',
       icon: 'comunicaciones',
       order: 2,
+      to: '/campus/admin/comunicaciones',
     },
   ],
 })

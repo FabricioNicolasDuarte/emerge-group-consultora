@@ -116,4 +116,10 @@ export interface StudentProfile {
   id: string
   full_name: string
   email: string | null
+  phone?: string | null
+  city?: string | null
+  job_role?: string | null
+  occupation?: string | null
+  audience?: string | null
+  challenge?: string | null
 }

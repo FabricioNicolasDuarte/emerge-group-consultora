@@ -1,4 +1,4 @@
-import type { AdminCourseRow, RecentEnrollment } from '~/types/academic'
+import type { AdminCourseRow, RecentEnrollment, StudentProfile } from '~/types/academic'
 import { formatSupabaseError } from '~/utils/supabase-error'
 
 function toDatetimeLocalValue(iso?: string | null) {
@@ -34,12 +34,22 @@ function buildCohortPayload(form: {
   }
 }
 export function useAdminCampusData() {
+  const nuxtApp = useNuxtApp()
+  if (nuxtApp._adminCampusData) {
+    return nuxtApp._adminCampusData as ReturnType<typeof createAdminCampusData>
+  }
+
+  const api = createAdminCampusData()
+  nuxtApp._adminCampusData = api
+  return api
+}
+
+function createAdminCampusData() {
   const user = useSupabaseUser()
   const { paymentsEnabled } = useCampusFeatures()
   const { updateCoursePricing } = useCampusCommerce()
   const {
     fetchAdminCourses,
-    fetchCampusStats,
     fetchRecentEnrollments,
     fetchStudents,
     createCourse,
@@ -57,7 +67,7 @@ export function useAdminCampusData() {
     totalStudents: 0,
     activeEnrollments: 0,
   }))
-  const students = useState<{ id: string, full_name: string, email: string | null }[]>('admin-students', () => [])
+  const students = useState<StudentProfile[]>('admin-students', () => [])
   const teachers = useState<{ id: string, full_name: string, email: string | null }[]>('admin-teachers', () => [])
   const loading = useState('admin-campus-loading', () => true)
   const errorMessage = useState('admin-error', () => '')
@@ -65,6 +75,7 @@ export function useAdminCampusData() {
 
   const showCourseForm = ref(false)
   const showEnrollmentForm = ref(false)
+  const showStudentForm = ref(false)
   const showPriceForm = ref(false)
   const showCohortForm = ref(false)
   const showTeacherForm = ref(false)
@@ -93,6 +104,17 @@ export function useAdminCampusData() {
     enrollment_ends_at: '',
   })
   const newEnrollment = reactive({ course_id: '', student_id: '' })
+  const newStudent = reactive({
+    full_name: '',
+    email: '',
+    password: '',
+    phone: '',
+    city: '',
+    job_role: '',
+    occupation: '',
+    audience: '',
+    challenge: '',
+  })
   const teacherAssignment = reactive({
     course_id: '',
     course_title: '',
@@ -105,25 +127,33 @@ export function useAdminCampusData() {
   const enrollmentSearch = ref('')
 
   const filteredCourses = computed(() => {
+    const list = (courses.value ?? []).filter((c) => Boolean(c?.id))
     const q = courseSearch.value.trim().toLowerCase()
-    if (!q) return courses.value
-    return courses.value.filter((c) =>
+    if (!q) return list
+    return list.filter((c) =>
       c.title.toLowerCase().includes(q) || c.category.toLowerCase().includes(q),
     )
   })
 
   const filteredStudents = computed(() => {
+    const list = (students.value ?? []).filter((s) => Boolean(s?.id && s.full_name))
     const q = studentSearch.value.trim().toLowerCase()
-    if (!q) return students.value
-    return students.value.filter((s) =>
-      s.full_name.toLowerCase().includes(q) || (s.email ?? '').toLowerCase().includes(q),
+    if (!q) return list
+    return list.filter((s) =>
+      s.full_name.toLowerCase().includes(q)
+      || (s.email ?? '').toLowerCase().includes(q)
+      || (s.phone ?? '').includes(q)
+      || (s.city ?? '').toLowerCase().includes(q)
+      || (s.job_role ?? '').toLowerCase().includes(q)
+      || (s.occupation ?? '').toLowerCase().includes(q),
     )
   })
 
   const filteredEnrollments = computed(() => {
+    const list = (recentEnrollments.value ?? []).filter((row) => Boolean(row?.student_id))
     const q = enrollmentSearch.value.trim().toLowerCase()
-    if (!q) return recentEnrollments.value
-    return recentEnrollments.value.filter((row) =>
+    if (!q) return list
+    return list.filter((row) =>
       row.student_name.toLowerCase().includes(q)
       || row.course_title.toLowerCase().includes(q)
       || (row.student_email ?? '').toLowerCase().includes(q),
@@ -152,9 +182,9 @@ export function useAdminCampusData() {
   )
 
   const studentEnrollmentCounts = computed(() => {
-    const counts = new Map<string, number>()
+    const counts: Record<string, number> = {}
     for (const row of recentEnrollments.value) {
-      counts.set(row.student_id, (counts.get(row.student_id) ?? 0) + 1)
+      counts[row.student_id] = (counts[row.student_id] ?? 0) + 1
     }
     return counts
   })
@@ -165,30 +195,57 @@ export function useAdminCampusData() {
     return 'Borrador'
   }
 
-  async function loadData() {
+  const loadGeneration = useState('admin-campus-load-gen', () => 0)
+  const nuxtApp = useNuxtApp()
+
+  async function loadData(force = false) {
     if (!user.value) return
+
+    const existing = nuxtApp._adminCampusLoad as Promise<void> | undefined
+    if (existing && !force) return existing
+
+    const generation = ++loadGeneration.value
     loading.value = true
     errorMessage.value = ''
     const errors: string[] = []
-    try {
-      const [courseRows, statsData, enrollmentRows, studentRows, teacherRows] = await Promise.all([
-        fetchAdminCourses().catch((e: unknown) => { errors.push(`Cursos: ${formatSupabaseError(e)}`); return [] as AdminCourseRow[] }),
-        fetchCampusStats().catch((e: unknown) => { errors.push(`Estadísticas: ${formatSupabaseError(e)}`); return { publishedCourses: 0, totalStudents: 0, activeEnrollments: 0 } }),
-        fetchRecentEnrollments().catch((e: unknown) => { errors.push(`Inscripciones: ${formatSupabaseError(e)}`); return [] as RecentEnrollment[] }),
-        fetchStudents().catch((e: unknown) => { errors.push(`Alumnos: ${formatSupabaseError(e)}`); return [] }),
-        fetchTeachers().catch((e: unknown) => { errors.push(`Docentes: ${formatSupabaseError(e)}`); return [] }),
-      ])
-      courses.value = courseRows
-      stats.value = statsData
-      recentEnrollments.value = enrollmentRows
-      students.value = studentRows
-      teachers.value = teacherRows
-      if (errors.length) errorMessage.value = errors.join(' | ')
-    } catch (error: unknown) {
-      errorMessage.value = formatSupabaseError(error, 'Error al cargar datos')
-    } finally {
-      loading.value = false
-    }
+
+    const request = (async () => {
+      try {
+        // Una sola pasada: stats se deriva de cursos/alumnos (evita fetchCampusStats duplicado).
+        const [courseRows, enrollmentRows, studentRows, teacherRows] = await Promise.all([
+          fetchAdminCourses().catch((e: unknown) => { errors.push(`Cursos: ${formatSupabaseError(e)}`); return [] as AdminCourseRow[] }),
+          fetchRecentEnrollments().catch((e: unknown) => { errors.push(`Inscripciones: ${formatSupabaseError(e)}`); return [] as RecentEnrollment[] }),
+          fetchStudents().catch((e: unknown) => { errors.push(`Alumnos: ${formatSupabaseError(e)}`); return [] }),
+          fetchTeachers().catch((e: unknown) => { errors.push(`Docentes: ${formatSupabaseError(e)}`); return [] }),
+        ])
+        if (generation !== loadGeneration.value) return
+
+        courses.value = courseRows
+        recentEnrollments.value = enrollmentRows
+        students.value = studentRows
+        teachers.value = teacherRows
+        stats.value = {
+          publishedCourses: courseRows.filter((c) => c.status === 'published').length,
+          totalStudents: studentRows.length,
+          activeEnrollments: courseRows.reduce((sum, course) => sum + course.enrollment_count, 0),
+        }
+        if (errors.length) errorMessage.value = errors.join(' | ')
+      } catch (error: unknown) {
+        if (generation === loadGeneration.value) {
+          errorMessage.value = formatSupabaseError(error, 'Error al cargar datos')
+        }
+      } finally {
+        if (generation === loadGeneration.value) {
+          loading.value = false
+        }
+        if (nuxtApp._adminCampusLoad === request) {
+          nuxtApp._adminCampusLoad = undefined
+        }
+      }
+    })()
+
+    nuxtApp._adminCampusLoad = request
+    return request
   }
 
   async function onCreateCourse() {
@@ -216,7 +273,7 @@ export function useAdminCampusData() {
         enrollment_starts_at: '',
         enrollment_ends_at: '',
       })
-      await loadData()
+      await loadData(true)
     } catch (error: unknown) {
       errorMessage.value = error instanceof Error ? error.message : 'No se pudo crear el curso'
     } finally {
@@ -232,9 +289,57 @@ export function useAdminCampusData() {
       showEnrollmentForm.value = false
       newEnrollment.course_id = ''
       newEnrollment.student_id = ''
-      await loadData()
+      await loadData(true)
     } catch (error: unknown) {
       errorMessage.value = error instanceof Error ? error.message : 'No se pudo crear la inscripción'
+    } finally {
+      formLoading.value = false
+    }
+  }
+
+  async function onCreateStudent() {
+    if (!newStudent.full_name.trim() || !newStudent.email.trim() || newStudent.password.length < 8) {
+      errorMessage.value = 'Completá nombre, correo y una contraseña de al menos 8 caracteres.'
+      return
+    }
+    formLoading.value = true
+    errorMessage.value = ''
+    successMessage.value = ''
+    try {
+      await $fetch('/api/campus/admin/users', {
+        method: 'POST',
+        body: {
+          fullName: newStudent.full_name.trim(),
+          email: newStudent.email.trim(),
+          password: newStudent.password,
+          phone: newStudent.phone.trim() || null,
+          city: newStudent.city.trim() || null,
+          jobRole: newStudent.job_role.trim() || null,
+          occupation: newStudent.occupation.trim() || null,
+          audience: newStudent.audience.trim() || null,
+          challenge: newStudent.challenge.trim() || null,
+          role: 'alumno',
+        },
+      })
+      showStudentForm.value = false
+      Object.assign(newStudent, {
+        full_name: '',
+        email: '',
+        password: '',
+        phone: '',
+        city: '',
+        job_role: '',
+        occupation: '',
+        audience: '',
+        challenge: '',
+      })
+      successMessage.value = 'Alumno creado. Ya podés inscribirlo a un curso.'
+      await loadData(true)
+    } catch (error: unknown) {
+      const message = error && typeof error === 'object' && 'data' in error
+        ? String((error as { data?: { statusMessage?: string } }).data?.statusMessage || '')
+        : ''
+      errorMessage.value = message || (error instanceof Error ? error.message : 'No se pudo crear el alumno')
     } finally {
       formLoading.value = false
     }
@@ -244,7 +349,7 @@ export function useAdminCampusData() {
     const next = course.status === 'published' ? 'draft' : 'published'
     try {
       await updateCourseStatus(course.id, next)
-      await loadData()
+      await loadData(true)
     } catch (error: unknown) {
       errorMessage.value = error instanceof Error ? error.message : 'No se pudo actualizar el curso'
     }
@@ -263,7 +368,7 @@ export function useAdminCampusData() {
     try {
       await updateCoursePricing(priceEdit.course_id, priceEdit.price_amount)
       showPriceForm.value = false
-      await loadData()
+      await loadData(true)
     } catch (error: unknown) {
       errorMessage.value = formatSupabaseError(error, 'No se pudo actualizar el precio')
     } finally {
@@ -288,7 +393,7 @@ export function useAdminCampusData() {
     try {
       await updateCourseCohort(cohortEdit.course_id, buildCohortPayload(cohortEdit))
       showCohortForm.value = false
-      await loadData()
+      await loadData(true)
     } catch (error: unknown) {
       errorMessage.value = formatSupabaseError(error, 'No se pudo actualizar la cohorte')
     } finally {
@@ -311,7 +416,7 @@ export function useAdminCampusData() {
       await assignTeacher(teacherAssignment.course_id, teacherAssignment.teacher_id, teacherAssignment.role)
       showTeacherForm.value = false
       successMessage.value = 'Docente asignado al curso.'
-      await loadData()
+      await loadData(true)
     } catch (error: unknown) {
       errorMessage.value = formatSupabaseError(error, 'No se pudo asignar el docente')
     } finally {
@@ -319,11 +424,12 @@ export function useAdminCampusData() {
     }
   }
 
+  // Un solo watcher: el singleton evita apilar watches al navegar entre páginas.
   watch(user, (current) => {
-    if (current) loadData()
+    if (current) void loadData()
   }, { immediate: true })
 
-  return {
+  return reactive({
     paymentsEnabled,
     courses,
     recentEnrollments,
@@ -335,6 +441,7 @@ export function useAdminCampusData() {
     successMessage,
     showCourseForm,
     showEnrollmentForm,
+    showStudentForm,
     showPriceForm,
     showCohortForm,
     showTeacherForm,
@@ -343,6 +450,7 @@ export function useAdminCampusData() {
     cohortEdit,
     newCourse,
     newEnrollment,
+    newStudent,
     teacherAssignment,
     courseSearch,
     studentSearch,
@@ -359,6 +467,7 @@ export function useAdminCampusData() {
     loadData,
     onCreateCourse,
     onCreateEnrollment,
+    onCreateStudent,
     togglePublish,
     openPriceForm,
     onUpdatePrice,
@@ -366,5 +475,5 @@ export function useAdminCampusData() {
     onUpdateCohort,
     openTeacherForm,
     onAssignTeacher,
-  }
+  })
 }

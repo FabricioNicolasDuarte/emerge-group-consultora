@@ -70,7 +70,7 @@ const admin = useAdminCampusData()
       <button type="button" class="campus-btn" @click="admin.showEnrollmentForm = true">Nueva inscripción</button>
     </section>
 
-    <AdminCampusModals />
+    <CampusAdminCampusModals />
   </div>
 </template>
 

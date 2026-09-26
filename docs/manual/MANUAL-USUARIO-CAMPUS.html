@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Manual de Usuario — Campus Emerge Group</title>
+  <style>
+    :root {
+      --ink: #0d2c54;
+      --muted: #5a6b7d;
+      --line: #d7dee8;
+      --accent: #1a6bb5;
+      --surface: #fff;
+      --soft: #f4f7fb;
+    }
+    * { box-sizing: border-box; }
+    html { font-size: 11pt; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Calibri, Arial, sans-serif;
+      color: var(--ink);
+      line-height: 1.45;
+      background: #e8eef5;
+    }
+    .doc {
+      max-width: 900px;
+      margin: 0 auto;
+      background: var(--surface);
+      box-shadow: 0 0 0 1px var(--line);
+    }
+    .page-pad { padding: 28px 40px 40px; }
+
+    /* Pantalla: barra superior de ayuda */
+    .screen-bar {
+      position: sticky; top: 0; z-index: 20;
+      display: flex; gap: 12px; align-items: center; justify-content: space-between;
+      padding: 10px 16px;
+      background: var(--ink); color: #fff;
+      font-size: 13px;
+    }
+    .screen-bar a { color: #9fd0ff; }
+    .screen-bar button {
+      border: 0; border-radius: 8px; padding: 8px 14px;
+      background: #fff; color: var(--ink); font-weight: 700; cursor: pointer;
+    }
+
+    .cover {
+      min-height: 90vh;
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 64px 48px;
+      background: linear-gradient(160deg, #0d2c54 0%, #1a4f8a 55%, #2a6fb0 100%);
+      color: #fff;
+    }
+    .cover .kicker { letter-spacing: .12em; text-transform: uppercase; opacity: .8; font-size: 12px; }
+    .cover h1 { font-size: 2.4rem; margin: 12px 0 8px; line-height: 1.15; }
+    .cover .subtitle { font-size: 1.15rem; opacity: .9; max-width: 36em; }
+    .cover .meta { margin-top: 48px; font-size: 13px; opacity: .85; }
+    .cover .meta strong { display: block; font-size: 14px; margin-bottom: 4px; }
+
+    h1, h2, h3, h4 { page-break-after: avoid; }
+    h2 {
+      margin: 2.2rem 0 .8rem;
+      padding-bottom: .35rem;
+      border-bottom: 2px solid var(--ink);
+      font-size: 1.45rem;
+    }
+    h3 { margin: 1.6rem 0 .5rem; font-size: 1.15rem; color: var(--accent); }
+    h4 { margin: 1.1rem 0 .4rem; font-size: 1rem; }
+    p { margin: .5rem 0 .75rem; }
+    ul, ol { margin: .4rem 0 1rem; padding-left: 1.3rem; }
+    li { margin: .25rem 0; }
+    a { color: var(--accent); }
+
+    .toc { background: var(--soft); border: 1px solid var(--line); border-radius: 12px; padding: 18px 22px; }
+    .toc ol { margin: 0; }
+    .toc a { text-decoration: none; color: var(--ink); }
+    .toc a:hover { color: var(--accent); text-decoration: underline; }
+    .toc .toc-l2 { list-style: none; margin-left: .2rem; padding-left: 1rem; }
+    .toc .toc-l2 li::before { content: "– "; color: var(--muted); }
+
+    .role-chip {
+      display: inline-block; padding: 2px 8px; border-radius: 999px;
+      background: #e7f1fb; color: var(--accent); font-size: 11px; font-weight: 700;
+    }
+    table {
+      width: 100%; border-collapse: collapse; margin: .8rem 0 1.2rem;
+      font-size: 10.5pt;
+    }
+    th, td {
+      border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top;
+    }
+    th { background: var(--soft); }
+    .note {
+      border-left: 4px solid var(--accent);
+      background: var(--soft);
+      padding: 10px 14px;
+      margin: 1rem 0;
+      border-radius: 0 8px 8px 0;
+    }
+    .warn {
+      border-left: 4px solid #c47a12;
+      background: #fff8ec;
+      padding: 10px 14px;
+      margin: 1rem 0;
+      border-radius: 0 8px 8px 0;
+    }
+    .steps { counter-reset: step; list-style: none; padding-left: 0; }
+    .steps li {
+      counter-increment: step;
+      position: relative;
+      padding: 8px 8px 8px 42px;
+      margin: .4rem 0;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+    }
+    .steps li::before {
+      content: counter(step);
+      position: absolute; left: 10px; top: 8px;
+      width: 24px; height: 24px; border-radius: 50%;
+      background: var(--ink); color: #fff;
+      display: grid; place-items: center;
+      font-size: 12px; font-weight: 700;
+    }
+
+    figure.shot {
+      margin: 1rem 0 1.4rem;
+      page-break-inside: avoid;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      overflow: hidden;
+      background: #fafbfc;
+    }
+    figure.shot img {
+      display: block; width: 100%; height: auto;
+      border-bottom: 1px solid var(--line);
+    }
+    figure.shot figcaption {
+      padding: 8px 12px;
+      font-size: 10pt;
+      color: var(--muted);
+      background: var(--soft);
+    }
+    .chapter-break { page-break-before: always; }
+    .section-label {
+      font-size: 11px; letter-spacing: .08em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: .2rem;
+    }
+    footer.doc-end {
+      margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--line);
+      font-size: 10pt; color: var(--muted);
+    }
+
+    @media print {
+      body { background: #fff; }
+      .screen-bar { display: none !important; }
+      .doc { box-shadow: none; max-width: none; }
+      .page-pad { padding: 0; }
+      .cover { min-height: auto; page-break-after: always; }
+      a { color: inherit; text-decoration: none; }
+      .chapter-break { page-break-before: always; }
+      figure.shot { break-inside: avoid; }
+      @page {
+        size: A4;
+        margin: 18mm 16mm 20mm 16mm;
+        @top-left {
+          content: "Campus Emerge Group";
+          font-size: 9pt;
+          color: #5a6b7d;
+        }
+        @top-right {
+          content: "Manual de Usuario";
+          font-size: 9pt;
+          color: #5a6b7d;
+        }
+        @bottom-left {
+          content: "Confidencial — uso interno y capacitación";
+          font-size: 8pt;
+          color: #5a6b7d;
+        }
+        @bottom-right {
+          content: "Pág. " counter(page);
+          font-size: 9pt;
+          color: #5a6b7d;
+        }
+      }
+      @page :first {
+        margin: 0;
+        @top-left { content: none; }
+        @top-right { content: none; }
+        @bottom-left { content: none; }
+        @bottom-right { content: none; }
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="screen-bar">
+    <span>Manual de Usuario — Campus Emerge · Abrí este archivo en el navegador</span>
+    <span>
+      <button type="button" onclick="window.print()">Imprimir / Guardar PDF</button>
+    </span>
+  </div>
+
+  <div class="doc">
+    <section class="cover">
+      <div class="kicker">Documentación operativa</div>
+      <h1>Manual de Usuario<br>Campus Virtual Emerge Group</h1>
+      <p class="subtitle">
+        Guía detallada por roles: acceso público, alumnos, docentes/tutores,
+        coordinadores, administradores y superadministradores. Incluye capturas
+        de cada sección y el paso a paso de las funciones principales.
+      </p>
+      <div class="meta">
+        <strong>Versión 1.0 — septiembre 2026</strong>
+        Plataforma: Campus Emerge (Nuxt + Supabase)<br>
+        Destinatarios: operación académica, coordinación y capacitadores internos
+      </div>
+    </section>
+
+    <div class="page-pad">
+      <!-- ========== ÍNDICE ========== -->
+      <h2 id="indice">Índice</h2>
+      <nav class="toc" aria-label="Tabla de contenidos">
+        <ol>
+          <li><a href="#intro">Introducción</a>
+            <ul class="toc-l2">
+              <li><a href="#roles">Roles y paneles</a></li>
+              <li><a href="#matriz">Matriz de permisos</a></li>
+            </ul>
+          </li>
+          <li><a href="#publico">Sitio público y catálogo</a></li>
+          <li><a href="#acceso">Acceso: login, registro y recuperación</a></li>
+          <li><a href="#alumno">Guía del alumno</a></li>
+          <li><a href="#docente">Guía del docente / tutor</a></li>
+          <li><a href="#admin">Guía de administración y coordinación</a>
+            <ul class="toc-l2">
+              <li><a href="#admin-cursos">Cursos</a></li>
+              <li><a href="#admin-alumnos">Alumnos e inscripciones</a></li>
+              <li><a href="#admin-solicitudes">Solicitudes e import Excel</a></li>
+              <li><a href="#admin-gestion-curso">Contenido, asistencia y notas</a></li>
+              <li><a href="#admin-comms">Comunicaciones, certificados, reportes</a></li>
+            </ul>
+          </li>
+          <li><a href="#buzon">Buzón interno</a></li>
+          <li><a href="#flujos">Flujos operativos recomendados</a></li>
+          <li><a href="#faq">Preguntas frecuentes</a></li>
+        </ol>
+      </nav>
+
+      <!-- ========== INTRO ========== -->
+      <h2 id="intro" class="chapter-break">1. Introducción</h2>
+      <p>
+        El <strong>Campus Virtual de Emerge Group</strong> es la plataforma donde se gestionan
+        programas (cursos), inscripciones, contenidos, asistencia, calificaciones,
+        comunicaciones, certificados y reportes.
+      </p>
+      <p>Este manual explica:</p>
+      <ul>
+        <li>Qué ve y puede hacer cada <strong>rol</strong>.</li>
+        <li>Cómo <strong>navegar</strong> cada sección del menú.</li>
+        <li>Cómo <strong>cargar</strong> datos (cursos, alumnos, Excel de inscripción, materiales, notas).</li>
+        <li>Qué <strong>efecto</strong> tiene cada acción (ej.: convertir una solicitud crea usuario + inscripción).</li>
+      </ul>
+      <div class="note">
+        <strong>Cómo usar este documento.</strong> En el navegador, usá el botón
+        <em>Imprimir / Guardar PDF</em> (o Ctrl+P). Activá “Encabezados y pies de página”
+        si el navegador lo ofrece; el CSS del manual ya define título, confidencialidad y número de página.
+      </div>
+
+      <h3 id="roles">1.1 Roles y paneles</h3>
+      <p>Hay seis roles. En la práctica se agrupan en tres paneles:</p>
+      <table>
+        <thead>
+          <tr><th>Rol</th><th>Panel principal</th><th>Para qué sirve</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Alumno</td><td>/campus/student</td><td>Cursar, ver notas, asistencia, progreso y certificados</td></tr>
+          <tr><td>Docente / Tutor</td><td>/campus/teacher</td><td>Gestionar contenido, asistencia y calificaciones de sus cursos</td></tr>
+          <tr><td>Coordinador</td><td>/campus/admin</td><td>Operación académica (cursos, alumnos, solicitudes, reportes)</td></tr>
+          <tr><td>Admin</td><td>/campus/admin</td><td>Igual que coordinador + mayor control operativo</td></tr>
+          <tr><td>Superadmin</td><td>/campus/admin</td><td>Todo lo anterior + <strong>Auditoría</strong> y alta de admins</td></tr>
+        </tbody>
+      </table>
+      <p>
+        Después del login, el sistema redirige al panel del rol de mayor jerarquía.
+        Si un usuario tiene más de un rol, puede cambiar de panel con el selector de roles.
+      </p>
+
+      <h3 id="matriz">1.2 Matriz rápida de permisos</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Capacidad</th>
+            <th>Alumno</th>
+            <th>Docente</th>
+            <th>Coord.</th>
+            <th>Admin</th>
+            <th>Super</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Ver catálogo / curso público</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td></tr>
+          <tr><td>Cursar lecciones inscritas</td><td>✓</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+          <tr><td>Editar contenido / asistencia / notas</td><td>—</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td></tr>
+          <tr><td>Alta alumnos / import Excel</td><td>—</td><td>—</td><td>✓</td><td>✓</td><td>✓</td></tr>
+          <tr><td>Emitir certificados / reportes</td><td>—</td><td>—</td><td>✓</td><td>✓</td><td>✓</td></tr>
+          <tr><td>Auditoría del sistema</td><td>—</td><td>—</td><td>—</td><td>—</td><td>✓</td></tr>
+        </tbody>
+      </table>
+
+      <!-- ========== PÚBLICO ========== -->
+      <h2 id="publico" class="chapter-break">2. Sitio público y catálogo</h2>
+      <p class="section-label">Ruta: /campus</p>
+      <p>
+        La landing del Campus presenta la propuesta formativa, el catálogo de programas,
+        el equipo docente, testimonios y anuncios públicos. No requiere iniciar sesión
+        para recorrerla ni para abrir la ficha de un curso.
+      </p>
+      <figure class="shot">
+        <img src="assets/01-landing-campus.png" alt="Landing del Campus Emerge">
+        <figcaption>Figura 2.1 — Portada pública del Campus.</figcaption>
+      </figure>
+      <h3>Qué hace cada bloque</h3>
+      <ul>
+        <li><strong>Hero / CTA:</strong> invita a conocer programas o ingresar al campus.</li>
+        <li><strong>Catálogo:</strong> lista cursos publicados; al hacer clic se abre la ficha.</li>
+        <li><strong>Anuncios públicos:</strong> comunicados visibles sin login.</li>
+      </ul>
+
+      <h3>Ficha de curso (público)</h3>
+      <p class="section-label">Ruta: /campus/cursos/[slug]</p>
+      <figure class="shot">
+        <img src="assets/04-curso-publico.png" alt="Ficha pública de un curso">
+        <figcaption>Figura 2.2 — Detalle de curso e inscripción.</figcaption>
+      </figure>
+      <ul>
+        <li><strong>Inscripción gratuita (precio 0):</strong> con sesión iniciada, el alumno se inscribe al instante.</li>
+        <li><strong>Inscripción paga:</strong> si Mercado Pago está configurado, se inicia el checkout; el resultado vuelve a <code>/campus/pagos/resultado</code>.</li>
+        <li><strong>Sin pagos online:</strong> puede mostrarse un contacto (mailto / WhatsApp) según configuración.</li>
+      </ul>
+
+      <!-- ========== ACCESO ========== -->
+      <h2 id="acceso" class="chapter-break">3. Acceso: login, registro y recuperación</h2>
+
+      <h3>3.1 Ingresar</h3>
+      <p class="section-label">Ruta: /campus/login</p>
+      <figure class="shot">
+        <img src="assets/02-login.png" alt="Pantalla de inicio de sesión">
+        <figcaption>Figura 3.1 — Ingreso al Campus.</figcaption>
+      </figure>
+      <ol class="steps">
+        <li>Abrí <code>/campus/login</code>.</li>
+        <li>Completá correo y contraseña.</li>
+        <li>Opcional: marcá <em>Recordarme</em> para guardar el correo en el navegador.</li>
+        <li>Pulsá <strong>Ingresar al Campus</strong>. El sistema te lleva a tu panel según el rol.</li>
+      </ol>
+      <p>
+        <strong>¿Olvidaste tu contraseña?</strong> Escribí el correo y usá el enlace de recuperación.
+        Recibirás un mail con link a <code>/campus/restablecer-contrasena</code>.
+      </p>
+
+      <h3>3.2 Registrarse</h3>
+      <p class="section-label">Ruta: /campus/registro</p>
+      <figure class="shot">
+        <img src="assets/03-registro.png" alt="Pantalla de registro">
+        <figcaption>Figura 3.2 — Alta de cuenta por auto-registro.</figcaption>
+      </figure>
+      <p>
+        El auto-registro crea una cuenta con rol <strong>alumno</strong>.
+        Para altas masivas de una cohorte (Diplomatura), preferí el flujo de
+        <a href="#admin-solicitudes">Solicitudes → Importar Excel</a>.
+      </p>
+
+      <!-- ========== ALUMNO ========== -->
+      <h2 id="alumno" class="chapter-break">4. Guía del alumno <span class="role-chip">alumno</span></h2>
+      <p>
+        Menú lateral típico: Inicio · Mis cursos · Asistencia · Mis notas · Comunicaciones ·
+        Mi buzón · Mi progreso · Certificados.
+      </p>
+
+      <h3>4.1 Inicio</h3>
+      <p class="section-label">Ruta: /campus/student</p>
+      <figure class="shot">
+        <img src="assets/40-student-inicio.png" alt="Panel inicio del alumno">
+        <figcaption>Figura 4.1 — Dashboard del alumno: KPIs, próximas clases y accesos rápidos.</figcaption>
+      </figure>
+      <ul>
+        <li>Resumen de cursos activos, progreso y asistencia.</li>
+        <li>Atajos a cursos, notas, comunicaciones y certificados.</li>
+      </ul>
+
+      <h3>4.2 Mis cursos</h3>
+      <figure class="shot">
+        <img src="assets/41-student-cursos.png" alt="Mis cursos del alumno">
+        <figcaption>Figura 4.2 — Listado de programas en los que está inscrito.</figcaption>
+      </figure>
+      <p>
+        Desde aquí abrís el programa. En el reproductor de lecciones podés marcar avance,
+        ver materiales y seguir el temario. Solo ves el contenido si tenés inscripción activa.
+      </p>
+
+      <h3>4.3 Asistencia</h3>
+      <figure class="shot">
+        <img src="assets/42-student-asistencia.png" alt="Asistencia del alumno">
+        <figcaption>Figura 4.3 — Porcentaje y detalle de sesiones.</figcaption>
+      </figure>
+      <p>Consultá el estado por sesión (presente, ausente, tarde, justificado). No se edita desde el panel alumno.</p>
+
+      <h3>4.4 Mis notas</h3>
+      <figure class="shot">
+        <img src="assets/43-student-notas.png" alt="Notas del alumno">
+        <figcaption>Figura 4.4 — Evaluaciones y devoluciones.</figcaption>
+      </figure>
+
+      <h3>4.5 Comunicaciones</h3>
+      <figure class="shot">
+        <img src="assets/44-student-comunicaciones.png" alt="Comunicaciones del alumno">
+        <figcaption>Figura 4.5 — Hub de avisos y acceso al buzón.</figcaption>
+      </figure>
+      <p>El alumno lee anuncios y mensajes; la redacción masiva de anuncios es de staff/docentes.</p>
+
+      <h3>4.6 Mi progreso</h3>
+      <figure class="shot">
+        <img src="assets/45-student-progreso.png" alt="Progreso del alumno">
+        <figcaption>Figura 4.6 — Completados, en curso y pendientes.</figcaption>
+      </figure>
+
+      <h3>4.7 Certificados</h3>
+      <figure class="shot">
+        <img src="assets/46-student-certificados.png" alt="Certificados del alumno">
+        <figcaption>Figura 4.7 — Certificados emitidos; el código abre la verificación pública.</figcaption>
+      </figure>
+      <p>
+        La página pública <code>/campus/certificados/[codigo]</code> permite validar un certificado
+        sin iniciar sesión.
+      </p>
+
+      <!-- ========== DOCENTE ========== -->
+      <h2 id="docente" class="chapter-break">5. Guía del docente / tutor <span class="role-chip">docente · tutor</span></h2>
+      <p>Menú: Inicio · Mis cursos · Comunicaciones · Anuncios · Mi buzón.</p>
+
+      <h3>5.1 Inicio</h3>
+      <figure class="shot">
+        <img src="assets/30-teacher-inicio.png" alt="Inicio docente">
+        <figcaption>Figura 5.1 — Resumen de cursos y alumnos a cargo.</figcaption>
+      </figure>
+
+      <h3>5.2 Mis cursos</h3>
+      <figure class="shot">
+        <img src="assets/31-teacher-cursos.png" alt="Cursos del docente">
+        <figcaption>Figura 5.2 — Accesos a Contenido, Asistencia y Notas por curso asignado.</figcaption>
+      </figure>
+      <p>Desde cada curso podés:</p>
+      <ul>
+        <li><strong>Contenido:</strong> módulos, lecciones, videos y materiales.</li>
+        <li><strong>Asistencia:</strong> sesiones y marcar presentes / ausentes / tarde / justificado.</li>
+        <li><strong>Notas:</strong> crear evaluaciones y cargar calificaciones con devolución.</li>
+      </ul>
+      <p>El detalle de estas tres herramientas está en la <a href="#admin-gestion-curso">sección 6.6</a> (misma UI para staff).</p>
+
+      <h3>5.3 Comunicaciones y anuncios</h3>
+      <figure class="shot">
+        <img src="assets/32-teacher-comunicaciones.png" alt="Comunicaciones docente">
+        <figcaption>Figura 5.3 — Hub de comunicaciones del docente.</figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="assets/33-teacher-anuncios.png" alt="Listado de anuncios">
+        <figcaption>Figura 5.4 — Listado de anuncios: crear, publicar, editar o archivar.</figcaption>
+      </figure>
+      <ol class="steps">
+        <li>Entrá a <strong>Anuncios</strong> o desde Comunicaciones → editor.</li>
+        <li>Creá un anuncio nuevo con el editor visual.</li>
+        <li>Publicá cuando esté listo (o dejalo en borrador).</li>
+        <li>Los anuncios públicos también pueden verse en la landing / ruta de anuncios.</li>
+      </ol>
+
+      <!-- ========== ADMIN ========== -->
+      <h2 id="admin" class="chapter-break">6. Guía de administración y coordinación <span class="role-chip">coordinador · admin · superadmin</span></h2>
+      <p>
+        Menú General: Inicio · Cursos · Alumnos · Inscripciones · Solicitudes.<br>
+        Certificaciones: Certificados.<br>
+        Sistema: Reportes · Comunicaciones · Mi buzón · Auditoría (solo superadmin).
+      </p>
+
+      <h3>6.1 Inicio</h3>
+      <figure class="shot">
+        <img src="assets/10-admin-inicio.png" alt="Inicio administración">
+        <figcaption>Figura 6.1 — Panel admin: cursos publicados, alumnos e inscripciones activas.</figcaption>
+      </figure>
+
+      <h3 id="admin-cursos">6.2 Cursos</h3>
+      <p class="section-label">Ruta: /campus/admin/cursos</p>
+      <figure class="shot">
+        <img src="assets/11-admin-cursos.png" alt="Listado de cursos admin">
+        <figcaption>Figura 6.2 — Catálogo interno de cursos.</figcaption>
+      </figure>
+      <p><strong>Acciones por fila (típicas):</strong> Contenido · Asistencia · Notas · Cohorte · Precio · Docente · Publicar/Ocultar.</p>
+
+      <h4>Crear un curso</h4>
+      <figure class="shot">
+        <img src="assets/11b-admin-nuevo-curso-modal.png" alt="Modal nuevo curso">
+        <figcaption>Figura 6.3 — Formulario Nuevo curso.</figcaption>
+      </figure>
+      <ol class="steps">
+        <li>Pulsá <strong>+ Nuevo curso</strong>.</li>
+        <li>Completá título, categoría, descripción y estado (borrador / publicado).</li>
+        <li>Definí precio (0 = gratuito) y, si aplica, cohorte (fechas, cupo, ventana de inscripción).</li>
+        <li>Guardá. Luego asigná docentes y cargá contenido.</li>
+      </ol>
+      <div class="note">
+        <strong>Publicar</strong> hace visible el curso en el catálogo público.
+        En borrador solo lo ven quienes tienen acceso al panel.
+      </div>
+
+      <h3 id="admin-alumnos">6.3 Alumnos</h3>
+      <p class="section-label">Ruta: /campus/admin/alumnos</p>
+      <figure class="shot">
+        <img src="assets/12-admin-alumnos.png" alt="Listado de alumnos">
+        <figcaption>Figura 6.4 — Alumnos con contacto, rol laboral/ciudad e inscripciones.</figcaption>
+      </figure>
+      <ul>
+        <li><strong>Importar Excel:</strong> atajo a Solicitudes (alta masiva).</li>
+        <li><strong>+ Nuevo alumno:</strong> alta manual con ficha.</li>
+        <li><strong>+ Nueva inscripción / Inscribir:</strong> vincula alumno existente a un curso.</li>
+      </ul>
+
+      <h4>Alta manual con ficha</h4>
+      <figure class="shot">
+        <img src="assets/12b-admin-nuevo-alumno-modal.png" alt="Modal nuevo alumno">
+        <figcaption>Figura 6.5 — Cuenta (email + contraseña temporal) + ficha (WhatsApp, ciudad, rol, ocupación, audiencia, desafío).</figcaption>
+      </figure>
+      <ol class="steps">
+        <li>Completá nombre, correo y contraseña temporal (mín. 8 caracteres).</li>
+        <li>Opcional: cargá la ficha completa (útil para seguimiento comercial/académico).</li>
+        <li>Crear alumno → la cuenta queda lista para login.</li>
+        <li>Inscribilo a un curso desde Inscripciones o el botón Inscribir de la fila.</li>
+      </ol>
+      <div class="warn">
+        Comunicá la contraseña temporal por un canal seguro (WhatsApp / mail).
+        Pedile al alumno que la cambie si tu política lo requiere.
+      </div>
+
+      <h3>6.4 Inscripciones</h3>
+      <figure class="shot">
+        <img src="assets/13-admin-inscripciones.png" alt="Inscripciones">
+        <figcaption>Figura 6.6 — Listado reciente de inscripciones alumno–curso.</figcaption>
+      </figure>
+      <p>
+        Una inscripción vincula un perfil alumno a un curso con estado (activo, etc.)
+        y habilita el acceso al contenido, la toma de asistencia y las notas.
+      </p>
+
+      <h3 id="admin-solicitudes">6.5 Solicitudes e importación Excel</h3>
+      <p class="section-label">Ruta: /campus/admin/solicitudes</p>
+      <figure class="shot">
+        <img src="assets/14-admin-solicitudes.png" alt="Solicitudes de inscripción">
+        <figcaption>Figura 6.7 — Bandeja de solicitudes (fichas previas a crear usuarios).</figcaption>
+      </figure>
+      <p>
+        Esta pantalla resuelve el ingreso masivo desde Excel (p. ej. Diplomatura).
+        Cada fila es una <strong>ficha</strong>, no todavía una cuenta.
+      </p>
+      <table>
+        <thead><tr><th>Estado</th><th>Origen típico</th><th>Qué hacer</th></tr></thead>
+        <tbody>
+          <tr><td>Listo (verde)</td><td>Fila verde en Excel</td><td>Incluir en “Crear todos los listos”</td></tr>
+          <tr><td>En duda (naranja)</td><td>Fila naranja</td><td>Confirmar datos → Marcar listo</td></tr>
+          <tr><td>Convertido</td><td>Ya se creó usuario</td><td>No volver a convertir</td></tr>
+          <tr><td>Rechazado</td><td>Manual</td><td>Queda fuera del alta</td></tr>
+        </tbody>
+      </table>
+
+      <h4>Cómo importar</h4>
+      <figure class="shot">
+        <img src="assets/14b-admin-importar-excel-modal.png" alt="Modal Importar Excel">
+        <figcaption>Figura 6.8 — Modal Importar Excel: curso destino + archivo .xlsx.</figcaption>
+      </figure>
+      <ol class="steps">
+        <li>Pulsá <strong>Importar Excel</strong>.</li>
+        <li>Elegí el <strong>curso destino</strong> (debe existir y preferentemente estar publicado).</li>
+        <li>Seleccioná el archivo <code>.xlsx</code>. El sistema lee colores y columnas:
+          nombre, email, WhatsApp, audiencia, desafío, rol laboral, ocupación, ciudad.</li>
+        <li>Revisá el resumen: cantidad de listos vs en duda.</li>
+        <li>Opcional: filtrá, buscá, marcá naranjas como listos o rechazá.</li>
+        <li>Pulsá <strong>Crear todos los listos</strong> (o seleccioná filas → Crear seleccionados).</li>
+        <li>Descargá el <strong>CSV de contraseñas temporales</strong> y envialas a cada persona.</li>
+      </ol>
+      <div class="note">
+        <strong>Reimportar</strong> el mismo email+curso actualiza la ficha sin pisar convertidos.
+        Si el email ya tenía cuenta, se reutiliza y solo se crea/asegura la inscripción.
+      </div>
+
+      <h3 id="admin-gestion-curso">6.6 Gestión de un curso: contenido, asistencia y notas</h3>
+
+      <h4>Contenido</h4>
+      <figure class="shot">
+        <img src="assets/20-admin-curso-contenido.png" alt="Editor de contenido del curso">
+        <figcaption>Figura 6.9 — Módulos y lecciones: video, materiales y publicación.</figcaption>
+      </figure>
+      <ol class="steps">
+        <li>Creá módulos (unidades temáticas).</li>
+        <li>Dentro de cada módulo, agregá lecciones (título, texto, URL de video).</li>
+        <li>Subí materiales (PDF, etc.) y publicá cuando estén listos.</li>
+        <li>El alumno ve solo lo publicado, si está inscrito.</li>
+      </ol>
+
+      <h4>Asistencia</h4>
+      <figure class="shot">
+        <img src="assets/21-admin-curso-asistencia.png" alt="Gestión de asistencia">
+        <figcaption>Figura 6.10 — Sesiones y planilla de asistencia.</figcaption>
+      </figure>
+      <ol class="steps">
+        <li>Creá una sesión (fecha, horario, link de reunión si aplica).</li>
+        <li>Marcá cada alumno: presente / ausente / tarde / justificado.</li>
+        <li>Podés usar “marcar todos presentes” y luego ajustar excepciones.</li>
+      </ol>
+
+      <h4>Calificaciones</h4>
+      <figure class="shot">
+        <img src="assets/22-admin-curso-calificaciones.png" alt="Planilla de calificaciones">
+        <figcaption>Figura 6.11 — Evaluaciones y carga de notas con feedback.</figcaption>
+      </figure>
+      <ol class="steps">
+        <li>Creá una evaluación (nombre, tipo, puntaje máximo).</li>
+        <li>Completá la grilla alumno × evaluación.</li>
+        <li>Guardá; el alumno lo verá en <em>Mis notas</em>.</li>
+      </ol>
+
+      <h3 id="admin-comms">6.7 Certificados, reportes, comunicaciones y auditoría</h3>
+
+      <h4>Certificados</h4>
+      <figure class="shot">
+        <img src="assets/15-admin-certificados.png" alt="Emisión de certificados">
+        <figcaption>Figura 6.12 — Emisión manual para inscripciones con 100 % de progreso.</figcaption>
+      </figure>
+      <p>Emití el certificado cuando el alumno completó el programa; se genera un código verificable públicamente.</p>
+
+      <h4>Reportes</h4>
+      <figure class="shot">
+        <img src="assets/16-admin-reportes.png" alt="Reportes del campus">
+        <figcaption>Figura 6.13 — KPIs, tablas de desempeño y exportación CSV.</figcaption>
+      </figure>
+
+      <h4>Comunicaciones</h4>
+      <figure class="shot">
+        <img src="assets/17-admin-comunicaciones.png" alt="Comunicaciones admin">
+        <figcaption>Figura 6.14 — Hub: buzón, redacción, anuncios y feed.</figcaption>
+      </figure>
+
+      <h4>Auditoría (solo superadmin)</h4>
+      <figure class="shot">
+        <img src="assets/18-admin-auditoria.png" alt="Auditoría">
+        <figcaption>Figura 6.15 — Registro de acciones del sistema con filtros.</figcaption>
+      </figure>
+
+      <!-- ========== BUZÓN ========== -->
+      <h2 id="buzon" class="chapter-break">7. Buzón interno</h2>
+      <p class="section-label">Ruta: /campus/buzon · disponible para todos los roles</p>
+      <figure class="shot">
+        <img src="assets/19-buzon.png" alt="Buzón interno">
+        <figcaption>Figura 7.1 — Entrada, enviados y archivados; badge de no leídos en el menú.</figcaption>
+      </figure>
+      <ul>
+        <li><strong>Alumnos:</strong> leen hilos; la composición avanzada está orientada a staff/docentes.</li>
+        <li><strong>Staff / docentes:</strong> pueden redactar desde <code>/campus/buzon/redactar</code>.</li>
+      </ul>
+
+      <!-- ========== FLUJOS ========== -->
+      <h2 id="flujos" class="chapter-break">8. Flujos operativos recomendados</h2>
+
+      <h3>8.1 Armar un programa nuevo de punta a punta</h3>
+      <ol class="steps">
+        <li>Admin → Cursos → Nuevo curso (borrador).</li>
+        <li>Asignar docente/tutor.</li>
+        <li>Cargar Contenido (módulos y lecciones).</li>
+        <li>Definir precio y cohorte.</li>
+        <li>Publicar el curso.</li>
+        <li>Ingresar alumnos (manual o Excel) e inscribir.</li>
+        <li>Crear sesiones de asistencia y evaluaciones.</li>
+        <li>Al cierre: emitir certificados y revisar reportes.</li>
+      </ol>
+
+      <h3>8.2 Alta masiva Diplomatura (Excel)</h3>
+      <ol class="steps">
+        <li>Tener el curso Diplomatura creado.</li>
+        <li>Admin → Solicitudes → Importar Excel (verde/naranja).</li>
+        <li>Revisar en duda → Marcar listo cuando corresponda.</li>
+        <li>Crear todos los listos → Descargar CSV de claves.</li>
+        <li>Enviar credenciales + link <code>/campus/login</code>.</li>
+      </ol>
+
+      <h3>8.3 Clase en vivo (asistencia)</h3>
+      <ol class="steps">
+        <li>Docente o admin abre Asistencia del curso.</li>
+        <li>Crea la sesión del día (con link Meet/Zoom si aplica).</li>
+        <li>Marca asistencia al cierre.</li>
+        <li>El alumno lo ve reflejado en su panel.</li>
+      </ol>
+
+      <!-- ========== FAQ ========== -->
+      <h2 id="faq" class="chapter-break">9. Preguntas frecuentes</h2>
+      <h4>¿Por qué no veo Auditoría?</h4>
+      <p>Solo el rol <strong>superadmin</strong> tiene esa entrada en el menú.</p>
+
+      <h4>¿Dónde se gestionan los pagos?</h4>
+      <p>
+        No hay un menú “Pagos” en admin. El cobro ocurre en la ficha del curso
+        (Mercado Pago) y el retorno en <code>/campus/pagos/resultado</code>.
+        Si no hay token de MP configurado, los pagos online quedan deshabilitados.
+      </p>
+
+      <h4>Importé el Excel pero no se crearon usuarios</h4>
+      <p>
+        La importación solo carga <em>solicitudes</em>. Tenés que pulsar
+        <strong>Crear todos los listos</strong> (o seleccionados) y luego bajar el CSV.
+      </p>
+
+      <h4>El alumno no ve el contenido</h4>
+      <p>Verificá: 1) inscripción activa, 2) curso/lecciones publicados, 3) sesión iniciada con la cuenta correcta.</p>
+
+      <h4>¿Puedo usar usuarios de prueba en producción?</h4>
+      <p>No. Los usuarios <code>@test.emerge.local</code> son solo para desarrollo/capacitación local.</p>
+
+      <footer class="doc-end">
+        <p>
+          <strong>Campus Emerge Group — Manual de Usuario v1.0</strong><br>
+          Capturas generadas desde el entorno local · Septiembre 2026<br>
+          Para regenerar capturas: <code>node scripts/capture-manual-screenshots.mjs</code>
+          (con el servidor en <code>http://127.0.0.1:3000</code> y usuarios seed).
+        </p>
+      </footer>
+    </div>
+  </div>
+</body>
+</html>

@@ -53,6 +53,6 @@ const admin = useAdminCampusData()
       </div>
     </div>
 
-    <AdminCampusModals />
+    <CampusAdminCampusModals />
   </div>
 </template>

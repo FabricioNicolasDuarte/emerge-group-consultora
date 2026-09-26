@@ -14,7 +14,9 @@
     "test:integration": "node scripts/integration-test-campus.mjs",
     "seed:test-users": "node scripts/seed-test-users.mjs",
     "seed:demo": "node scripts/seed-demo-campus.mjs",
-    "seed:all": "node scripts/seed-test-users.mjs && node scripts/seed-demo-campus.mjs",
+    "seed:manual": "node scripts/seed-manual-showcase.mjs",
+    "seed:all": "node scripts/seed-test-users.mjs && node scripts/seed-manual-showcase.mjs",
+    "manual:capture": "node scripts/capture-manual-screenshots.mjs",
     "db:migrate": "node scripts/run-migrations.mjs"
   },
   "dependencies": {
@@ -31,12 +33,14 @@
     "@tiptap/extension-youtube": "^3.30.5",
     "@tiptap/starter-kit": "^3.30.5",
     "@tiptap/vue-3": "^3.30.5",
+    "exceljs": "^4.4.0",
     "isomorphic-dompurify": "^3.23.0",
     "nuxt": "^4.4.2",
     "vue": "^3.5.32",
     "vue-router": "^5.0.4"
   },
   "devDependencies": {
-    "pg": "^8.23.0"
+    "pg": "^8.23.0",
+    "playwright": "^1.63.0"
   }
 }
