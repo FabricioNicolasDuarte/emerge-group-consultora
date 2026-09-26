@@ -4,6 +4,45 @@ import type { CampusRoleSlug } from '~/types/campus'
 const ALLOWED_ROLES: CampusRoleSlug[] = ['alumno', 'docente', 'tutor', 'coordinador', 'admin']
 const STAFF_SLUGS = ['superadmin', 'admin', 'coordinador'] as const
 
+async function assignCampusRole(
+  admin: ReturnType<typeof serverSupabaseServiceRole>,
+  userId: string,
+  roleSlug: CampusRoleSlug,
+) {
+  const { error: rpcError } = await admin.rpc('dev_assign_campus_role', {
+    p_user_id: userId,
+    p_role_slug: roleSlug,
+  })
+  if (!rpcError) return
+
+  // Fallback si la RPC no está desplegada: insert directo con service_role
+  const { data: roleRow, error: roleLookupError } = await admin
+    .from('roles')
+    .select('id')
+    .eq('slug', roleSlug)
+    .maybeSingle()
+
+  if (roleLookupError || !roleRow?.id) {
+    throw createError({
+      statusCode: 500,
+      statusMessage: `No se pudo asignar el rol «${roleSlug}»: ${rpcError.message}`,
+    })
+  }
+
+  await admin.from('user_roles').delete().eq('user_id', userId)
+
+  const { error: insertError } = await admin
+    .from('user_roles')
+    .insert({ user_id: userId, role_id: roleRow.id })
+
+  if (insertError) {
+    throw createError({
+      statusCode: 500,
+      statusMessage: `Usuario creado, pero falló el rol: ${insertError.message}`,
+    })
+  }
+}
+
 export default defineEventHandler(async (event) => {
   const caller = await serverSupabaseUser(event)
   if (!caller) {
@@ -71,32 +110,24 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 403, statusMessage: 'Solo superadmin puede crear admins' })
   }
 
-  const { data: created, error: createError } = await admin.auth.admin.createUser({
+  // Ojo: no llamar `createError` al error de Auth — sombrea el helper de h3.
+  const { data: created, error: authCreateError } = await admin.auth.admin.createUser({
     email,
     password,
     email_confirm: true,
     user_metadata: { full_name: fullName },
   })
 
-  if (createError || !created.user) {
+  if (authCreateError || !created.user) {
     throw createError({
       statusCode: 400,
-      statusMessage: createError?.message || 'No se pudo crear el usuario',
+      statusMessage: authCreateError?.message || 'No se pudo crear el usuario',
     })
   }
 
   // El trigger ya asigna rol alumno. Si pidieron otro, lo reemplazamos.
   if (role !== 'alumno') {
-    const { error: roleError } = await admin.rpc('dev_assign_campus_role', {
-      p_user_id: created.user.id,
-      p_role_slug: role,
-    })
-    if (roleError) {
-      throw createError({
-        statusCode: 500,
-        statusMessage: `Usuario creado, pero falló el rol: ${roleError.message}`,
-      })
-    }
+    await assignCampusRole(admin, created.user.id, role)
   }
 
   await admin

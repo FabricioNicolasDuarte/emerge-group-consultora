@@ -1,6 +1,22 @@
 import type { AdminCourseRow, CourseAssignmentRow, RecentEnrollment, StudentProfile } from '~/types/academic'
 import { formatSupabaseError } from '~/utils/supabase-error'
 
+function extractFetchError(error: unknown, fallback: string) {
+  if (!error || typeof error !== 'object') {
+    return error instanceof Error ? error.message : fallback
+  }
+  const err = error as {
+    data?: { statusMessage?: string, message?: string }
+    statusMessage?: string
+    message?: string
+  }
+  return err.data?.statusMessage
+    || err.data?.message
+    || err.statusMessage
+    || err.message
+    || fallback
+}
+
 function toDatetimeLocalValue(iso?: string | null) {
   if (!iso) return ''
   const date = new Date(iso)
@@ -393,9 +409,7 @@ function createAdminCampusData() {
       successMessage.value = 'Alumno creado. Ya podés inscribirlo a un curso.'
       await loadData(true)
     } catch (error: unknown) {
-      const message = error && typeof error === 'object' && 'data' in error
-        ? String((error as { data?: { statusMessage?: string } }).data?.statusMessage || '')
-        : ''
+      const message = extractFetchError(error, '')
       errorMessage.value = message || (error instanceof Error ? error.message : 'No se pudo crear el alumno')
     } finally {
       formLoading.value = false
@@ -536,10 +550,7 @@ function createAdminCampusData() {
       successMessage.value = 'Docente creado. Ya podés asignarle cursos.'
       await loadData(true)
     } catch (error: unknown) {
-      const message = error && typeof error === 'object' && 'data' in error
-        ? String((error as { data?: { statusMessage?: string } }).data?.statusMessage || '')
-        : ''
-      errorMessage.value = message || (error instanceof Error ? error.message : 'No se pudo crear el docente')
+      errorMessage.value = extractFetchError(error, 'No se pudo crear el docente')
     } finally {
       formLoading.value = false
     }

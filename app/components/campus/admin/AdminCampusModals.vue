@@ -171,6 +171,7 @@ const admin = useAdminCampusData()
       <div class="modal-card">
         <h2 id="modal-new-teacher-title">Nuevo docente</h2>
         <p class="modal-hint">Crea un usuario con acceso al panel docente.</p>
+        <p v-if="admin.errorMessage" class="modal-hint" style="color: var(--eg-error, #b42318);">{{ admin.errorMessage }}</p>
         <form @submit.prevent="admin.onCreateTeacher">
           <label for="new-teacher-name">Nombre completo</label>
           <input id="new-teacher-name" v-model="admin.newTeacher.full_name" required placeholder="Nombre y apellido">
