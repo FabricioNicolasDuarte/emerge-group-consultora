@@ -51,7 +51,7 @@ onMounted(() => {
       <button
         v-if="mobileNav"
         type="button"
-        class="campus-topbar__menu"
+        class="campus-topbar__burger"
         aria-label="Abrir menú"
         @click="mobileNav.toggleMobileNav()"
       >
@@ -126,8 +126,8 @@ onMounted(() => {
           </svg>
         </button>
 
-        <div v-if="menuOpen" class="campus-topbar__menu" role="menu">
-          <p class="campus-topbar__menu-label">{{ displayName }}</p>
+        <div v-if="menuOpen" class="campus-topbar__dropdown" role="menu">
+          <p class="campus-topbar__dropdown-label">{{ displayName }}</p>
           <NuxtLink
             :to="homePath"
             role="menuitem"
@@ -176,7 +176,7 @@ onMounted(() => {
   flex: 1;
 }
 
-.campus-topbar__menu {
+.campus-topbar__burger {
   display: none;
   flex-shrink: 0;
   width: 34px;
@@ -351,7 +351,7 @@ onMounted(() => {
   flex-shrink: 0;
 }
 
-.campus-topbar__menu {
+.campus-topbar__dropdown {
   position: absolute;
   top: calc(100% + 0.35rem);
   right: 0;
@@ -364,7 +364,7 @@ onMounted(() => {
   z-index: 30;
 }
 
-.campus-topbar__menu-label {
+.campus-topbar__dropdown-label {
   margin: 0;
   padding: 0.45rem 0.65rem 0.35rem;
   font-size: 0.72rem;
@@ -374,8 +374,8 @@ onMounted(() => {
   color: var(--eg-muted);
 }
 
-.campus-topbar__menu a,
-.campus-topbar__menu button {
+.campus-topbar__dropdown a,
+.campus-topbar__dropdown button {
   display: block;
   width: 100%;
   padding: 0.55rem 0.65rem;
@@ -391,17 +391,17 @@ onMounted(() => {
   font-family: inherit;
 }
 
-.campus-topbar__menu a:hover,
-.campus-topbar__menu button:hover {
+.campus-topbar__dropdown a:hover,
+.campus-topbar__dropdown button:hover {
   background: var(--eg-info-bg);
 }
 
-.campus-topbar__menu button:last-child {
+.campus-topbar__dropdown button:last-child {
   color: var(--eg-accent);
 }
 
 @media (max-width: 991.98px) {
-  .campus-topbar__menu {
+  .campus-topbar__burger {
     display: inline-flex;
   }
 
