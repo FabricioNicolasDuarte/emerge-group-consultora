@@ -13,7 +13,10 @@ usePublicSeo(computed(() => ({
   description: `Accedé a tu cuenta del Campus virtual de ${brand.name}.`,
   noindex: true,
 })))
-const { emailHref } = useAppContact()
+const { buildWhatsappHref } = useAppContact()
+const supportWhatsappHref = computed(() =>
+  buildWhatsappHref('Hola, tengo dificultades para ingresar al Campus Emerge.'),
+)
 const { signIn, dashboardPath, requestPasswordReset } = useCampusAuth()
 
 const REMEMBER_KEY = 'campus-remember-email'
@@ -161,7 +164,7 @@ onMounted(() => {
 
     <p class="auth-foot">
       ¿Tenés dificultades para ingresar?
-      <a :href="emailHref">Contactanos</a>
+      <a :href="supportWhatsappHref" target="_blank" rel="noopener noreferrer">Contactanos</a>
     </p>
   </CampusAuthLayout>
 </template>

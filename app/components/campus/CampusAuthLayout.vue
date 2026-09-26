@@ -13,7 +13,7 @@ defineProps<{
     <div class="auth-layout">
       <section class="auth-brand">
         <NuxtLink v-if="backTo" :to="backTo" class="auth-brand__logo">
-          <BrandLogo variant="fullVertical" />
+          <BrandLogo variant="fullWhiteBg" />
         </NuxtLink>
         <slot name="brand" />
       </section>
