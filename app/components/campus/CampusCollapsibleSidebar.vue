@@ -316,24 +316,37 @@ provide('campusMobileNav', { mobileOpen, toggleMobileNav, closeMobileNav })
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0.15rem 0.25rem 0.4rem;
+  padding: 0.55rem 0.65rem 0.45rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   text-decoration: none;
   min-height: auto;
   flex-shrink: 0;
+  background: transparent;
+}
+
+.cp-brand__logo {
+  display: block;
+  object-fit: contain;
 }
 
 .cp-brand__logo--mark {
-  width: 32px;
-  height: 32px;
-  object-fit: contain;
-  display: block;
-  border-radius: 8px;
-}
-
-.cp-brand__logo--expanded {
   width: 40px;
   height: 40px;
+  border-radius: 10px;
+  background: #fff;
+  padding: 2px;
+  box-sizing: border-box;
+}
+
+.cp-brand__logo--full {
+  width: 100%;
+  max-width: 168px;
+  height: auto;
+  max-height: 52px;
+  border-radius: 10px;
+  background: #fff;
+  padding: 0.35rem 0.45rem;
+  box-sizing: border-box;
 }
 
 .cp-campus-tag {
@@ -343,7 +356,7 @@ provide('campusMobileNav', { mobileOpen, toggleMobileNav, closeMobileNav })
   font-size: 0.6rem;
   font-weight: 800;
   letter-spacing: 0.12em;
-  margin: 0 0 0.1rem;
+  margin: 0.15rem 0 0.15rem;
   flex-shrink: 0;
 }
 
