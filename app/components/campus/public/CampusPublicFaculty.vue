@@ -16,18 +16,22 @@ const { brand } = useAppBrand()
         </p>
       </div>
 
-      <div class="faculty-grid">
-        <article v-for="member in CAMPUS_FACULTY" :key="member.name" class="faculty-card">
-          <div class="faculty-card__image">
-            <img :src="member.image" :alt="member.name" loading="lazy" width="320" height="320">
+      <div class="team-panel public-panel">
+        <article v-for="member in CAMPUS_FACULTY" :key="member.name" class="team-card">
+          <div class="team-card__media">
+            <img :src="member.image" :alt="member.name" loading="lazy">
           </div>
-          <div class="faculty-card__body">
-            <h3>{{ member.name }}</h3>
-            <p class="faculty-card__role">{{ member.role }}</p>
-            <p class="faculty-card__bio">{{ member.bio }}</p>
-            <ul class="faculty-card__tags">
-              <li v-for="tag in member.tags" :key="tag">{{ tag }}</li>
-            </ul>
+          <div class="team-card__body">
+            <div class="team-card__header">
+              <div>
+                <h3>{{ member.name }}</h3>
+                <span class="team-card__role">{{ member.role }}</span>
+              </div>
+            </div>
+            <p class="team-card__bio">{{ member.bio }}</p>
+            <div class="team-card__tags">
+              <span v-for="tag in member.tags" :key="tag" class="public-tag">{{ tag }}</span>
+            </div>
           </div>
         </article>
       </div>
