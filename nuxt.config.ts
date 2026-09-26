@@ -39,6 +39,7 @@ export default defineNuxtConfig({
         '/campus/login',
         '/campus/registro',
         '/campus/restablecer-contrasena',
+        '/campus/anuncios',
         '/campus/anuncios/**',
         '/campus/pagos/**',
         '/campus/cursos/**',
