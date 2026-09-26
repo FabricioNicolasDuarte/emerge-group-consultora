@@ -1,7 +1,6 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
-import type { H3Event } from 'h3'
 import type { CampusRoleSlug } from '~/types/campus'
-import { normalizeEmail, requireCampusStaff } from '~/server/utils/campus-admin'
+import { normalizeEmail, requireCampusStaff } from '../../../utils/campus-admin'
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 const TEACHING_ROLES: CampusRoleSlug[] = ['docente', 'tutor']
