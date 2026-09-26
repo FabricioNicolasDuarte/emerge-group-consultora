@@ -25,3 +25,11 @@ temp-course-styles.css
 .env
 .env.*
 !.env.example
+
+# Credenciales de alumnos (locales)
+credentials/*.local.csv
+credentials/*.local.xlsx
+credentials/*generadas*
+credentials/*pendientes*
+!credentials/alumnos.example.csv
+!credentials/README.md

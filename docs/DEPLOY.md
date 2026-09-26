@@ -119,16 +119,17 @@ Buckets usados por la app: `announcement-media`, uploads del editor, etc. Las po
 
 ### Sitio y campus
 
-- [ ] `/` carga marketing (hero, contacto, WhatsApp)
-- [ ] `/campus` catálogo y programas públicos
-- [ ] Login / registro / recuperar contraseña
-- [ ] Panel alumno, docente y admin según rol
+- [x] `/` carga marketing (hero, contacto, WhatsApp)
+- [x] `/campus` catálogo y programas públicos
+- [x] Login / registro / recuperar contraseña (Auth URLs configuradas)
+- [ ] Panel alumno, docente y admin según rol (smoke manual)
 
 ### Académico
 
-- [ ] Crear curso, módulos y clases (admin)
-- [ ] Inscripción manual o gratuita
-- [ ] **Solicitudes** → Importar Excel → Crear listos → CSV de claves
+- [x] Crear curso, módulos y clases (admin)
+- [x] Inscripción manual o gratuita
+- [x] **Solicitudes** → Importar Excel → Crear listos → CSV de claves
+- [x] Alta masiva verdes desde `INSCRIPTOS DIPLOMATURA.xlsx` (script `alumnos:provision`)
 - [ ] Progreso y certificado al 100%
 - [ ] Certificado público `/campus/certificados/[codigo]`
 
@@ -137,7 +138,7 @@ Buckets usados por la app: `announcement-media`, uploads del editor, etc. Las po
 - [ ] Anuncios públicos y por audiencia
 - [ ] Buzón interno entre roles
 
-### Opcional (pagos)
+### Opcional (pagos) — pendiente / fuera de alcance actual
 
 - [ ] Checkout Mercado Pago en curso de pago
 - [ ] Webhook `POST /api/payments/webhook` configurado en MP

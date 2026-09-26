@@ -17,7 +17,7 @@ export default defineNuxtConfig({
     mercadopagoAccessToken: process.env.MERCADOPAGO_ACCESS_TOKEN || '',
     mercadopagoSandbox: process.env.MERCADOPAGO_SANDBOX || 'true',
     public: {
-      appUrl: process.env.NUXT_PUBLIC_APP_URL || 'http://localhost:3000',
+      appUrl: process.env.NUXT_PUBLIC_APP_URL || 'https://emerge-group-consultora.vercel.app',
       appVersion: pkg.version || '1.0.0',
       paymentsEnabled: Boolean(process.env.MERCADOPAGO_ACCESS_TOKEN),
       /** Opcional: sobreescribe app.config.ts → contact.email */
