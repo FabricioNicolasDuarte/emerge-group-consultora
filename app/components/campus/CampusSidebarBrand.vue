@@ -21,13 +21,13 @@ const showCompactLogo = computed(() => collapsed.value && isWide.value)
   <NuxtLink to="/campus" class="cp-brand" :title="brand.name">
     <img
       v-if="!showCompactLogo"
-      :src="logo('mark')"
+      :src="logo('markOnDark')"
       :alt="brand.name"
       class="cp-brand__logo cp-brand__logo--mark cp-brand__logo--expanded"
     >
     <img
       v-else
-      :src="logo('mark')"
+      :src="logo('markOnDark')"
       alt=""
       class="cp-brand__logo cp-brand__logo--mark"
       aria-hidden="true"

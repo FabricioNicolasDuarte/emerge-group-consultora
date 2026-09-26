@@ -326,13 +326,14 @@ provide('campusMobileNav', { mobileOpen, toggleMobileNav, closeMobileNav })
 .cp-brand__logo--mark {
   width: 32px;
   height: 32px;
+  object-fit: contain;
+  display: block;
+  border-radius: 8px;
 }
 
 .cp-brand__logo--expanded {
   width: 40px;
   height: 40px;
-  filter: brightness(0) invert(1);
-  opacity: 0.95;
 }
 
 .cp-campus-tag {
