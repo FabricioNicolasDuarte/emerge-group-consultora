@@ -60,6 +60,7 @@ const admin = useAdminCampusData()
       <div class="preview-links">
         <CampusSectionPreview title="Cursos" :description="`${admin.courses.length} en total`" to="/campus/admin/cursos" />
         <CampusSectionPreview title="Alumnos" :description="`${admin.students.length} registrados`" to="/campus/admin/alumnos" />
+        <CampusSectionPreview title="Docentes" :description="`${admin.teachers.length} con rol docente/tutor`" to="/campus/admin/docentes" />
         <CampusSectionPreview title="Inscripciones" :description="`${admin.recentEnrollments.length} recientes`" to="/campus/admin/inscripciones" />
         <CampusSectionPreview title="Reportes" description="Análisis completo" to="/campus/admin/reportes" />
       </div>

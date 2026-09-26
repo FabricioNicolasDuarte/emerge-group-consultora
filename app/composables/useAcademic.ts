@@ -1,6 +1,8 @@
 import type {
   AdminCourseRow,
+  AssignmentRole,
   CampusStats,
+  CourseAssignmentRow,
   CourseCatalogItem,
   CreateCourseInput,
   CreateEnrollmentInput,
@@ -120,6 +122,34 @@ export function useAcademic() {
     return data
   }
 
+  async function unassignTeacher(assignmentId: string) {
+    const { error } = await supabase
+      .from('course_assignments')
+      .delete()
+      .eq('id', assignmentId)
+
+    if (error) throw error
+  }
+
+  async function fetchCourseAssignments() {
+    const { data, error } = await supabase
+      .from('course_assignments')
+      .select('id, course_id, teacher_id, role, assigned_at')
+      .order('assigned_at', { ascending: false })
+
+    if (error) throw error
+
+    return (data ?? []).map((row) => ({
+      id: row.id as string,
+      course_id: row.course_id as string,
+      teacher_id: row.teacher_id as string,
+      role: row.role as AssignmentRole,
+      assigned_at: row.assigned_at as string,
+      course_title: '',
+      teacher_name: '',
+    })) as CourseAssignmentRow[]
+  }
+
   async function fetchCampusStats(): Promise<CampusStats> {
     const [courses, students] = await Promise.all([
       fetchAdminCourses(),
@@ -214,11 +244,13 @@ export function useAcademic() {
     fetchRecentEnrollments,
     fetchStudents,
     fetchTeachers,
+    fetchCourseAssignments,
     fetchCampusStats,
     createCourse,
     updateCourseCohort,
     createEnrollment,
     updateCourseStatus,
     assignTeacher,
+    unassignTeacher,
   }
 }

@@ -111,16 +111,36 @@ const admin = useAdminCampusData()
       @click.self="admin.showTeacherForm = false"
     >
       <div class="modal-card">
-        <h2 id="modal-teacher-title">Asignar docente</h2>
-        <p class="modal-hint">{{ admin.teacherAssignment.course_title }}</p>
+        <h2 id="modal-teacher-title">
+          {{ admin.teacherAssignment.mode === 'teacher' ? 'Asignar curso' : 'Asignar docente' }}
+        </h2>
+        <p class="modal-hint">
+          {{ admin.teacherAssignment.mode === 'teacher'
+            ? admin.teacherAssignment.teacher_name
+            : admin.teacherAssignment.course_title }}
+        </p>
         <form @submit.prevent="admin.onAssignTeacher">
-          <label for="teacher-assign-select">Docente o tutor</label>
-          <select id="teacher-assign-select" v-model="admin.teacherAssignment.teacher_id" required>
-            <option value="">Seleccionar</option>
-            <option v-for="teacher in admin.teachers" :key="teacher.id" :value="teacher.id">
-              {{ teacher.full_name }} ({{ teacher.email }})
-            </option>
-          </select>
+          <template v-if="admin.teacherAssignment.mode === 'course'">
+            <label for="teacher-assign-select">Docente o tutor</label>
+            <select id="teacher-assign-select" v-model="admin.teacherAssignment.teacher_id" required>
+              <option value="">Seleccionar</option>
+              <option v-for="teacher in admin.teachers" :key="teacher.id" :value="teacher.id">
+                {{ teacher.full_name }} ({{ teacher.email }})
+              </option>
+            </select>
+          </template>
+          <template v-else>
+            <label for="course-assign-select">Curso</label>
+            <select id="course-assign-select" v-model="admin.teacherAssignment.course_id" required>
+              <option value="">Seleccionar</option>
+              <option v-for="course in admin.availableCoursesForTeacher" :key="course.id" :value="course.id">
+                {{ course.title }}
+              </option>
+            </select>
+            <p v-if="!admin.availableCoursesForTeacher.length" class="modal-hint">
+              Este docente ya está en todos los cursos cargados.
+            </p>
+          </template>
           <label for="teacher-assign-role">Rol en el curso</label>
           <select id="teacher-assign-role" v-model="admin.teacherAssignment.role">
             <option value="docente">Docente</option>
@@ -128,7 +148,46 @@ const admin = useAdminCampusData()
           </select>
           <div class="modal-actions">
             <button type="button" class="btn-secondary" @click="admin.showTeacherForm = false">Cancelar</button>
-            <button type="submit" class="btn-primary" :disabled="admin.formLoading || !admin.teachers.length">Asignar</button>
+            <button
+              type="submit"
+              class="btn-primary"
+              :disabled="admin.formLoading || (admin.teacherAssignment.mode === 'course' ? !admin.teachers.length : !admin.availableCoursesForTeacher.length)"
+            >
+              Asignar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div
+      v-if="admin.showTeacherUserForm"
+      class="modal-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-new-teacher-title"
+      @click.self="admin.showTeacherUserForm = false"
+    >
+      <div class="modal-card">
+        <h2 id="modal-new-teacher-title">Nuevo docente</h2>
+        <p class="modal-hint">Crea un usuario con acceso al panel docente.</p>
+        <form @submit.prevent="admin.onCreateTeacher">
+          <label for="new-teacher-name">Nombre completo</label>
+          <input id="new-teacher-name" v-model="admin.newTeacher.full_name" required placeholder="Nombre y apellido">
+          <label for="new-teacher-email">Correo</label>
+          <input id="new-teacher-email" v-model="admin.newTeacher.email" type="email" required placeholder="correo@ejemplo.com">
+          <label for="new-teacher-password">Contraseña temporal</label>
+          <input id="new-teacher-password" v-model="admin.newTeacher.password" type="text" required minlength="8" placeholder="Mínimo 8 caracteres" autocomplete="new-password">
+          <label for="new-teacher-role">Rol</label>
+          <select id="new-teacher-role" v-model="admin.newTeacher.role">
+            <option value="docente">Docente</option>
+            <option value="tutor">Tutor</option>
+          </select>
+          <div class="modal-actions">
+            <button type="button" class="btn-secondary" @click="admin.showTeacherUserForm = false">Cancelar</button>
+            <button type="submit" class="btn-primary" :disabled="admin.formLoading">
+              {{ admin.formLoading ? 'Creando…' : 'Crear docente' }}
+            </button>
           </div>
         </form>
       </div>

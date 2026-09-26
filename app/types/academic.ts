@@ -67,6 +67,16 @@ export interface TeachingCourse {
   enrollment_count: number
 }
 
+export interface CourseAssignmentRow {
+  id: string
+  course_id: string
+  teacher_id: string
+  role: AssignmentRole
+  assigned_at: string
+  course_title: string
+  teacher_name: string
+}
+
 export interface RecentEnrollment {
   id: string
   progress_percent: number

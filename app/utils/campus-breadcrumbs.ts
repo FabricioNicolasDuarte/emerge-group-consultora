@@ -24,6 +24,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   avisos: 'Avisos',
   progreso: 'Mi progreso',
   alumnos: 'Alumnos',
+  docentes: 'Docentes',
   inscripciones: 'Inscripciones',
   nuevo: 'Nuevo',
   editar: 'Editar',

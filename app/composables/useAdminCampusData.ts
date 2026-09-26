@@ -1,4 +1,4 @@
-import type { AdminCourseRow, RecentEnrollment, StudentProfile } from '~/types/academic'
+import type { AdminCourseRow, CourseAssignmentRow, RecentEnrollment, StudentProfile } from '~/types/academic'
 import { formatSupabaseError } from '~/utils/supabase-error'
 
 function toDatetimeLocalValue(iso?: string | null) {
@@ -57,7 +57,9 @@ function createAdminCampusData() {
     updateCourseStatus,
     updateCourseCohort,
     fetchTeachers,
+    fetchCourseAssignments,
     assignTeacher,
+    unassignTeacher,
   } = useAcademic()
 
   const courses = useState<AdminCourseRow[]>('admin-courses', () => [])
@@ -69,6 +71,7 @@ function createAdminCampusData() {
   }))
   const students = useState<StudentProfile[]>('admin-students', () => [])
   const teachers = useState<{ id: string, full_name: string, email: string | null }[]>('admin-teachers', () => [])
+  const courseAssignments = useState<CourseAssignmentRow[]>('admin-course-assignments', () => [])
   const loading = useState('admin-campus-loading', () => true)
   const errorMessage = useState('admin-error', () => '')
   const successMessage = useState('admin-success', () => '')
@@ -76,6 +79,7 @@ function createAdminCampusData() {
   const showCourseForm = ref(false)
   const showEnrollmentForm = ref(false)
   const showStudentForm = ref(false)
+  const showTeacherUserForm = ref(false)
   const showPriceForm = ref(false)
   const showCohortForm = ref(false)
   const showTeacherForm = ref(false)
@@ -115,16 +119,25 @@ function createAdminCampusData() {
     audience: '',
     challenge: '',
   })
+  const newTeacher = reactive({
+    full_name: '',
+    email: '',
+    password: '',
+    role: 'docente' as 'docente' | 'tutor',
+  })
   const teacherAssignment = reactive({
+    mode: 'course' as 'course' | 'teacher',
     course_id: '',
     course_title: '',
     teacher_id: '',
+    teacher_name: '',
     role: 'docente' as 'docente' | 'tutor',
   })
 
   const courseSearch = ref('')
   const studentSearch = ref('')
   const enrollmentSearch = ref('')
+  const teacherSearch = ref('')
 
   const filteredCourses = computed(() => {
     const list = (courses.value ?? []).filter((c) => Boolean(c?.id))
@@ -160,6 +173,35 @@ function createAdminCampusData() {
     )
   })
 
+  const filteredTeachers = computed(() => {
+    const list = [...(teachers.value ?? [])].filter((t) => Boolean(t?.id && t.full_name))
+      .sort((a, b) => a.full_name.localeCompare(b.full_name, 'es'))
+    const q = teacherSearch.value.trim().toLowerCase()
+    if (!q) return list
+    return list.filter((t) =>
+      t.full_name.toLowerCase().includes(q)
+      || (t.email ?? '').toLowerCase().includes(q),
+    )
+  })
+
+  const assignmentsByTeacher = computed(() => {
+    const map: Record<string, CourseAssignmentRow[]> = {}
+    for (const row of courseAssignments.value) {
+      const list = map[row.teacher_id] ?? []
+      list.push(row)
+      map[row.teacher_id] = list
+    }
+    return map
+  })
+
+  const availableCoursesForTeacher = computed(() => {
+    if (!teacherAssignment.teacher_id) return courses.value
+    const assigned = new Set(
+      (assignmentsByTeacher.value[teacherAssignment.teacher_id] ?? []).map((a) => a.course_id),
+    )
+    return courses.value.filter((c) => !assigned.has(c.id))
+  })
+
   const completedEnrollments = computed(() =>
     recentEnrollments.value.filter((row) => row.progress_percent >= 100),
   )
@@ -189,6 +231,20 @@ function createAdminCampusData() {
     return counts
   })
 
+  function enrichAssignments(
+    rows: CourseAssignmentRow[],
+    courseRows: AdminCourseRow[],
+    teacherRows: { id: string, full_name: string, email: string | null }[],
+  ) {
+    const courseTitles = new Map(courseRows.map((c) => [c.id, c.title]))
+    const teacherNames = new Map(teacherRows.map((t) => [t.id, t.full_name]))
+    return rows.map((row) => ({
+      ...row,
+      course_title: courseTitles.get(row.course_id) || row.course_title || 'Curso',
+      teacher_name: teacherNames.get(row.teacher_id) || row.teacher_name || 'Docente',
+    }))
+  }
+
   function statusLabel(status: string) {
     if (status === 'published') return 'Activo'
     if (status === 'archived') return 'Archivado'
@@ -211,12 +267,12 @@ function createAdminCampusData() {
 
     const request = (async () => {
       try {
-        // Una sola pasada: stats se deriva de cursos/alumnos (evita fetchCampusStats duplicado).
-        const [courseRows, enrollmentRows, studentRows, teacherRows] = await Promise.all([
+        const [courseRows, enrollmentRows, studentRows, teacherRows, assignmentRows] = await Promise.all([
           fetchAdminCourses().catch((e: unknown) => { errors.push(`Cursos: ${formatSupabaseError(e)}`); return [] as AdminCourseRow[] }),
           fetchRecentEnrollments().catch((e: unknown) => { errors.push(`Inscripciones: ${formatSupabaseError(e)}`); return [] as RecentEnrollment[] }),
           fetchStudents().catch((e: unknown) => { errors.push(`Alumnos: ${formatSupabaseError(e)}`); return [] }),
           fetchTeachers().catch((e: unknown) => { errors.push(`Docentes: ${formatSupabaseError(e)}`); return [] }),
+          fetchCourseAssignments().catch((e: unknown) => { errors.push(`Asignaciones: ${formatSupabaseError(e)}`); return [] as CourseAssignmentRow[] }),
         ])
         if (generation !== loadGeneration.value) return
 
@@ -224,6 +280,7 @@ function createAdminCampusData() {
         recentEnrollments.value = enrollmentRows
         students.value = studentRows
         teachers.value = teacherRows
+        courseAssignments.value = enrichAssignments(assignmentRows, courseRows, teacherRows)
         stats.value = {
           publishedCourses: courseRows.filter((c) => c.status === 'published').length,
           totalStudents: studentRows.length,
@@ -402,9 +459,21 @@ function createAdminCampusData() {
   }
 
   function openTeacherForm(course: AdminCourseRow) {
+    teacherAssignment.mode = 'course'
     teacherAssignment.course_id = course.id
     teacherAssignment.course_title = course.title
     teacherAssignment.teacher_id = ''
+    teacherAssignment.teacher_name = ''
+    teacherAssignment.role = 'docente'
+    showTeacherForm.value = true
+  }
+
+  function openAssignCourseForm(teacher: { id: string, full_name: string, email: string | null }) {
+    teacherAssignment.mode = 'teacher'
+    teacherAssignment.teacher_id = teacher.id
+    teacherAssignment.teacher_name = teacher.full_name
+    teacherAssignment.course_id = ''
+    teacherAssignment.course_title = ''
     teacherAssignment.role = 'docente'
     showTeacherForm.value = true
   }
@@ -412,13 +481,65 @@ function createAdminCampusData() {
   async function onAssignTeacher() {
     if (!teacherAssignment.course_id || !teacherAssignment.teacher_id) return
     formLoading.value = true
+    errorMessage.value = ''
     try {
       await assignTeacher(teacherAssignment.course_id, teacherAssignment.teacher_id, teacherAssignment.role)
       showTeacherForm.value = false
-      successMessage.value = 'Docente asignado al curso.'
+      successMessage.value = 'Asignación guardada.'
       await loadData(true)
     } catch (error: unknown) {
       errorMessage.value = formatSupabaseError(error, 'No se pudo asignar el docente')
+    } finally {
+      formLoading.value = false
+    }
+  }
+
+  async function onUnassignTeacher(assignmentId: string) {
+    formLoading.value = true
+    errorMessage.value = ''
+    try {
+      await unassignTeacher(assignmentId)
+      successMessage.value = 'Asignación quitada.'
+      await loadData(true)
+    } catch (error: unknown) {
+      errorMessage.value = formatSupabaseError(error, 'No se pudo quitar la asignación')
+    } finally {
+      formLoading.value = false
+    }
+  }
+
+  async function onCreateTeacher() {
+    if (!newTeacher.full_name.trim() || !newTeacher.email.trim() || newTeacher.password.length < 8) {
+      errorMessage.value = 'Completá nombre, correo y una contraseña de al menos 8 caracteres.'
+      return
+    }
+    formLoading.value = true
+    errorMessage.value = ''
+    successMessage.value = ''
+    try {
+      await $fetch('/api/campus/admin/users', {
+        method: 'POST',
+        body: {
+          fullName: newTeacher.full_name.trim(),
+          email: newTeacher.email.trim(),
+          password: newTeacher.password,
+          role: newTeacher.role,
+        },
+      })
+      showTeacherUserForm.value = false
+      Object.assign(newTeacher, {
+        full_name: '',
+        email: '',
+        password: '',
+        role: 'docente',
+      })
+      successMessage.value = 'Docente creado. Ya podés asignarle cursos.'
+      await loadData(true)
+    } catch (error: unknown) {
+      const message = error && typeof error === 'object' && 'data' in error
+        ? String((error as { data?: { statusMessage?: string } }).data?.statusMessage || '')
+        : ''
+      errorMessage.value = message || (error instanceof Error ? error.message : 'No se pudo crear el docente')
     } finally {
       formLoading.value = false
     }
@@ -436,12 +557,14 @@ function createAdminCampusData() {
     stats,
     students,
     teachers,
+    courseAssignments,
     loading,
     errorMessage,
     successMessage,
     showCourseForm,
     showEnrollmentForm,
     showStudentForm,
+    showTeacherUserForm,
     showPriceForm,
     showCohortForm,
     showTeacherForm,
@@ -451,13 +574,18 @@ function createAdminCampusData() {
     newCourse,
     newEnrollment,
     newStudent,
+    newTeacher,
     teacherAssignment,
     courseSearch,
     studentSearch,
     enrollmentSearch,
+    teacherSearch,
     filteredCourses,
     filteredStudents,
     filteredEnrollments,
+    filteredTeachers,
+    assignmentsByTeacher,
+    availableCoursesForTeacher,
     completedEnrollments,
     avgEnrollmentProgress,
     topCoursesByEnrollment,
@@ -468,12 +596,15 @@ function createAdminCampusData() {
     onCreateCourse,
     onCreateEnrollment,
     onCreateStudent,
+    onCreateTeacher,
     togglePublish,
     openPriceForm,
     onUpdatePrice,
     openCohortForm,
     onUpdateCohort,
     openTeacherForm,
+    openAssignCourseForm,
     onAssignTeacher,
+    onUnassignTeacher,
   })
 }
