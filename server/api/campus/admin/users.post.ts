@@ -3,43 +3,74 @@ import type { CampusRoleSlug } from '~/types/campus'
 
 const ALLOWED_ROLES: CampusRoleSlug[] = ['alumno', 'docente', 'tutor', 'coordinador', 'admin']
 const STAFF_SLUGS = ['superadmin', 'admin', 'coordinador'] as const
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+
+function assertUuid(value: unknown, label: string): string {
+  if (typeof value !== 'string' || !UUID_RE.test(value)) {
+    throw createError({
+      statusCode: 500,
+      statusMessage: `${label} inválido (${String(value)})`,
+    })
+  }
+  return value
+}
 
 async function assignCampusRole(
   admin: ReturnType<typeof serverSupabaseServiceRole>,
   userId: string,
   roleSlug: CampusRoleSlug,
 ) {
-  const { error: rpcError } = await admin.rpc('dev_assign_campus_role', {
-    p_user_id: userId,
-    p_role_slug: roleSlug,
-  })
-  if (!rpcError) return
+  const safeUserId = assertUuid(userId, 'ID de usuario')
 
-  // Fallback si la RPC no está desplegada: insert directo con service_role
   const { data: roleRow, error: roleLookupError } = await admin
     .from('roles')
     .select('id')
     .eq('slug', roleSlug)
     .maybeSingle()
 
-  if (roleLookupError || !roleRow?.id) {
+  if (roleLookupError) {
     throw createError({
       statusCode: 500,
-      statusMessage: `No se pudo asignar el rol «${roleSlug}»: ${rpcError.message}`,
+      statusMessage: `No se pudo leer el rol «${roleSlug}»: ${roleLookupError.message}`,
     })
   }
 
-  await admin.from('user_roles').delete().eq('user_id', userId)
+  if (roleRow?.id == null) {
+    throw createError({
+      statusCode: 500,
+      statusMessage: `Rol «${roleSlug}» no encontrado en la base`,
+    })
+  }
+
+  // Reemplazar roles previos (el trigger deja «alumno» al crear la cuenta).
+  const { error: deleteError } = await admin
+    .from('user_roles')
+    .delete()
+    .eq('user_id', safeUserId)
+
+  if (deleteError) {
+    throw createError({
+      statusCode: 500,
+      statusMessage: `No se pudo limpiar roles previos: ${deleteError.message}`,
+    })
+  }
 
   const { error: insertError } = await admin
     .from('user_roles')
-    .insert({ user_id: userId, role_id: roleRow.id })
+    .insert({ user_id: safeUserId, role_id: roleRow.id })
 
   if (insertError) {
-    throw createError({
-      statusCode: 500,
-      statusMessage: `Usuario creado, pero falló el rol: ${insertError.message}`,
+    // Fallback a RPC solo si el insert directo falla por RLS/permisos
+    const { error: rpcError } = await admin.rpc('dev_assign_campus_role', {
+      p_user_id: safeUserId,
+      p_role_slug: roleSlug,
     })
+    if (rpcError) {
+      throw createError({
+        statusCode: 500,
+        statusMessage: `Usuario creado, pero falló el rol: ${insertError.message}`,
+      })
+    }
   }
 }
 
@@ -110,7 +141,6 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 403, statusMessage: 'Solo superadmin puede crear admins' })
   }
 
-  // Ojo: no llamar `createError` al error de Auth — sombrea el helper de h3.
   const { data: created, error: authCreateError } = await admin.auth.admin.createUser({
     email,
     password,
@@ -118,19 +148,20 @@ export default defineEventHandler(async (event) => {
     user_metadata: { full_name: fullName },
   })
 
-  if (authCreateError || !created.user) {
+  if (authCreateError || !created?.user) {
     throw createError({
       statusCode: 400,
       statusMessage: authCreateError?.message || 'No se pudo crear el usuario',
     })
   }
 
-  // El trigger ya asigna rol alumno. Si pidieron otro, lo reemplazamos.
+  const userId = assertUuid(created.user.id, 'ID del usuario creado')
+
   if (role !== 'alumno') {
-    await assignCampusRole(admin, created.user.id, role)
+    await assignCampusRole(admin, userId, role)
   }
 
-  await admin
+  const { error: profileError } = await admin
     .from('profiles')
     .update({
       full_name: fullName,
@@ -142,10 +173,17 @@ export default defineEventHandler(async (event) => {
       audience,
       challenge,
     })
-    .eq('id', created.user.id)
+    .eq('id', userId)
+
+  if (profileError) {
+    throw createError({
+      statusCode: 500,
+      statusMessage: `Usuario creado, pero falló el perfil: ${profileError.message}`,
+    })
+  }
 
   return {
-    id: created.user.id,
+    id: userId,
     email,
     full_name: fullName,
     phone,

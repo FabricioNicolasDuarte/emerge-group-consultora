@@ -493,11 +493,17 @@ function createAdminCampusData() {
   }
 
   async function onAssignTeacher() {
-    if (!teacherAssignment.course_id || !teacherAssignment.teacher_id) return
+    const courseId = String(teacherAssignment.course_id || '').trim()
+    const teacherId = String(teacherAssignment.teacher_id || '').trim()
+    const uuidRe = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+    if (!uuidRe.test(courseId) || !uuidRe.test(teacherId)) {
+      errorMessage.value = 'Seleccioná un curso y un docente válidos.'
+      return
+    }
     formLoading.value = true
     errorMessage.value = ''
     try {
-      await assignTeacher(teacherAssignment.course_id, teacherAssignment.teacher_id, teacherAssignment.role)
+      await assignTeacher(courseId, teacherId, teacherAssignment.role)
       showTeacherForm.value = false
       successMessage.value = 'Asignación guardada.'
       await loadData(true)

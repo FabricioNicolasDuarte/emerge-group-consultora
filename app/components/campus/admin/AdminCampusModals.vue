@@ -123,8 +123,12 @@ const admin = useAdminCampusData()
           <template v-if="admin.teacherAssignment.mode === 'course'">
             <label for="teacher-assign-select">Docente o tutor</label>
             <select id="teacher-assign-select" v-model="admin.teacherAssignment.teacher_id" required>
-              <option value="">Seleccionar</option>
-              <option v-for="teacher in admin.teachers" :key="teacher.id" :value="teacher.id">
+              <option disabled value="">Seleccionar</option>
+              <option
+                v-for="teacher in admin.teachers.filter((t) => t.id)"
+                :key="teacher.id"
+                :value="teacher.id"
+              >
                 {{ teacher.full_name }} ({{ teacher.email }})
               </option>
             </select>
@@ -132,8 +136,12 @@ const admin = useAdminCampusData()
           <template v-else>
             <label for="course-assign-select">Curso</label>
             <select id="course-assign-select" v-model="admin.teacherAssignment.course_id" required>
-              <option value="">Seleccionar</option>
-              <option v-for="course in admin.availableCoursesForTeacher" :key="course.id" :value="course.id">
+              <option disabled value="">Seleccionar</option>
+              <option
+                v-for="course in admin.availableCoursesForTeacher.filter((c) => c.id)"
+                :key="course.id"
+                :value="course.id"
+              >
                 {{ course.title }}
               </option>
             </select>
