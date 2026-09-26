@@ -5,15 +5,24 @@ const STAFF_SLUGS = ['superadmin', 'admin', 'coordinador'] as const
 
 export async function requireCampusStaff(event: H3Event) {
   const caller = await serverSupabaseUser(event)
-  if (!caller) {
+  if (!caller?.id) {
     throw createError({ statusCode: 401, statusMessage: 'No autenticado' })
+  }
+
+  // Evita el error Postgres: invalid input syntax for type uuid: "undefined"
+  const callerId = String(caller.id)
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(callerId)) {
+    throw createError({
+      statusCode: 401,
+      statusMessage: 'Sesión inválida (sin id de usuario). Cerrá sesión y volvé a ingresar.',
+    })
   }
 
   const admin = serverSupabaseServiceRole(event)
   const { data: callerRoles, error: rolesError } = await admin
     .from('user_roles')
     .select('roles!inner(slug)')
-    .eq('user_id', caller.id)
+    .eq('user_id', callerId)
 
   if (rolesError) {
     throw createError({ statusCode: 500, statusMessage: rolesError.message })
@@ -30,7 +39,7 @@ export async function requireCampusStaff(event: H3Event) {
     throw createError({ statusCode: 403, statusMessage: 'Sin permiso de administración' })
   }
 
-  return { caller, admin, slugs }
+  return { caller: { ...caller, id: callerId }, admin, slugs }
 }
 
 export function generateTemporaryPassword(length = 10) {

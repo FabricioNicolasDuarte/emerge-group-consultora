@@ -6,15 +6,18 @@ function extractFetchError(error: unknown, fallback: string) {
     return error instanceof Error ? error.message : fallback
   }
   const err = error as {
-    data?: { statusMessage?: string, message?: string }
+    data?: { statusMessage?: string, message?: string, statusCode?: number }
     statusMessage?: string
     message?: string
+    statusCode?: number
   }
-  return err.data?.statusMessage
+  const raw = err.data?.statusMessage
     || err.data?.message
     || err.statusMessage
     || err.message
     || fallback
+  // ofetch a veces antepone "[POST] ...: "
+  return String(raw).replace(/^\[[A-Z]+\]\s+\S+:\s*/i, '').trim() || fallback
 }
 
 function toDatetimeLocalValue(iso?: string | null) {
@@ -538,17 +541,18 @@ function createAdminCampusData() {
       errorMessage.value = 'Si cargás contraseña, debe tener al menos 8 caracteres.'
       return
     }
+    const role = newTeacher.role === 'tutor' ? 'tutor' : 'docente'
     formLoading.value = true
     errorMessage.value = ''
     successMessage.value = ''
     try {
-      const result = await $fetch<{ created?: boolean, promoted?: boolean }>('/api/campus/admin/users', {
+      const result = await $fetch<{ created?: boolean, promoted?: boolean }>('/api/campus/admin/teachers', {
         method: 'POST',
         body: {
           fullName: newTeacher.full_name.trim(),
-          email: newTeacher.email.trim(),
-          password,
-          role: newTeacher.role,
+          email: newTeacher.email.trim().toLowerCase(),
+          role,
+          ...(password ? { password } : {}),
         },
       })
       showTeacherUserForm.value = false
@@ -563,7 +567,7 @@ function createAdminCampusData() {
         : 'Docente creado. Ya podés asignarle cursos.'
       await loadData(true)
     } catch (error: unknown) {
-      errorMessage.value = extractFetchError(error, 'No se pudo crear el docente')
+      errorMessage.value = extractFetchError(error, 'No se pudo guardar el docente')
     } finally {
       formLoading.value = false
     }
