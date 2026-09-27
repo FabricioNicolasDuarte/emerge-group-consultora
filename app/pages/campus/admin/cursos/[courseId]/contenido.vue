@@ -11,6 +11,8 @@ definePageMeta({
 const route = useRoute()
 const courseId = computed(() => route.params.courseId as string)
 const { panelPath, panelLabel } = useCampusBackLink()
+const { hasRole } = useCampusAuth()
+const canMutateContent = computed(() => hasRole('superadmin'))
 
 const {
   fetchCourseById,
@@ -74,6 +76,7 @@ async function loadData() {
 }
 
 async function onCreateModule() {
+  if (!canMutateContent.value) return
   if (!newModuleTitle.value.trim()) return
   saving.value = true
   try {
@@ -101,6 +104,7 @@ function getLessonForm(moduleId: string) {
 }
 
 async function onCreateLesson(moduleId: string) {
+  if (!canMutateContent.value) return
   const form = getLessonForm(moduleId)
   if (!form.title.trim()) return
   saving.value = true
@@ -126,6 +130,7 @@ async function onCreateLesson(moduleId: string) {
 }
 
 async function togglePublish(lesson: LessonRow) {
+  if (!canMutateContent.value) return
   saving.value = true
   try {
     await updateLesson(lesson.id, { is_published: !lesson.is_published })
@@ -138,6 +143,7 @@ async function togglePublish(lesson: LessonRow) {
 }
 
 async function onDeleteModule(moduleId: string) {
+  if (!canMutateContent.value) return
   if (!confirm('¿Eliminar este módulo y todas sus clases?')) return
   saving.value = true
   try {
@@ -151,6 +157,7 @@ async function onDeleteModule(moduleId: string) {
 }
 
 async function onDeleteLesson(lessonId: string) {
+  if (!canMutateContent.value) return
   if (!confirm('¿Eliminar esta clase?')) return
   saving.value = true
   try {
@@ -187,6 +194,7 @@ async function onExpandModule(moduleId: string) {
 }
 
 async function onUploadMaterial(lesson: LessonRow, event: Event) {
+  if (!canMutateContent.value) return
   const input = event.target as HTMLInputElement
   const file = input.files?.[0]
   if (!file) return
@@ -204,6 +212,7 @@ async function onUploadMaterial(lesson: LessonRow, event: Event) {
 }
 
 async function onDeleteMaterial(material: LessonMaterial) {
+  if (!canMutateContent.value) return
   if (!confirm(`¿Eliminar "${material.title}"?`)) return
   saving.value = true
   try {
@@ -218,11 +227,12 @@ async function onDeleteMaterial(material: LessonMaterial) {
 }
 
 async function onEditLesson(lesson: LessonRow) {
+  if (!canMutateContent.value) return
   editingLesson.value = { ...lesson }
 }
 
 async function onSaveLesson() {
-  if (!editingLesson.value) return
+  if (!canMutateContent.value || !editingLesson.value) return
   saving.value = true
   try {
     await updateLesson(editingLesson.value.id, {
@@ -266,8 +276,11 @@ onMounted(loadData)
     <p v-if="errorMessage" class="campus-banner campus-banner--error">{{ errorMessage }}</p>
     <p v-if="successMessage" class="campus-banner campus-banner--success">{{ successMessage }}</p>
     <p v-if="loading" class="campus-banner">Cargando contenido…</p>
+    <p v-if="!loading && course && !canMutateContent" class="campus-banner">
+      Solo el <strong>superadmin</strong> puede crear, editar o eliminar módulos y clases. Podés consultar el contenido.
+    </p>
 
-    <section v-if="!loading && course" class="campus-admin-panel campus-card">
+    <section v-if="!loading && course && canMutateContent" class="campus-admin-panel campus-card">
       <h2>Nuevo módulo</h2>
       <div class="campus-inline-form">
         <input v-model="newModuleTitle" type="text" placeholder="Título del módulo" aria-label="Título del módulo">
@@ -285,9 +298,14 @@ onMounted(loadData)
         </div>
         <div class="campus-course-actions">
           <button type="button" class="campus-btn" @click="onExpandModule(mod.id)">
-            {{ expandedModule === mod.id ? 'Ocultar' : 'Gestionar clases' }}
+            {{ expandedModule === mod.id ? 'Ocultar' : (canMutateContent ? 'Gestionar clases' : 'Ver clases') }}
           </button>
-          <button type="button" class="campus-btn danger" @click="onDeleteModule(mod.id)">
+          <button
+            v-if="canMutateContent"
+            type="button"
+            class="campus-btn danger"
+            @click="onDeleteModule(mod.id)"
+          >
             Eliminar
           </button>
         </div>
@@ -302,7 +320,7 @@ onMounted(loadData)
               <template v-if="lesson.video_url"> · Video cargado</template>
             </small>
           </div>
-          <div class="campus-course-actions">
+          <div v-if="canMutateContent" class="campus-course-actions">
             <button type="button" class="campus-btn" @click="onEditLesson(lesson)">Editar</button>
             <button type="button" class="campus-btn" @click="togglePublish(lesson)">
               {{ lesson.is_published ? 'Ocultar' : 'Publicar' }}
@@ -321,13 +339,20 @@ onMounted(loadData)
             <li v-for="material in lessonMaterials[lesson.id]" :key="material.id">
               <span>{{ material.title }}</span>
               <small>{{ material.mime_type || 'archivo' }}</small>
-              <button type="button" class="campus-btn danger" @click="onDeleteMaterial(material)">Eliminar</button>
+              <button
+                v-if="canMutateContent"
+                type="button"
+                class="campus-btn danger"
+                @click="onDeleteMaterial(material)"
+              >
+                Eliminar
+              </button>
             </li>
           </ul>
           <p v-else class="course-materials-hint">Sin materiales adjuntos.</p>
         </div>
 
-        <div class="campus-inline-form">
+        <div v-if="canMutateContent" class="campus-inline-form">
           <input v-model="getLessonForm(mod.id).title" type="text" placeholder="Título de la clase" aria-label="Título de la clase">
           <input v-model="getLessonForm(mod.id).video_url" type="url" placeholder="URL de YouTube/Vimeo (opcional)" aria-label="URL de video de la clase">
           <button type="button" class="campus-btn campus-btn--primary" :disabled="saving" @click="onCreateLesson(mod.id)">
@@ -337,7 +362,7 @@ onMounted(loadData)
       </div>
     </section>
 
-    <div v-if="editingLesson" class="campus-modal-overlay" @click.self="editingLesson = null">
+    <div v-if="editingLesson && canMutateContent" class="campus-modal-overlay" @click.self="editingLesson = null">
       <div class="campus-modal">
         <h2>Editar clase</h2>
         <label>
