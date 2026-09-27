@@ -1,10 +1,9 @@
 import { createClient } from '@supabase/supabase-js'
-import { serverSupabaseUser } from '#supabase/server'
 import type { H3Event } from 'h3'
 import type { CampusRoleSlug } from '~/types/campus'
+import { requireCampusStaff } from '../../../utils/campus-admin'
 
 const ALLOWED_ROLES: CampusRoleSlug[] = ['alumno', 'docente', 'tutor', 'coordinador', 'admin']
-const STAFF_SLUGS = ['superadmin', 'admin', 'coordinador'] as const
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 
 function serviceClient(event: H3Event) {
@@ -153,32 +152,8 @@ async function assignTeachingRole(
 }
 
 export default defineEventHandler(async (event) => {
-  const caller = await serverSupabaseUser(event)
-  if (!caller?.id) {
-    throw createError({ statusCode: 401, statusMessage: 'No autenticado' })
-  }
-
+  await requireCampusStaff(event)
   const { admin, url, key } = serviceClient(event)
-
-  const { data: callerRoles, error: rolesError } = await admin
-    .from('user_roles')
-    .select('roles!inner(slug)')
-    .eq('user_id', caller.id)
-
-  if (rolesError) {
-    throw createError({ statusCode: 500, statusMessage: rolesError.message })
-  }
-
-  const slugs = (callerRoles ?? []).flatMap((row) => {
-    const roles = row.roles as { slug?: string } | { slug?: string }[] | null
-    if (!roles) return []
-    if (Array.isArray(roles)) return roles.map((r) => r.slug).filter(Boolean) as string[]
-    return roles.slug ? [roles.slug] : []
-  })
-
-  if (!slugs.some((slug) => (STAFF_SLUGS as readonly string[]).includes(slug))) {
-    throw createError({ statusCode: 403, statusMessage: 'Sin permiso para crear usuarios' })
-  }
 
   const body = await readBody<{
     email?: string

@@ -1,5 +1,6 @@
 import type { H3Event } from 'h3'
 import { serverSupabaseServiceRole, serverSupabaseUser } from '#supabase/server'
+import { resolveAuthUserId } from './campus-admin'
 import { createMercadoPagoPreference, fetchMercadoPagoPayment, mapMercadoPagoStatus } from '../utils/mercadopago'
 
 function buildExternalReference(courseId: string, studentId: string) {
@@ -17,8 +18,9 @@ export async function handleCreatePaymentPreference(event: H3Event, courseId: st
     })
   }
 
-  const user = await serverSupabaseUser(event)
-  if (!user) {
+  const claims = await serverSupabaseUser(event) as Record<string, unknown> | null
+  const userId = resolveAuthUserId(claims)
+  if (!userId) {
     throw createError({ statusCode: 401, statusMessage: 'No autenticado' })
   }
 
@@ -49,13 +51,13 @@ export async function handleCreatePaymentPreference(event: H3Event, courseId: st
     })
   }
 
-  const externalReference = buildExternalReference(course.id, user.id)
+  const externalReference = buildExternalReference(course.id, userId)
 
   const { data: paymentRow, error: paymentError } = await supabase
     .from('course_payments')
     .insert({
       course_id: course.id,
-      student_id: user.id,
+      student_id: userId,
       amount: course.price_amount,
       currency: course.price_currency ?? 'ARS',
       status: 'pending',
