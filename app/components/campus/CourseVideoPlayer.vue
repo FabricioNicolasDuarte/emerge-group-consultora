@@ -11,13 +11,23 @@ const embed = computed(() => parseVideoUrl(props.url))
 
 <template>
   <div class="video-player">
-    <iframe
-      v-if="embed.kind === 'youtube' || embed.kind === 'vimeo'"
-      :src="embed.embedUrl"
-      :title="title || 'Video de la clase'"
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-      allowfullscreen
-    />
+    <template v-if="embed.kind === 'youtube' || embed.kind === 'vimeo' || embed.kind === 'drive'">
+      <iframe
+        :src="embed.embedUrl"
+        :title="title || 'Video de la clase'"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen
+      />
+      <a
+        v-if="embed.kind === 'drive'"
+        class="video-open-link"
+        :href="embed.openUrl"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Abrir en Google Drive
+      </a>
+    </template>
 
     <video
       v-else-if="embed.kind === 'direct'"
@@ -37,12 +47,32 @@ const embed = computed(() => parseVideoUrl(props.url))
 
 <style scoped>
 .video-player {
+  position: relative;
   width: 100%;
   aspect-ratio: 16 / 9;
   border-radius: 18px;
   overflow: hidden;
   background: var(--eg-ink);
   box-shadow: 0 18px 45px rgba(13, 44, 84, 0.18);
+}
+
+.video-open-link {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  z-index: 2;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(13, 44, 84, 0.88);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.video-open-link:hover {
+  background: var(--eg-accent);
+  color: #fff;
 }
 
 .video-player iframe,

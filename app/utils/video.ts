@@ -1,8 +1,22 @@
 export type VideoEmbed =
   | { kind: 'youtube'; embedUrl: string }
   | { kind: 'vimeo'; embedUrl: string }
+  | { kind: 'drive'; embedUrl: string; openUrl: string }
   | { kind: 'direct'; src: string }
   | { kind: 'none' }
+
+function extractGoogleDriveFileId(value: string): string | null {
+  const fileMatch = value.match(/drive\.google\.com\/file\/d\/([^/]+)/i)
+  if (fileMatch?.[1]) return fileMatch[1]
+
+  const openMatch = value.match(/drive\.google\.com\/open\?[^#]*id=([^&]+)/i)
+  if (openMatch?.[1]) return decodeURIComponent(openMatch[1])
+
+  const ucMatch = value.match(/drive\.google\.com\/uc\?[^#]*id=([^&]+)/i)
+  if (ucMatch?.[1]) return decodeURIComponent(ucMatch[1])
+
+  return null
+}
 
 export function parseVideoUrl(url: string | null | undefined): VideoEmbed {
   if (!url?.trim()) return { kind: 'none' }
@@ -24,6 +38,15 @@ export function parseVideoUrl(url: string | null | undefined): VideoEmbed {
     return {
       kind: 'vimeo',
       embedUrl: `https://player.vimeo.com/video/${vimeoMatch[1]}`,
+    }
+  }
+
+  const driveId = extractGoogleDriveFileId(value)
+  if (driveId) {
+    return {
+      kind: 'drive',
+      embedUrl: `https://drive.google.com/file/d/${driveId}/preview`,
+      openUrl: `https://drive.google.com/file/d/${driveId}/view`,
     }
   }
 

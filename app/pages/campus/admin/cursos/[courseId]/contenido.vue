@@ -116,11 +116,12 @@ async function onCreateLesson(moduleId: string) {
       title: form.title,
       video_url: form.video_url || null,
       sort_order: sortOrder,
-      is_published: false,
+      // Visible para alumnos al crear (se puede ocultar con Publicar/Ocultar).
+      is_published: true,
     })
     form.title = ''
     form.video_url = ''
-    successMessage.value = 'Clase creada.'
+    successMessage.value = 'Clase creada y publicada.'
     await loadData()
   } catch (error: unknown) {
     errorMessage.value = error instanceof Error ? error.message : 'No se pudo crear la clase'
@@ -354,7 +355,7 @@ onMounted(loadData)
 
         <div v-if="canMutateContent" class="campus-inline-form">
           <input v-model="getLessonForm(mod.id).title" type="text" placeholder="Título de la clase" aria-label="Título de la clase">
-          <input v-model="getLessonForm(mod.id).video_url" type="url" placeholder="URL de YouTube/Vimeo (opcional)" aria-label="URL de video de la clase">
+          <input v-model="getLessonForm(mod.id).video_url" type="url" placeholder="URL de YouTube, Vimeo o Google Drive" aria-label="URL de video de la clase">
           <button type="button" class="campus-btn campus-btn--primary" :disabled="saving" @click="onCreateLesson(mod.id)">
             + Agregar clase
           </button>
@@ -374,7 +375,7 @@ onMounted(loadData)
           <textarea v-model="editingLesson.description" rows="2" />
         </label>
         <label>
-          URL de video (YouTube, Vimeo o MP4)
+          URL de video (YouTube, Vimeo, Google Drive o MP4)
           <input v-model="editingLesson.video_url" type="url">
         </label>
         <label>
