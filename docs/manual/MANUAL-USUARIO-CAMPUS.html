@@ -169,7 +169,7 @@
           color: #5a6b7d;
         }
         @top-right {
-          content: "Manual de Usuario";
+          content: "Manual de Usuario v1.1";
           font-size: 9pt;
           color: #5a6b7d;
         }
@@ -196,7 +196,7 @@
 </head>
 <body>
   <div class="screen-bar">
-    <span>Manual de Usuario — Campus Emerge · Abrí este archivo en el navegador</span>
+    <span>Manual de Usuario v1.1 — Campus Emerge · Abrí este archivo en el navegador</span>
     <span>
       <button type="button" onclick="window.print()">Imprimir / Guardar PDF</button>
     </span>
@@ -212,8 +212,9 @@
         de cada sección y el paso a paso de las funciones principales.
       </p>
       <div class="meta">
-        <strong>Versión 1.0 — septiembre 2026</strong>
+        <strong>Versión 1.1 — septiembre 2026</strong>
         Plataforma: Campus Emerge (Nuxt + Supabase)<br>
+        Producción: <a href="https://emerge-group-consultora.vercel.app" style="color:#9fd0ff">emerge-group-consultora.vercel.app</a><br>
         Destinatarios: operación académica, coordinación y capacitadores internos
       </div>
     </section>
@@ -231,11 +232,13 @@
           </li>
           <li><a href="#publico">Sitio público y catálogo</a></li>
           <li><a href="#acceso">Acceso: login, registro y recuperación</a></li>
+          <li><a href="#credenciales">Credenciales y altas masivas</a></li>
           <li><a href="#alumno">Guía del alumno</a></li>
           <li><a href="#docente">Guía del docente / tutor</a></li>
           <li><a href="#admin">Guía de administración y coordinación</a>
             <ul class="toc-l2">
               <li><a href="#admin-cursos">Cursos</a></li>
+              <li><a href="#admin-docentes">Docentes</a></li>
               <li><a href="#admin-alumnos">Alumnos e inscripciones</a></li>
               <li><a href="#admin-solicitudes">Solicitudes e import Excel</a></li>
               <li><a href="#admin-gestion-curso">Contenido, asistencia y notas</a></li>
@@ -344,20 +347,25 @@
       <h2 id="acceso" class="chapter-break">3. Acceso: login, registro y recuperación</h2>
 
       <h3>3.1 Ingresar</h3>
-      <p class="section-label">Ruta: /campus/login</p>
+      <p class="section-label">Ruta: /campus/login · Producción: https://emerge-group-consultora.vercel.app/campus/login</p>
       <figure class="shot">
         <img src="assets/02-login.png" alt="Pantalla de inicio de sesión">
-        <figcaption>Figura 3.1 — Ingreso al Campus.</figcaption>
+        <figcaption>Figura 3.1 — Ingreso al Campus (logo con contraste sobre panel oscuro).</figcaption>
       </figure>
       <ol class="steps">
-        <li>Abrí <code>/campus/login</code>.</li>
-        <li>Completá correo y contraseña.</li>
+        <li>Abrí <code>https://emerge-group-consultora.vercel.app/campus/login</code> (o <code>/campus/login</code> en local).</li>
+        <li>Completá correo y contraseña (las temporales las entrega coordinación).</li>
         <li>Opcional: marcá <em>Recordarme</em> para guardar el correo en el navegador.</li>
         <li>Pulsá <strong>Ingresar al Campus</strong>. El sistema te lleva a tu panel según el rol.</li>
       </ol>
       <p>
         <strong>¿Olvidaste tu contraseña?</strong> Escribí el correo y usá el enlace de recuperación.
         Recibirás un mail con link a <code>/campus/restablecer-contrasena</code>.
+      </p>
+      <p>
+        <strong>¿Tenés dificultades para ingresar?</strong> El enlace <em>Contactanos</em> abre WhatsApp
+        de soporte Emerge (<code>app.config</code> / <code>NUXT_PUBLIC_CONTACT_WHATSAPP</code>)
+        con un mensaje prearmado de ayuda al login.
       </p>
 
       <h3>3.2 Registrarse</h3>
@@ -369,8 +377,57 @@
       <p>
         El auto-registro crea una cuenta con rol <strong>alumno</strong>.
         Para altas masivas de una cohorte (Diplomatura), preferí el flujo de
-        <a href="#admin-solicitudes">Solicitudes → Importar Excel</a>.
+        <a href="#admin-solicitudes">Solicitudes → Importar Excel</a>
+        o el de <a href="#credenciales">credenciales / scripts</a>.
       </p>
+
+      <!-- ========== CREDENCIALES ========== -->
+      <h2 id="credenciales" class="chapter-break">3bis. Credenciales y altas masivas</h2>
+      <p>
+        Las cuentas de producción (staff de prueba + alumnos verdes de la Diplomatura)
+        se entregan en el Excel <strong>credenciales-diplomatura.xlsx</strong>
+        (hojas <em>Staff y prueba</em>, <em>Alumnos</em> y <em>Acceso</em>).
+        No subir ese archivo a git ni compartirlo fuera del equipo.
+      </p>
+      <table>
+        <thead>
+          <tr><th>Quién</th><th>Cómo se da de alta</th><th>Qué recibe</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Alumnos listos (verde)</td>
+            <td>Admin → Solicitudes → Crear listos <em>o</em> script <code>npm run alumnos:provision</code></td>
+            <td>Email + contraseña temporal + inscripción al curso</td>
+          </tr>
+          <tr>
+            <td>Alumnos en duda (naranja)</td>
+            <td>No se crean hasta confirmar → Marcar listo</td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td>Staff de prueba</td>
+            <td><code>npm run seed:test-users</code> (solo entornos de prueba)</td>
+            <td>admin / docente / alumno <code>@test.emerge.local</code></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="warn">
+        <strong>Producción.</strong> No uses cuentas <code>@test.emerge.local</code> con alumnos reales.
+        El login de producción es
+        <a href="https://emerge-group-consultora.vercel.app/campus/login">emerge-group-consultora.vercel.app/campus/login</a>.
+      </div>
+      <h4>Opción A — Desde la app (recomendado para coordinación)</h4>
+      <ol class="steps">
+        <li>Admin → Solicitudes → Importar Excel (respeta verde/naranja).</li>
+        <li>Crear todos los listos → Descargar CSV de claves.</li>
+        <li>Enviar a cada persona su email, contraseña y el link de login.</li>
+      </ol>
+      <h4>Opción B — Desde scripts (equipo técnico)</h4>
+      <ol class="steps">
+        <li><code>node scripts/excel-inscriptos-to-csv.mjs</code> (convierte el Excel de inscriptos; solo verdes).</li>
+        <li><code>npm run alumnos:provision -- --course-slug=diplomatura-gestion-liderazgo</code></li>
+        <li><code>npm run alumnos:export-xlsx</code> → genera el Excel de credenciales (staff + alumnos).</li>
+      </ol>
 
       <!-- ========== ALUMNO ========== -->
       <h2 id="alumno" class="chapter-break">4. Guía del alumno <span class="role-chip">alumno</span></h2>
@@ -478,7 +535,7 @@
       <!-- ========== ADMIN ========== -->
       <h2 id="admin" class="chapter-break">6. Guía de administración y coordinación <span class="role-chip">coordinador · admin · superadmin</span></h2>
       <p>
-        Menú General: Inicio · Cursos · Alumnos · Inscripciones · Solicitudes.<br>
+        Menú General: Inicio · Cursos · Alumnos · Docentes · Inscripciones · Solicitudes.<br>
         Certificaciones: Certificados.<br>
         Sistema: Reportes · Comunicaciones · Mi buzón · Auditoría (solo superadmin).
       </p>
@@ -506,14 +563,31 @@
         <li>Pulsá <strong>+ Nuevo curso</strong>.</li>
         <li>Completá título, categoría, descripción y estado (borrador / publicado).</li>
         <li>Definí precio (0 = gratuito) y, si aplica, cohorte (fechas, cupo, ventana de inscripción).</li>
-        <li>Guardá. Luego asigná docentes y cargá contenido.</li>
+        <li>Guardá. Luego asigná docentes (menú <strong>Docentes</strong> o desde Cursos → Docente) y cargá contenido.</li>
       </ol>
       <div class="note">
         <strong>Publicar</strong> hace visible el curso en el catálogo público.
         En borrador solo lo ven quienes tienen acceso al panel.
       </div>
 
-      <h3 id="admin-alumnos">6.3 Alumnos</h3>
+      <h3 id="admin-docentes">6.3 Docentes</h3>
+      <p class="section-label">Ruta: /campus/admin/docentes</p>
+      <p>
+        Alta o promoción de docentes/tutores y asignación de cursos.
+        Si el correo ya existe, se le asigna el rol (no se crea otra cuenta).
+      </p>
+      <ol class="steps">
+        <li>Entrá a <strong>Docentes</strong> en el menú General (panel Admin).</li>
+        <li>Pulsá <strong>+ Nuevo docente</strong>.</li>
+        <li>Completá nombre, correo y rol (docente o tutor). Contraseña: obligatoria solo si el correo es nuevo.</li>
+        <li>Guardá. Luego usá <strong>Asignar curso</strong> en la fila del docente.</li>
+      </ol>
+      <div class="note">
+        Si no ves <strong>Docentes</strong> en el menú, confirmá que estás en el panel
+        <strong>Admin</strong> (no en el de Docente). Usá el selector de rol arriba si tenés más de un perfil.
+      </div>
+
+      <h3 id="admin-alumnos">6.4 Alumnos</h3>
       <p class="section-label">Ruta: /campus/admin/alumnos</p>
       <figure class="shot">
         <img src="assets/12-admin-alumnos.png" alt="Listado de alumnos">
@@ -541,7 +615,7 @@
         Pedile al alumno que la cambie si tu política lo requiere.
       </div>
 
-      <h3>6.4 Inscripciones</h3>
+      <h3>6.5 Inscripciones</h3>
       <figure class="shot">
         <img src="assets/13-admin-inscripciones.png" alt="Inscripciones">
         <figcaption>Figura 6.6 — Listado reciente de inscripciones alumno–curso.</figcaption>
@@ -551,7 +625,7 @@
         y habilita el acceso al contenido, la toma de asistencia y las notas.
       </p>
 
-      <h3 id="admin-solicitudes">6.5 Solicitudes e importación Excel</h3>
+      <h3 id="admin-solicitudes">6.6 Solicitudes e importación Excel</h3>
       <p class="section-label">Ruta: /campus/admin/solicitudes</p>
       <figure class="shot">
         <img src="assets/14-admin-solicitudes.png" alt="Solicitudes de inscripción">
@@ -591,7 +665,7 @@
         Si el email ya tenía cuenta, se reutiliza y solo se crea/asegura la inscripción.
       </div>
 
-      <h3 id="admin-gestion-curso">6.6 Gestión de un curso: contenido, asistencia y notas</h3>
+      <h3 id="admin-gestion-curso">6.7 Gestión de un curso: contenido, asistencia y notas</h3>
 
       <h4>Contenido</h4>
       <figure class="shot">
@@ -627,7 +701,7 @@
         <li>Guardá; el alumno lo verá en <em>Mis notas</em>.</li>
       </ol>
 
-      <h3 id="admin-comms">6.7 Certificados, reportes, comunicaciones y auditoría</h3>
+      <h3 id="admin-comms">6.8 Certificados, reportes, comunicaciones y auditoría</h3>
 
       <h4>Certificados</h4>
       <figure class="shot">
@@ -683,11 +757,14 @@
 
       <h3>8.2 Alta masiva Diplomatura (Excel)</h3>
       <ol class="steps">
-        <li>Tener el curso Diplomatura creado.</li>
-        <li>Admin → Solicitudes → Importar Excel (verde/naranja).</li>
+        <li>Tener el curso Diplomatura creado (slug <code>diplomatura-gestion-liderazgo</code>).</li>
+        <li>Admin → Solicitudes → Importar Excel (verde = listo, naranja = en duda)
+            <em>o</em> scripts <code>alumnos:from-excel</code> + <code>alumnos:provision</code>.</li>
         <li>Revisar en duda → Marcar listo cuando corresponda.</li>
-        <li>Crear todos los listos → Descargar CSV de claves.</li>
-        <li>Enviar credenciales + link <code>/campus/login</code>.</li>
+        <li>Crear todos los listos → Descargar CSV / Excel de claves
+            (<code>credenciales-diplomatura.xlsx</code>).</li>
+        <li>Enviar credenciales + link
+            <code>https://emerge-group-consultora.vercel.app/campus/login</code>.</li>
       </ol>
 
       <h3>8.3 Clase en vivo (asistencia)</h3>
@@ -714,6 +791,14 @@
       <p>
         La importación solo carga <em>solicitudes</em>. Tenés que pulsar
         <strong>Crear todos los listos</strong> (o seleccionados) y luego bajar el CSV.
+        Si usás scripts, corré <code>npm run alumnos:provision</code> después del CSV.
+      </p>
+
+      <h4>No puedo entrar / el logo se ve mal</h4>
+      <p>
+        Usá el enlace <strong>Contactanos</strong> del login (WhatsApp).
+        Verificá que te hayan pasado la contraseña temporal del Excel de credenciales
+        y el link de producción correcto.
       </p>
 
       <h4>El alumno no ve el contenido</h4>
@@ -724,10 +809,12 @@
 
       <footer class="doc-end">
         <p>
-          <strong>Campus Emerge Group — Manual de Usuario v1.0</strong><br>
-          Capturas generadas desde el entorno local · Septiembre 2026<br>
-          Para regenerar capturas: <code>node scripts/capture-manual-screenshots.mjs</code>
-          (con el servidor en <code>http://127.0.0.1:3000</code> y usuarios seed).
+          <strong>Campus Emerge Group — Manual de Usuario v1.1</strong><br>
+          Capturas: entorno local + login de producción · Septiembre 2026<br>
+          Login prod:
+          <a href="https://emerge-group-consultora.vercel.app/campus/login">emerge-group-consultora.vercel.app/campus/login</a><br>
+          Regenerar capturas: <code>npm run manual:capture</code>
+          · solo login: <code>node scripts/capture-manual-login.mjs</code>
         </p>
       </footer>
     </div>

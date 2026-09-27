@@ -5,7 +5,7 @@ const props = defineProps<{
   role: CampusPanelRole
 }>()
 
-const { groups, storageKey, signOut, isActive } = useCampusPanelNav(props.role)
+const { groups, storageKey, signOut, isActive } = useCampusPanelNav(() => props.role)
 
 const mobileNav = inject<{ closeMobileNav: () => void } | null>('campusMobileNav', null)
 

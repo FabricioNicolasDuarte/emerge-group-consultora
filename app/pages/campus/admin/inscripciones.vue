@@ -8,7 +8,7 @@ definePageMeta({
     group: 'General',
     label: 'Inscripciones',
     icon: 'pagos',
-    order: 4,
+    order: 5,
   },
 })
 

@@ -7,8 +7,8 @@ definePageMeta({
     panel: 'admin',
     group: 'General',
     label: 'Docentes',
-    icon: 'progreso',
-    order: 3.5,
+    icon: 'horarios',
+    order: 4,
   },
 })
 

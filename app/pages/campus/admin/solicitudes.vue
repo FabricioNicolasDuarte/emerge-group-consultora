@@ -11,7 +11,7 @@ definePageMeta({
     group: 'General',
     label: 'Solicitudes',
     icon: 'pagos',
-    order: 5,
+    order: 6,
   },
 })
 

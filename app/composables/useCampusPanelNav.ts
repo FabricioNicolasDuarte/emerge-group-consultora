@@ -1,3 +1,4 @@
+import type { MaybeRefOrGetter } from 'vue'
 import type { CampusIconKey } from '~/types/brand'
 import { buildCampusNavFromRoutes } from '~/utils/campus-nav-builder'
 
@@ -16,13 +17,13 @@ export interface CampusPanelNavGroup {
   items: CampusPanelNavItem[]
 }
 
-export function useCampusPanelNav(role: CampusPanelRole) {
+export function useCampusPanelNav(role: MaybeRefOrGetter<CampusPanelRole>) {
   const router = useRouter()
   const route = useRoute()
   const { signOut, hasRole } = useCampusAuth()
 
   const groups = computed<CampusPanelNavGroup[]>(() =>
-    buildCampusNavFromRoutes(router.getRoutes(), role, hasRole),
+    buildCampusNavFromRoutes(router.getRoutes(), toValue(role), hasRole),
   )
 
   const storageKey = `campus-${role}-sidebar-collapsed`
