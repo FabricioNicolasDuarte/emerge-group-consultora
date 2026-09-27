@@ -27,7 +27,7 @@ function coursesFor(teacherId: string) {
       description="Asigná cursos a cada docente. También podés hacerlo desde Cursos → Docente."
     >
       <template #actions>
-        <button type="button" class="campus-btn campus-btn--primary" @click="admin.showTeacherUserForm = true">
+        <button type="button" class="campus-btn campus-btn--primary" @click="admin.openCreateTeacher()">
           + Nuevo docente
         </button>
       </template>
@@ -50,7 +50,7 @@ function coursesFor(teacherId: string) {
       <div class="table-row table-row--teachers table-header">
         <span>Docente</span>
         <span>Cursos asignados</span>
-        <span>Acción</span>
+        <span>Acciones</span>
       </div>
       <div v-if="!admin.teachers.length && !admin.loading" class="table-empty">
         No hay usuarios con rol docente o tutor. Creá uno con “+ Nuevo docente”.
@@ -87,13 +87,29 @@ function coursesFor(teacherId: string) {
           </template>
           <span v-else class="muted">Sin cursos</span>
         </div>
-        <button
-          type="button"
-          class="table-action-btn"
-          @click="admin.openAssignCourseForm(teacher)"
-        >
-          Asignar curso
-        </button>
+        <div class="row-actions row-actions--icons">
+          <CampusAdminCampusTableIconBtn
+            icon="mdi:book-plus-outline"
+            label="Asignar curso"
+            :disabled="admin.formLoading"
+            @click="admin.openAssignCourseForm(teacher)"
+          />
+          <template v-if="admin.isSuperadmin">
+            <CampusAdminCampusTableIconBtn
+              icon="mdi:pencil-outline"
+              label="Editar docente"
+              :disabled="admin.formLoading"
+              @click="admin.openEditTeacher(teacher)"
+            />
+            <CampusAdminCampusTableIconBtn
+              icon="mdi:trash-can-outline"
+              label="Eliminar docente"
+              danger
+              :disabled="admin.formLoading"
+              @click="admin.onDeleteTeacher(teacher)"
+            />
+          </template>
+        </div>
       </div>
     </div>
 

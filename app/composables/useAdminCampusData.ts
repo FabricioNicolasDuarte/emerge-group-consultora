@@ -65,6 +65,7 @@ export function useAdminCampusData() {
 
 function createAdminCampusData() {
   const user = useSupabaseUser()
+  const { hasRole } = useCampusAuth()
   const { paymentsEnabled } = useCampusFeatures()
   const { updateCoursePricing } = useCampusCommerce()
   const {
@@ -80,6 +81,8 @@ function createAdminCampusData() {
     assignTeacher,
     unassignTeacher,
   } = useAcademic()
+
+  const isSuperadmin = computed(() => hasRole('superadmin'))
 
   const courses = useState<AdminCourseRow[]>('admin-courses', () => [])
   const recentEnrollments = useState<RecentEnrollment[]>('admin-enrollments', () => [])
@@ -103,6 +106,9 @@ function createAdminCampusData() {
   const showCohortForm = ref(false)
   const showTeacherForm = ref(false)
   const formLoading = ref(false)
+  const editingCourseId = ref<string | null>(null)
+  const editingStudentId = ref<string | null>(null)
+  const editingTeacherId = ref<string | null>(null)
 
   const priceEdit = reactive({ course_id: '', title: '', price_amount: 0 })
   const cohortEdit = reactive({
@@ -152,6 +158,47 @@ function createAdminCampusData() {
     teacher_name: '',
     role: 'docente' as 'docente' | 'tutor',
   })
+
+  function resetCourseForm() {
+    editingCourseId.value = null
+    Object.assign(newCourse, {
+      title: '',
+      description: '',
+      category: 'General',
+      status: 'draft',
+      price_amount: 0,
+      cohort_start_date: '',
+      cohort_end_date: '',
+      enrollment_cap: '',
+      enrollment_starts_at: '',
+      enrollment_ends_at: '',
+    })
+  }
+
+  function resetStudentForm() {
+    editingStudentId.value = null
+    Object.assign(newStudent, {
+      full_name: '',
+      email: '',
+      password: '',
+      phone: '',
+      city: '',
+      job_role: '',
+      occupation: '',
+      audience: '',
+      challenge: '',
+    })
+  }
+
+  function resetTeacherForm() {
+    editingTeacherId.value = null
+    Object.assign(newTeacher, {
+      full_name: '',
+      email: '',
+      password: '',
+      role: 'docente',
+    })
+  }
 
   const courseSearch = ref('')
   const studentSearch = ref('')
@@ -324,34 +371,83 @@ function createAdminCampusData() {
     return request
   }
 
+  function openCreateCourse() {
+    resetCourseForm()
+    showCourseForm.value = true
+  }
+
+  function openEditCourse(course: AdminCourseRow) {
+    if (!isSuperadmin.value) return
+    editingCourseId.value = course.id
+    Object.assign(newCourse, {
+      title: course.title,
+      category: course.category || 'General',
+      description: course.description || '',
+      status: course.status === 'published' ? 'published' : 'draft',
+      price_amount: course.price_amount ?? 0,
+      cohort_start_date: course.cohort_start_date?.slice(0, 10) || '',
+      cohort_end_date: course.cohort_end_date?.slice(0, 10) || '',
+      enrollment_cap: course.enrollment_cap ?? '',
+      enrollment_starts_at: toDatetimeLocalValue(course.enrollment_starts_at),
+      enrollment_ends_at: toDatetimeLocalValue(course.enrollment_ends_at),
+    })
+    showCourseForm.value = true
+  }
+
   async function onCreateCourse() {
     if (!newCourse.title.trim()) return
     formLoading.value = true
+    errorMessage.value = ''
     try {
-      await createCourse({
-        title: newCourse.title,
-        category: newCourse.category,
-        description: newCourse.description,
-        status: newCourse.status,
-        price_amount: newCourse.price_amount,
-        ...buildCohortPayload(newCourse),
-      })
+      if (editingCourseId.value) {
+        if (!isSuperadmin.value) {
+          throw new Error('Solo el superadmin puede editar cursos')
+        }
+        await $fetch(`/api/campus/admin/courses/${editingCourseId.value}`, {
+          method: 'PATCH',
+          body: {
+            title: newCourse.title,
+            category: newCourse.category,
+            description: newCourse.description,
+            status: newCourse.status,
+            price_amount: newCourse.price_amount,
+            ...buildCohortPayload(newCourse),
+          },
+        })
+        successMessage.value = 'Curso actualizado.'
+      } else {
+        await createCourse({
+          title: newCourse.title,
+          category: newCourse.category,
+          description: newCourse.description,
+          status: newCourse.status,
+          price_amount: newCourse.price_amount,
+          ...buildCohortPayload(newCourse),
+        })
+        successMessage.value = 'Curso creado.'
+      }
       showCourseForm.value = false
-      Object.assign(newCourse, {
-        title: '',
-        description: '',
-        category: 'General',
-        status: 'draft',
-        price_amount: 0,
-        cohort_start_date: '',
-        cohort_end_date: '',
-        enrollment_cap: '',
-        enrollment_starts_at: '',
-        enrollment_ends_at: '',
-      })
+      resetCourseForm()
       await loadData(true)
     } catch (error: unknown) {
-      errorMessage.value = error instanceof Error ? error.message : 'No se pudo crear el curso'
+      errorMessage.value = extractFetchError(error, 'No se pudo guardar el curso')
+    } finally {
+      formLoading.value = false
+    }
+  }
+
+  async function onDeleteCourse(course: AdminCourseRow) {
+    if (!isSuperadmin.value) return
+    const ok = confirm(`¿Eliminar el curso «${course.title}»? Se borrarán módulos, inscripciones y contenido asociados.`)
+    if (!ok) return
+    formLoading.value = true
+    errorMessage.value = ''
+    try {
+      await $fetch(`/api/campus/admin/courses/${course.id}`, { method: 'DELETE' })
+      successMessage.value = 'Curso eliminado.'
+      await loadData(true)
+    } catch (error: unknown) {
+      errorMessage.value = extractFetchError(error, 'No se pudo eliminar el curso')
     } finally {
       formLoading.value = false
     }
@@ -373,47 +469,121 @@ function createAdminCampusData() {
     }
   }
 
+  function openCreateStudent() {
+    resetStudentForm()
+    showStudentForm.value = true
+  }
+
+  function openEditStudent(student: StudentProfile) {
+    if (!isSuperadmin.value) return
+    editingStudentId.value = student.id
+    Object.assign(newStudent, {
+      full_name: student.full_name,
+      email: student.email || '',
+      password: '',
+      phone: student.phone || '',
+      city: student.city || '',
+      job_role: student.job_role || '',
+      occupation: student.occupation || '',
+      audience: student.audience || '',
+      challenge: student.challenge || '',
+    })
+    showStudentForm.value = true
+  }
+
   async function onCreateStudent() {
-    if (!newStudent.full_name.trim() || !newStudent.email.trim() || newStudent.password.length < 8) {
-      errorMessage.value = 'Completá nombre, correo y una contraseña de al menos 8 caracteres.'
+    if (!newStudent.full_name.trim() || !newStudent.email.trim()) {
+      errorMessage.value = 'Completá nombre y correo.'
+      return
+    }
+    const isEdit = Boolean(editingStudentId.value)
+    if (!isEdit && newStudent.password.length < 8) {
+      errorMessage.value = 'Completá una contraseña de al menos 8 caracteres.'
+      return
+    }
+    if (isEdit && newStudent.password && newStudent.password.length < 8) {
+      errorMessage.value = 'Si cambiás la contraseña, debe tener al menos 8 caracteres.'
       return
     }
     formLoading.value = true
     errorMessage.value = ''
     successMessage.value = ''
     try {
-      await $fetch('/api/campus/admin/users', {
-        method: 'POST',
-        body: {
-          fullName: newStudent.full_name.trim(),
-          email: newStudent.email.trim(),
-          password: newStudent.password,
-          phone: newStudent.phone.trim() || null,
-          city: newStudent.city.trim() || null,
-          jobRole: newStudent.job_role.trim() || null,
-          occupation: newStudent.occupation.trim() || null,
-          audience: newStudent.audience.trim() || null,
-          challenge: newStudent.challenge.trim() || null,
-          role: 'alumno',
-        },
-      })
+      if (isEdit) {
+        if (!isSuperadmin.value) throw new Error('Solo el superadmin puede editar alumnos')
+        await $fetch(`/api/campus/admin/users/${editingStudentId.value}`, {
+          method: 'PATCH',
+          body: {
+            fullName: newStudent.full_name.trim(),
+            email: newStudent.email.trim(),
+            ...(newStudent.password ? { password: newStudent.password } : {}),
+            phone: newStudent.phone.trim() || null,
+            city: newStudent.city.trim() || null,
+            jobRole: newStudent.job_role.trim() || null,
+            occupation: newStudent.occupation.trim() || null,
+            audience: newStudent.audience.trim() || null,
+            challenge: newStudent.challenge.trim() || null,
+            role: 'alumno',
+          },
+        })
+        successMessage.value = 'Alumno actualizado.'
+      } else {
+        await $fetch('/api/campus/admin/users', {
+          method: 'POST',
+          body: {
+            fullName: newStudent.full_name.trim(),
+            email: newStudent.email.trim(),
+            password: newStudent.password,
+            phone: newStudent.phone.trim() || null,
+            city: newStudent.city.trim() || null,
+            jobRole: newStudent.job_role.trim() || null,
+            occupation: newStudent.occupation.trim() || null,
+            audience: newStudent.audience.trim() || null,
+            challenge: newStudent.challenge.trim() || null,
+            role: 'alumno',
+          },
+        })
+        successMessage.value = 'Alumno creado. Ya podés inscribirlo a un curso.'
+      }
       showStudentForm.value = false
-      Object.assign(newStudent, {
-        full_name: '',
-        email: '',
-        password: '',
-        phone: '',
-        city: '',
-        job_role: '',
-        occupation: '',
-        audience: '',
-        challenge: '',
-      })
-      successMessage.value = 'Alumno creado. Ya podés inscribirlo a un curso.'
+      resetStudentForm()
       await loadData(true)
     } catch (error: unknown) {
-      const message = extractFetchError(error, '')
-      errorMessage.value = message || (error instanceof Error ? error.message : 'No se pudo crear el alumno')
+      errorMessage.value = extractFetchError(error, 'No se pudo guardar el alumno')
+    } finally {
+      formLoading.value = false
+    }
+  }
+
+  async function onDeleteStudent(student: StudentProfile) {
+    if (!isSuperadmin.value) return
+    const ok = confirm(`¿Eliminar al alumno «${student.full_name}»? Se borrará su cuenta e inscripciones.`)
+    if (!ok) return
+    formLoading.value = true
+    errorMessage.value = ''
+    try {
+      await $fetch(`/api/campus/admin/users/${student.id}`, { method: 'DELETE' })
+      successMessage.value = 'Alumno eliminado.'
+      await loadData(true)
+    } catch (error: unknown) {
+      errorMessage.value = extractFetchError(error, 'No se pudo eliminar el alumno')
+    } finally {
+      formLoading.value = false
+    }
+  }
+
+  async function onDeleteEnrollment(row: RecentEnrollment) {
+    if (!isSuperadmin.value) return
+    const ok = confirm(`¿Quitar la inscripción de «${row.student_name}» en «${row.course_title}»?`)
+    if (!ok) return
+    formLoading.value = true
+    errorMessage.value = ''
+    try {
+      await $fetch(`/api/campus/admin/enrollments/${row.id}`, { method: 'DELETE' })
+      successMessage.value = 'Inscripción eliminada.'
+      await loadData(true)
+    } catch (error: unknown) {
+      errorMessage.value = extractFetchError(error, 'No se pudo eliminar la inscripción')
     } finally {
       formLoading.value = false
     }
@@ -531,6 +701,23 @@ function createAdminCampusData() {
     }
   }
 
+  function openCreateTeacher() {
+    resetTeacherForm()
+    showTeacherUserForm.value = true
+  }
+
+  function openEditTeacher(teacher: { id: string, full_name: string, email: string | null }) {
+    if (!isSuperadmin.value) return
+    editingTeacherId.value = teacher.id
+    Object.assign(newTeacher, {
+      full_name: teacher.full_name,
+      email: teacher.email || '',
+      password: '',
+      role: 'docente',
+    })
+    showTeacherUserForm.value = true
+  }
+
   async function onCreateTeacher() {
     if (!newTeacher.full_name.trim() || !newTeacher.email.trim()) {
       errorMessage.value = 'Completá nombre y correo.'
@@ -542,32 +729,59 @@ function createAdminCampusData() {
       return
     }
     const role = newTeacher.role === 'tutor' ? 'tutor' : 'docente'
+    const isEdit = Boolean(editingTeacherId.value)
     formLoading.value = true
     errorMessage.value = ''
     successMessage.value = ''
     try {
-      const result = await $fetch<{ created?: boolean, promoted?: boolean }>('/api/campus/admin/teachers', {
-        method: 'POST',
-        body: {
-          fullName: newTeacher.full_name.trim(),
-          email: newTeacher.email.trim().toLowerCase(),
-          role,
-          ...(password ? { password } : {}),
-        },
-      })
+      if (isEdit) {
+        if (!isSuperadmin.value) throw new Error('Solo el superadmin puede editar docentes')
+        await $fetch(`/api/campus/admin/users/${editingTeacherId.value}`, {
+          method: 'PATCH',
+          body: {
+            fullName: newTeacher.full_name.trim(),
+            email: newTeacher.email.trim().toLowerCase(),
+            role,
+            ...(password ? { password } : {}),
+          },
+        })
+        successMessage.value = 'Docente actualizado.'
+      } else {
+        const result = await $fetch<{ created?: boolean, promoted?: boolean }>('/api/campus/admin/teachers', {
+          method: 'POST',
+          body: {
+            fullName: newTeacher.full_name.trim(),
+            email: newTeacher.email.trim().toLowerCase(),
+            role,
+            ...(password ? { password } : {}),
+          },
+        })
+        successMessage.value = result.promoted && !result.created
+          ? 'Cuenta existente actualizada a docente/tutor. Ya podés asignarle cursos.'
+          : 'Docente creado. Ya podés asignarle cursos.'
+      }
       showTeacherUserForm.value = false
-      Object.assign(newTeacher, {
-        full_name: '',
-        email: '',
-        password: '',
-        role: 'docente',
-      })
-      successMessage.value = result.promoted && !result.created
-        ? 'Cuenta existente actualizada a docente/tutor. Ya podés asignarle cursos.'
-        : 'Docente creado. Ya podés asignarle cursos.'
+      resetTeacherForm()
       await loadData(true)
     } catch (error: unknown) {
       errorMessage.value = extractFetchError(error, 'No se pudo guardar el docente')
+    } finally {
+      formLoading.value = false
+    }
+  }
+
+  async function onDeleteTeacher(teacher: { id: string, full_name: string }) {
+    if (!isSuperadmin.value) return
+    const ok = confirm(`¿Eliminar al docente «${teacher.full_name}»? Se borrará su cuenta y asignaciones.`)
+    if (!ok) return
+    formLoading.value = true
+    errorMessage.value = ''
+    try {
+      await $fetch(`/api/campus/admin/users/${teacher.id}`, { method: 'DELETE' })
+      successMessage.value = 'Docente eliminado.'
+      await loadData(true)
+    } catch (error: unknown) {
+      errorMessage.value = extractFetchError(error, 'No se pudo eliminar el docente')
     } finally {
       formLoading.value = false
     }
@@ -580,6 +794,7 @@ function createAdminCampusData() {
 
   return reactive({
     paymentsEnabled,
+    isSuperadmin,
     courses,
     recentEnrollments,
     stats,
@@ -597,6 +812,9 @@ function createAdminCampusData() {
     showCohortForm,
     showTeacherForm,
     formLoading,
+    editingCourseId,
+    editingStudentId,
+    editingTeacherId,
     priceEdit,
     cohortEdit,
     newCourse,
@@ -621,10 +839,23 @@ function createAdminCampusData() {
     studentEnrollmentCounts,
     statusLabel,
     loadData,
+    openCreateCourse,
+    openEditCourse,
     onCreateCourse,
+    onDeleteCourse,
     onCreateEnrollment,
+    onDeleteEnrollment,
+    openCreateStudent,
+    openEditStudent,
     onCreateStudent,
+    onDeleteStudent,
+    openCreateTeacher,
+    openEditTeacher,
     onCreateTeacher,
+    onDeleteTeacher,
+    resetCourseForm,
+    resetStudentForm,
+    resetTeacherForm,
     togglePublish,
     openPriceForm,
     onUpdatePrice,

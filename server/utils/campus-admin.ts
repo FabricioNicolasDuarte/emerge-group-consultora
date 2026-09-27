@@ -51,6 +51,18 @@ export async function requireCampusStaff(event: H3Event) {
   }
 }
 
+/** Edit/delete de entidades académicas: solo superadmin. */
+export async function requireCampusSuperadmin(event: H3Event) {
+  const ctx = await requireCampusStaff(event)
+  if (!ctx.slugs.includes('superadmin')) {
+    throw createError({
+      statusCode: 403,
+      statusMessage: 'Solo el superadmin puede editar o eliminar este recurso',
+    })
+  }
+  return ctx
+}
+
 export function generateTemporaryPassword(length = 10) {
   const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789'
   const bytes = new Uint8Array(length)

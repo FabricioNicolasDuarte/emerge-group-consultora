@@ -10,10 +10,10 @@ const admin = useAdminCampusData()
       role="dialog"
       aria-modal="true"
       aria-labelledby="modal-new-course-title"
-      @click.self="admin.showCourseForm = false"
+      @click.self="admin.showCourseForm = false; admin.resetCourseForm()"
     >
       <div class="modal-card">
-        <h2 id="modal-new-course-title">Nuevo curso</h2>
+        <h2 id="modal-new-course-title">{{ admin.editingCourseId ? 'Editar curso' : 'Nuevo curso' }}</h2>
         <form @submit.prevent="admin.onCreateCourse">
           <label for="new-course-title">Título</label>
           <input id="new-course-title" v-model="admin.newCourse.title" required placeholder="Nombre del programa">
@@ -40,9 +40,9 @@ const admin = useAdminCampusData()
           <label for="new-course-enroll-end">Cierre de inscripción</label>
           <input id="new-course-enroll-end" v-model="admin.newCourse.enrollment_ends_at" type="datetime-local">
           <div class="modal-actions">
-            <button type="button" class="btn-secondary" @click="admin.showCourseForm = false">Cancelar</button>
+            <button type="button" class="btn-secondary" @click="admin.showCourseForm = false; admin.resetCourseForm()">Cancelar</button>
             <button type="submit" class="btn-primary" :disabled="admin.formLoading">
-              {{ admin.formLoading ? 'Guardando…' : 'Crear curso' }}
+              {{ admin.formLoading ? 'Guardando…' : (admin.editingCourseId ? 'Guardar cambios' : 'Crear curso') }}
             </button>
           </div>
         </form>
@@ -174,11 +174,11 @@ const admin = useAdminCampusData()
       role="dialog"
       aria-modal="true"
       aria-labelledby="modal-new-teacher-title"
-      @click.self="admin.showTeacherUserForm = false"
+      @click.self="admin.showTeacherUserForm = false; admin.resetTeacherForm()"
     >
       <div class="modal-card">
-        <h2 id="modal-new-teacher-title">Nuevo docente</h2>
-        <p class="modal-hint">
+        <h2 id="modal-new-teacher-title">{{ admin.editingTeacherId ? 'Editar docente' : 'Nuevo docente' }}</h2>
+        <p v-if="!admin.editingTeacherId" class="modal-hint">
           Si el correo ya existe, se le asigna el rol docente/tutor (no se crea otra cuenta).
         </p>
         <p v-if="admin.errorMessage" class="modal-hint" style="color: var(--eg-error, #b42318);">{{ admin.errorMessage }}</p>
@@ -193,19 +193,23 @@ const admin = useAdminCampusData()
             v-model="admin.newTeacher.password"
             type="text"
             minlength="8"
-            placeholder="Vacía si ya tiene cuenta; mín. 8 si es nuevo"
+            :placeholder="admin.editingTeacherId ? 'Vacía = no cambiar' : 'Vacía si ya tiene cuenta; mín. 8 si es nuevo'"
             autocomplete="new-password"
           >
-          <p class="modal-hint">Obligatoria solo para correos nuevos. Si ya existe, opcional (resetea la clave).</p>
+          <p class="modal-hint">
+            {{ admin.editingTeacherId
+              ? 'Opcional: solo si querés resetear la clave.'
+              : 'Obligatoria solo para correos nuevos. Si ya existe, opcional (resetea la clave).' }}
+          </p>
           <label for="new-teacher-role">Rol</label>
           <select id="new-teacher-role" v-model="admin.newTeacher.role">
             <option value="docente">Docente</option>
             <option value="tutor">Tutor</option>
           </select>
           <div class="modal-actions">
-            <button type="button" class="btn-secondary" @click="admin.showTeacherUserForm = false">Cancelar</button>
+            <button type="button" class="btn-secondary" @click="admin.showTeacherUserForm = false; admin.resetTeacherForm()">Cancelar</button>
             <button type="submit" class="btn-primary" :disabled="admin.formLoading">
-              {{ admin.formLoading ? 'Guardando…' : 'Guardar docente' }}
+              {{ admin.formLoading ? 'Guardando…' : (admin.editingTeacherId ? 'Guardar cambios' : 'Guardar docente') }}
             </button>
           </div>
         </form>
@@ -251,19 +255,31 @@ const admin = useAdminCampusData()
       role="dialog"
       aria-modal="true"
       aria-labelledby="modal-student-title"
-      @click.self="admin.showStudentForm = false"
+      @click.self="admin.showStudentForm = false; admin.resetStudentForm()"
     >
       <div class="modal-card modal-card--wide">
-        <h2 id="modal-student-title">Nuevo alumno</h2>
-        <p class="modal-hint">Creá la cuenta con acceso al campus. Completá la ficha si la tenés; después podés inscribirlo a un curso.</p>
+        <h2 id="modal-student-title">{{ admin.editingStudentId ? 'Editar alumno' : 'Nuevo alumno' }}</h2>
+        <p class="modal-hint">
+          {{ admin.editingStudentId
+            ? 'Actualizá la ficha. La contraseña es opcional (solo si querés resetearla).'
+            : 'Creá la cuenta con acceso al campus. Completá la ficha si la tenés; después podés inscribirlo a un curso.' }}
+        </p>
         <form @submit.prevent="admin.onCreateStudent">
           <p class="modal-section-title">Cuenta</p>
           <label for="new-student-name">Nombre completo</label>
           <input id="new-student-name" v-model="admin.newStudent.full_name" required placeholder="Nombre y apellido">
           <label for="new-student-email">Correo electrónico</label>
           <input id="new-student-email" v-model="admin.newStudent.email" type="email" required placeholder="alumno@correo.com" autocomplete="off">
-          <label for="new-student-password">Contraseña temporal</label>
-          <input id="new-student-password" v-model="admin.newStudent.password" type="text" required minlength="8" placeholder="Mínimo 8 caracteres" autocomplete="new-password">
+          <label for="new-student-password">{{ admin.editingStudentId ? 'Nueva contraseña (opcional)' : 'Contraseña temporal' }}</label>
+          <input
+            id="new-student-password"
+            v-model="admin.newStudent.password"
+            type="text"
+            :required="!admin.editingStudentId"
+            minlength="8"
+            :placeholder="admin.editingStudentId ? 'Vacía = no cambiar' : 'Mínimo 8 caracteres'"
+            autocomplete="new-password"
+          >
 
           <p class="modal-section-title">Ficha</p>
           <label for="new-student-phone">WhatsApp / teléfono</label>
@@ -280,9 +296,9 @@ const admin = useAdminCampusData()
           <textarea id="new-student-challenge" v-model="admin.newStudent.challenge" rows="3" placeholder="Qué quiere resolver con el programa" />
 
           <div class="modal-actions">
-            <button type="button" class="btn-secondary" @click="admin.showStudentForm = false">Cancelar</button>
+            <button type="button" class="btn-secondary" @click="admin.showStudentForm = false; admin.resetStudentForm()">Cancelar</button>
             <button type="submit" class="btn-primary" :disabled="admin.formLoading">
-              {{ admin.formLoading ? 'Creando…' : 'Crear alumno' }}
+              {{ admin.formLoading ? 'Guardando…' : (admin.editingStudentId ? 'Guardar cambios' : 'Crear alumno') }}
             </button>
           </div>
         </form>
