@@ -240,7 +240,7 @@ usePublicSeo(() => ({
         />
 
         <section v-if="lessonData.lesson.content_type === 'video'" class="lesson-video">
-          <CourseVideoPlayer
+          <CampusCourseVideoPlayer
             :url="lessonData.lesson.video_url"
             :title="lessonData.lesson.title"
           />
