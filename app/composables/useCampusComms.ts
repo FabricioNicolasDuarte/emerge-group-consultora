@@ -8,6 +8,7 @@ import type {
   PublicAnnouncement,
   UpdateAnnouncementInput,
 } from '~/types/comms'
+import { resolveAuthUserId } from '~/utils/auth-user'
 import { stripHtml } from '~/utils/sanitize-html'
 
 export function useCampusComms() {
@@ -95,7 +96,7 @@ export function useCampusComms() {
       status: input.status ?? 'draft',
       is_pinned: input.is_pinned ?? false,
       expires_at: input.expires_at || null,
-      created_by: user.value?.id ?? null,
+      created_by: resolveAuthUserId(user.value),
     }
   }
 
@@ -215,7 +216,7 @@ export function useCampusComms() {
     const { error } = await supabase.rpc('mark_all_notifications_read')
     if (error) {
       const { data: authData } = await supabase.auth.getUser()
-      const userId = authData.user?.id ?? user.value?.id
+      const userId = authData.user?.id ?? resolveAuthUserId(user.value)
       if (!userId) throw new Error('No autenticado')
       const { error: fallbackError } = await supabase
         .from('notifications')

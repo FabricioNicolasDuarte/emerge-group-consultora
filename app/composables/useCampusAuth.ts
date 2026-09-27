@@ -1,5 +1,6 @@
 import type { CampusProfile, CampusRoleSlug } from '~/types/campus'
 import { ROLE_DASHBOARD_PATHS, ROLE_HIERARCHY } from '~/types/campus'
+import { resolveAuthUserId } from '~/utils/auth-user'
 
 export function useCampusAuth() {
   const supabase = useSupabaseClient()
@@ -8,6 +9,9 @@ export function useCampusAuth() {
   const profile = useState<CampusProfile | null>('campus-profile', () => null)
   const profileLoading = useState('campus-profile-loading', () => false)
   const profileError = useState<string | null>('campus-profile-error', () => null)
+
+  /** JWT may expose `sub` instead of `id` (@nuxtjs/supabase v2). */
+  const authUserId = computed(() => resolveAuthUserId(user.value))
 
   async function fetchProfile() {
     if (!user.value) {
@@ -134,6 +138,7 @@ export function useCampusAuth() {
 
   return {
     user,
+    authUserId,
     profile,
     profileLoading,
     profileError,

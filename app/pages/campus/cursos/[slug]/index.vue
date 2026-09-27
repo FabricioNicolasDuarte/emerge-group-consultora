@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { LessonRow, ModuleRow } from '~/types/content'
+import { formatSupabaseError } from '~/utils/supabase-error'
 import { formatDuration, lessonTypeLabel } from '~/utils/video'
 import { scrollToSection } from '~/utils/scroll'
 
@@ -91,7 +92,7 @@ async function loadCurriculum() {
       certificateCode.value = match?.certificate_code ?? null
     }
   } catch (error: unknown) {
-    errorMessage.value = error instanceof Error ? error.message : 'Error al cargar el curso'
+    errorMessage.value = formatSupabaseError(error, 'Error al cargar el curso')
   } finally {
     loading.value = false
   }

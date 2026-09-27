@@ -10,6 +10,7 @@ import type {
 
 } from '~/types/mailbox'
 
+import { resolveAuthUserId } from '~/utils/auth-user'
 import { stripHtml } from '~/utils/sanitize-html'
 
 
@@ -218,11 +219,12 @@ export function useCampusMailbox() {
 
   async function uploadAttachment(messageId: string, file: File) {
 
-    if (!user.value) throw new Error('No autenticado')
+    const userId = resolveAuthUserId(user.value)
+    if (!userId) throw new Error('No autenticado')
 
     const ext = file.name.split('.').pop() ?? 'bin'
 
-    const path = `${user.value.id}/${messageId}/${Date.now()}.${ext}`
+    const path = `${userId}/${messageId}/${Date.now()}.${ext}`
 
     const { error: uploadError } = await supabase.storage
 

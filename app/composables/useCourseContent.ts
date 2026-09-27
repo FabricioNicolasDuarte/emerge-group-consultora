@@ -8,11 +8,16 @@ import type {
   ModuleRow,
   UpdateLessonInput,
 } from '~/types/content'
+import { resolveAuthUserId } from '~/utils/auth-user'
 
 export function useCourseContent() {
   const supabase = useSupabaseClient()
   const user = useSupabaseUser()
   const { hasAnyStaffRole } = useCampusAuth()
+
+  function currentUserId() {
+    return resolveAuthUserId(user.value)
+  }
 
   async function fetchCourseBySlug(slug: string) {
     const { data, error } = await supabase
@@ -101,13 +106,14 @@ export function useCourseContent() {
   }
 
   async function fetchEnrollmentProgress(courseId: string) {
-    if (!user.value) return null
+    const studentId = currentUserId()
+    if (!studentId) return null
 
     const { data, error } = await supabase
       .from('enrollments')
       .select('progress_percent')
       .eq('course_id', courseId)
-      .eq('student_id', user.value.id)
+      .eq('student_id', studentId)
       .eq('status', 'active')
       .maybeSingle()
 
@@ -116,13 +122,14 @@ export function useCourseContent() {
   }
 
   async function checkEnrollment(courseId: string) {
-    if (!user.value) return false
+    const studentId = currentUserId()
+    if (!studentId) return false
 
     const { data, error } = await supabase
       .from('enrollments')
       .select('id')
       .eq('course_id', courseId)
-      .eq('student_id', user.value.id)
+      .eq('student_id', studentId)
       .in('status', ['active', 'completed'])
       .maybeSingle()
 
@@ -229,24 +236,26 @@ export function useCourseContent() {
   }
 
   async function markLessonComplete(lessonId: string) {
-    if (!user.value) throw new Error('Debés iniciar sesión')
+    const studentId = currentUserId()
+    if (!studentId) throw new Error('Debés iniciar sesión')
 
     const { error } = await supabase.from('lesson_completions').insert({
       lesson_id: lessonId,
-      student_id: user.value.id,
+      student_id: studentId,
     })
 
     if (error && error.code !== '23505') throw error
   }
 
   async function unmarkLessonComplete(lessonId: string) {
-    if (!user.value) throw new Error('Debés iniciar sesión')
+    const studentId = currentUserId()
+    if (!studentId) throw new Error('Debés iniciar sesión')
 
     const { error } = await supabase
       .from('lesson_completions')
       .delete()
       .eq('lesson_id', lessonId)
-      .eq('student_id', user.value.id)
+      .eq('student_id', studentId)
 
     if (error) throw error
   }

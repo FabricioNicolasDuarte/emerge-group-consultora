@@ -13,6 +13,7 @@ import type {
   SessionStudentRow,
   StudentGrade,
 } from '~/types/tracking'
+import { resolveAuthUserId } from '~/utils/auth-user'
 
 export function useCourseTracking() {
   const supabase = useSupabaseClient()
@@ -89,7 +90,7 @@ export function useCourseTracking() {
         module_id: input.module_id ?? null,
         meeting_url: input.meeting_url?.trim() || null,
         meeting_provider: input.meeting_provider ?? 'other',
-        created_by: user.value?.id ?? null,
+        created_by: resolveAuthUserId(user.value),
       })
       .select()
       .single()
@@ -115,7 +116,7 @@ export function useCourseTracking() {
           session_id: sessionId,
           student_id: studentId,
           status,
-          marked_by: user.value?.id ?? null,
+          marked_by: resolveAuthUserId(user.value),
           marked_at: new Date().toISOString(),
         },
         { onConflict: 'session_id,student_id' },
@@ -156,7 +157,7 @@ export function useCourseTracking() {
         weight_percent: input.weight_percent ?? 100,
         due_date: input.due_date || null,
         is_published: input.is_published ?? false,
-        created_by: user.value?.id ?? null,
+        created_by: resolveAuthUserId(user.value),
       })
       .select()
       .single()
@@ -228,7 +229,7 @@ export function useCourseTracking() {
           student_id: studentId,
           score,
           feedback,
-          graded_by: user.value?.id ?? null,
+          graded_by: resolveAuthUserId(user.value),
           graded_at: new Date().toISOString(),
         },
         { onConflict: 'assessment_id,student_id' },

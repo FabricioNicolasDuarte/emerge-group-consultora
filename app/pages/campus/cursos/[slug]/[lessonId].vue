@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { LessonMaterial } from '~/types/content'
+import { formatSupabaseError } from '~/utils/supabase-error'
 import { formatDuration, lessonTypeLabel } from '~/utils/video'
 
 const route = useRoute()
@@ -139,7 +140,7 @@ onMounted(async () => {
     await loadMaterials()
     await refreshProgress()
   } catch (error: unknown) {
-    errorMessage.value = error instanceof Error ? error.message : 'Error al cargar la clase'
+    errorMessage.value = formatSupabaseError(error, 'Error al cargar la clase')
   } finally {
     loading.value = false
   }

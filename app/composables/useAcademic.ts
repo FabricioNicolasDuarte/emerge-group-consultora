@@ -12,6 +12,7 @@ import type {
   StudentProfile,
   TeachingCourse,
 } from '~/types/academic'
+import { resolveAuthUserId } from '~/utils/auth-user'
 import { slugify } from '~/utils/slugify'
 
 export function useAcademic() {
@@ -181,7 +182,7 @@ export function useAcademic() {
         enrollment_cap: input.enrollment_cap ?? null,
         enrollment_starts_at: input.enrollment_starts_at || null,
         enrollment_ends_at: input.enrollment_ends_at || null,
-        created_by: user.value?.id ?? null,
+        created_by: resolveAuthUserId(user.value),
       })
       .select()
       .single()
