@@ -67,7 +67,7 @@ const admin = useAdminCampusData()
     </section>
 
     <section class="campus-section quick-actions">
-      <button type="button" class="campus-btn campus-btn--primary" @click="admin.showCourseForm = true">Crear curso</button>
+      <button type="button" class="campus-btn campus-btn--primary" @click="admin.openCreateCourse()">Crear curso</button>
       <button type="button" class="campus-btn" @click="admin.showEnrollmentForm = true">Nueva inscripción</button>
     </section>
 
