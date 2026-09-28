@@ -379,40 +379,6 @@ provide('campusMobileNav', { mobileOpen, toggleMobileNav, closeMobileNav })
   text-align: left;
 }
 
-.cp-legal-links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.35rem 0.55rem;
-  padding: 0.15rem 0.55rem 0.35rem;
-}
-
-.cp-legal-links a {
-  color: rgba(232, 241, 242, 0.55);
-  text-decoration: none;
-  font-size: 0.68rem;
-  font-weight: 650;
-  letter-spacing: 0.02em;
-}
-
-.cp-legal-links a:hover {
-  color: rgba(232, 241, 242, 0.95);
-  background: transparent;
-}
-
-.cp-version {
-  margin: 0 0.55rem 0.35rem;
-  padding: 0;
-  font-size: 0.62rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  color: rgba(232, 241, 242, 0.38);
-}
-
-.cp-app.sidebar-collapsed .cp-legal-links,
-.cp-app.sidebar-collapsed .cp-version {
-  display: none;
-}
-
 .cp-nav__icon {
   flex-shrink: 0;
   width: 28px;

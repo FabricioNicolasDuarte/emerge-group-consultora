@@ -4,7 +4,24 @@ defineProps<{
   title: string
   lead?: string
   updated?: string
+  backTo?: string
+  backLabel?: string
 }>()
+
+const router = useRouter()
+const route = useRoute()
+
+function goBack(fallback = '/campus') {
+  if (import.meta.client && window.history.length > 1) {
+    const ref = document.referrer
+    const sameOrigin = ref && ref.startsWith(window.location.origin)
+    if (sameOrigin) {
+      router.back()
+      return
+    }
+  }
+  return navigateTo(fallback)
+}
 </script>
 
 <template>
@@ -12,6 +29,14 @@ defineProps<{
     <SiteHeader />
     <main id="main-content" class="legal-page__main">
       <div class="legal-page__container">
+        <button
+          type="button"
+          class="legal-back"
+          @click="goBack(backTo || '/campus')"
+        >
+          ← {{ backLabel || 'Volver' }}
+        </button>
+
         <header class="legal-page__header">
           <span class="legal-page__eyebrow">{{ eyebrow }}</span>
           <h1>{{ title }}</h1>
@@ -22,12 +47,20 @@ defineProps<{
           <slot />
         </div>
         <nav class="legal-page__nav" aria-label="Documentos relacionados">
-          <NuxtLink to="/nosotros">Nosotros</NuxtLink>
-          <NuxtLink to="/faq">FAQ</NuxtLink>
-          <NuxtLink to="/privacidad">Privacidad</NuxtLink>
-          <NuxtLink to="/terminos">Términos</NuxtLink>
-          <NuxtLink to="/cookies">Cookies</NuxtLink>
-          <NuxtLink to="/campus">Campus</NuxtLink>
+          <NuxtLink
+            v-for="item in [
+              { to: '/nosotros', label: 'Nosotros' },
+              { to: '/faq', label: 'FAQ' },
+              { to: '/privacidad', label: 'Privacidad' },
+              { to: '/terminos', label: 'Términos' },
+              { to: '/cookies', label: 'Cookies' },
+            ]"
+            :key="item.to"
+            :to="item.to"
+            :class="{ 'is-current': route.path === item.to }"
+          >
+            {{ item.label }}
+          </NuxtLink>
         </nav>
       </div>
     </main>

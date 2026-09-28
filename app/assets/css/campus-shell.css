@@ -1,8 +1,11 @@
 /* Panel-specific rules (design tokens live in tokens.css) */
 .campus-page {
-  padding: 2rem clamp(1.25rem, 4vw, 3.5rem) 2.75rem;
+  padding: 2rem clamp(1.25rem, 4vw, 3.5rem) 1.25rem;
   width: 100%;
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
 }
 
 .campus-eyebrow,
@@ -113,4 +116,41 @@
 .campus-btn.danger {
   color: var(--eg-error);
   border-color: var(--eg-error-border);
+}
+
+.campus-subtle-footer {
+  margin-top: auto;
+  padding-top: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
+}
+
+.campus-subtle-footer__copy {
+  margin: 0;
+  font-size: 0.7rem;
+  color: rgba(13, 44, 84, 0.4);
+  font-weight: 500;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.campus-subtle-footer__nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.75rem;
+}
+
+.campus-subtle-footer__nav a {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: rgba(13, 44, 84, 0.38);
+  text-decoration: none;
+}
+
+.campus-subtle-footer__nav a:hover {
+  color: rgba(13, 44, 84, 0.7);
+  text-decoration: underline;
 }

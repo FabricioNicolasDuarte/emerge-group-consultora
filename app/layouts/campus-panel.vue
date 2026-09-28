@@ -3,6 +3,7 @@
     <main id="main-content" class="campus-page">
       <CampusUnreadAlert />
       <slot />
+      <CampusSubtleFooter />
     </main>
   </CampusPanelShell>
 </template>
