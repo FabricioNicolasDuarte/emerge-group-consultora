@@ -237,6 +237,8 @@ onMounted(() => {
     <p class="auth-foot">
       ¿Tenés dificultades para ingresar?
       <a :href="supportWhatsappHref" target="_blank" rel="noopener noreferrer">Contactanos</a>
+      ·
+      <NuxtLink to="/faq">FAQ</NuxtLink>
     </p>
   </CampusAuthLayout>
 </template>

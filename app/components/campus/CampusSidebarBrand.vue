@@ -19,14 +19,14 @@ const showCompactLogo = computed(() => collapsed.value && isWide.value)
 
 <template>
   <NuxtLink to="/campus" class="cp-brand" :title="brand.name">
-    <!-- Expandido: logo completo con texto sobre fondo claro (águila oscura legible) -->
+    <!-- Expandido: logo sin fondo embebido + un solo plato blanco (CSS) -->
     <img
       v-if="!showCompactLogo"
-      :src="logo('fullWhiteBg')"
+      :src="logo('full')"
       :alt="brand.name"
       class="cp-brand__logo cp-brand__logo--full"
     >
-    <!-- Colapsado: marca con fondo claro propio (no invertir: el águila es oscura) -->
+    <!-- Colapsado: marca sobre un solo fondo blanco -->
     <img
       v-else
       :src="logo('mark')"

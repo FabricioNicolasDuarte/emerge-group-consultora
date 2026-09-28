@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { INSTITUTIONAL_NAV } from '~/data/legal-content'
+
 const { brand } = useAppConfig()
 const { public: { appVersion } } = useRuntimeConfig()
 const { contact, emailHref, whatsappHref } = useAppContact()
@@ -26,6 +28,12 @@ const year = new Date().getFullYear()
           © {{ year }} {{ brand.legalName }}. Todos los derechos reservados.
         </p>
 
+        <nav class="app-footer__links" aria-label="Información institucional">
+          <NuxtLink v-for="item in INSTITUTIONAL_NAV" :key="item.to" :to="item.to">
+            {{ item.label }}
+          </NuxtLink>
+        </nav>
+
         <div class="app-footer__contact">
           <a :href="emailHref">{{ contact.email }}</a>
           <span class="app-footer__sep" aria-hidden="true">·</span>
@@ -46,8 +54,8 @@ const year = new Date().getFullYear()
         </nav>
       </div>
 
-      <p class="app-footer__version" :title="`Versión ${appVersion}`">
-        v{{ appVersion }}
+      <p class="app-footer__version" :title="`Campus Emerge · versión ${appVersion}`">
+        Campus v{{ appVersion }}
       </p>
     </div>
   </footer>

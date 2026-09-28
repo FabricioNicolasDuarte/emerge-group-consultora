@@ -5,6 +5,11 @@ export default defineEventHandler(async (event) => {
   const paths = [
     '/',
     '/campus',
+    '/nosotros',
+    '/faq',
+    '/privacidad',
+    '/terminos',
+    '/cookies',
   ]
 
   try {

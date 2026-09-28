@@ -6,6 +6,7 @@ const props = defineProps<{
 }>()
 
 const { groups, storageKey, signOut, isActive } = useCampusPanelNav(() => props.role)
+const { public: { appVersion } } = useRuntimeConfig()
 
 const mobileNav = inject<{ closeMobileNav: () => void } | null>('campusMobileNav', null)
 
@@ -44,6 +45,12 @@ function onNavClick() {
     </template>
 
     <template #footer>
+      <nav class="cp-legal-links" aria-label="Información">
+        <NuxtLink to="/faq" title="Preguntas frecuentes">FAQ</NuxtLink>
+        <NuxtLink to="/privacidad" title="Privacidad">Privacidad</NuxtLink>
+        <NuxtLink to="/terminos" title="Términos">Términos</NuxtLink>
+      </nav>
+      <p class="cp-version" :title="`Campus Emerge v${appVersion}`">v{{ appVersion }}</p>
       <button type="button" class="logout" title="Cerrar sesión" @click="signOut">
         <span class="cp-nav__icon" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">

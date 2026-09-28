@@ -10,6 +10,11 @@ export function useMarketingFooter() {
 
     if (path === '/') return true
     if (path === '/campus') return true
+    if (path === '/nosotros') return true
+    if (path === '/faq') return true
+    if (path === '/privacidad') return true
+    if (path === '/terminos') return true
+    if (path === '/cookies') return true
     if (path.startsWith('/campus/anuncios/')) return true
     if (path.startsWith('/campus/certificados/')) return true
 
