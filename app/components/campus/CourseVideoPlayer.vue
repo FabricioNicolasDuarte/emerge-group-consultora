@@ -10,17 +10,44 @@ const embed = computed(() => parseVideoUrl(props.url))
 </script>
 
 <template>
-  <div class="video-player">
-    <template v-if="embed.kind === 'youtube' || embed.kind === 'vimeo' || embed.kind === 'drive'">
+  <div
+    class="video-player"
+    :class="{ 'video-player--drive': embed.kind === 'drive' }"
+  >
+    <template v-if="embed.kind === 'youtube' || embed.kind === 'vimeo'">
       <iframe
         :src="embed.embedUrl"
         :title="title || 'Video de la clase'"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
         allowfullscreen
+        playsinline
       />
+    </template>
+
+    <template v-else-if="embed.kind === 'drive'">
+      <iframe
+        class="video-player__embed-desktop"
+        :src="embed.embedUrl"
+        :title="title || 'Video de la clase'"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+        allowfullscreen
+        playsinline
+      />
+      <div class="video-player__drive-mobile">
+        <div class="play-icon">▶</div>
+        <strong>{{ title || 'Video de la clase' }}</strong>
+        <p>En el celular, el video se abre en Google Drive para una mejor reproducción.</p>
+        <a
+          class="video-drive-btn"
+          :href="embed.openUrl"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Ver video en Google Drive
+        </a>
+      </div>
       <a
-        v-if="embed.kind === 'drive'"
-        class="video-open-link"
+        class="video-open-link video-open-link--desktop"
         :href="embed.openUrl"
         target="_blank"
         rel="noopener noreferrer"
@@ -34,6 +61,7 @@ const embed = computed(() => parseVideoUrl(props.url))
       :src="embed.src"
       controls
       playsinline
+      webkit-playsinline
       preload="metadata"
     />
 
@@ -85,6 +113,40 @@ const embed = computed(() => parseVideoUrl(props.url))
   background: #000;
 }
 
+.video-player__drive-mobile {
+  display: none;
+  width: 100%;
+  height: 100%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 24px;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.video-player__drive-mobile p {
+  margin: 0;
+  max-width: 280px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.video-drive-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 12px 18px;
+  border-radius: 999px;
+  background: var(--eg-accent);
+  color: #fff;
+  font-weight: 700;
+  text-decoration: none;
+}
+
 .video-placeholder {
   width: 100%;
   height: 100%;
@@ -114,5 +176,21 @@ const embed = computed(() => parseVideoUrl(props.url))
   color: rgba(255, 255, 255, 0.55);
   max-width: 320px;
   line-height: 1.5;
+}
+
+@media (max-width: 768px) {
+  .video-player--drive .video-player__embed-desktop,
+  .video-player--drive .video-open-link--desktop {
+    display: none;
+  }
+
+  .video-player--drive .video-player__drive-mobile {
+    display: flex;
+  }
+
+  .video-player--drive {
+    aspect-ratio: auto;
+    min-height: 280px;
+  }
 }
 </style>

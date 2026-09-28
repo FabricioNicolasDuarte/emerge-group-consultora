@@ -349,10 +349,16 @@ export function useCourseContent() {
     return data as LessonMaterial
   }
 
-  async function getMaterialDownloadUrl(storagePath: string, expiresIn = 3600) {
+  async function getMaterialDownloadUrl(
+    storagePath: string,
+    options?: { expiresIn?: number, downloadName?: string },
+  ) {
+    const expiresIn = options?.expiresIn ?? 3600
+    const download = options?.downloadName?.trim() || true
+
     const { data, error } = await supabase.storage
       .from('course-materials')
-      .createSignedUrl(storagePath, expiresIn)
+      .createSignedUrl(storagePath, expiresIn, { download })
 
     if (error) throw error
     return data.signedUrl

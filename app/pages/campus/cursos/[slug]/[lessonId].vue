@@ -33,6 +33,8 @@ const isComplete = ref(false)
 const lessonData = ref<Awaited<ReturnType<typeof fetchLesson>>>(null)
 const curriculum = ref<Awaited<ReturnType<typeof fetchCurriculum>>>(null)
 const materials = ref<LessonMaterial[]>([])
+const materialUrls = ref<Record<string, string>>({})
+const materialUrlErrors = ref<Record<string, string>>({})
 const certificateCode = ref<string | null>(null)
 
 const isStaff = computed(() => hasAnyStaffRole())
@@ -58,17 +60,36 @@ const nextLesson = computed(() =>
 )
 
 async function loadMaterials() {
+  materialError.value = ''
+  materialUrls.value = {}
+  materialUrlErrors.value = {}
   materials.value = await fetchLessonMaterials(lessonId.value)
+
+  await Promise.all(materials.value.map(async (material) => {
+    try {
+      materialUrls.value[material.id] = await getMaterialDownloadUrl(material.storage_path, {
+        downloadName: material.title,
+      })
+    } catch (error: unknown) {
+      materialUrlErrors.value[material.id] = error instanceof Error
+        ? error.message
+        : 'No se pudo preparar el enlace'
+    }
+  }))
 }
 
-async function openMaterial(material: LessonMaterial) {
+async function refreshMaterialUrl(material: LessonMaterial) {
   materialError.value = ''
   openingMaterialId.value = material.id
   try {
-    const url = await getMaterialDownloadUrl(material.storage_path)
-    window.open(url, '_blank', 'noopener')
+    materialUrls.value[material.id] = await getMaterialDownloadUrl(material.storage_path, {
+      downloadName: material.title,
+    })
+    delete materialUrlErrors.value[material.id]
   } catch (error: unknown) {
-    materialError.value = error instanceof Error ? error.message : 'No se pudo abrir el material'
+    materialUrlErrors.value[material.id] = error instanceof Error
+      ? error.message
+      : 'No se pudo preparar el enlace'
   } finally {
     openingMaterialId.value = null
   }
@@ -275,16 +296,29 @@ usePublicSeo(() => ({
                 class="resource-item"
               >
                 <div class="resource-icon">{{ materialIcon(material.mime_type) }}</div>
-                <div>
+                <div class="resource-copy">
                   <strong>{{ material.title }}</strong>
                   <small>{{ material.mime_type || 'Archivo' }}</small>
+                  <small v-if="materialUrlErrors[material.id]" class="material-item-error">
+                    {{ materialUrlErrors[material.id] }}
+                  </small>
                 </div>
+                <a
+                  v-if="materialUrls[material.id]"
+                  :href="materialUrls[material.id]"
+                  class="resource-link"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Abrir
+                </a>
                 <button
+                  v-else
                   type="button"
                   :disabled="openingMaterialId === material.id"
-                  @click="openMaterial(material)"
+                  @click="refreshMaterialUrl(material)"
                 >
-                  {{ openingMaterialId === material.id ? '…' : 'Abrir' }}
+                  {{ openingMaterialId === material.id ? '…' : 'Reintentar' }}
                 </button>
               </div>
             </div>

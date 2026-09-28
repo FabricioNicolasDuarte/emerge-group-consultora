@@ -542,6 +542,7 @@
 .resource-item small { color: var(--eg-subtle); }
 
 .resource-item button,
+.resource-item .resource-link,
 .complete-card button {
   border: 1px solid var(--eg-field-border);
   background: white;
@@ -550,6 +551,37 @@
   border-radius: 8px;
   font-weight: 700;
   cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  white-space: nowrap;
+}
+
+.resource-copy {
+  min-width: 0;
+}
+
+.material-item-error {
+  display: block;
+  margin-top: 4px;
+  color: #b42318;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+@media (max-width: 768px) {
+  .resource-item {
+    grid-template-columns: auto 1fr;
+    gap: 10px 12px;
+  }
+
+  .resource-item .resource-link,
+  .resource-item button {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
 }
 
 .complete-card p {
