@@ -124,23 +124,32 @@ onMounted(loadData)
 </script>
 
 <template>
-  <div class="campus-page mailbox-thread-page">
+  <div class="campus-mgmt-ambient mailbox-thread-page">
     <CampusPageHeader :title="subject">
       <template #actions>
-        <button v-if="isOwner" type="button" class="mailbox-danger-btn" @click="onDeleteThread">
-          Eliminar conversación
-        </button>
+        <CampusAdminCampusTableIconBtn
+          icon="mdi:arrow-left"
+          label="Volver al buzón"
+          to="/campus/buzon"
+        />
+        <CampusAdminCampusTableIconBtn
+          v-if="isOwner"
+          icon="mdi:trash-can-outline"
+          label="Eliminar conversación"
+          danger
+          @click="onDeleteThread"
+        />
       </template>
     </CampusPageHeader>
 
     <p v-if="errorMessage" class="campus-banner campus-banner--error">{{ errorMessage }}</p>
-    <p v-if="loading" class="campus-banner">Cargando conversación…</p>
+    <p v-if="loading" class="mgmt-empty campus-glass">Cargando conversación…</p>
 
     <div v-else class="mailbox-messages">
       <article
         v-for="msg in messages"
         :key="msg.id"
-        class="mailbox-message"
+        class="mailbox-message campus-glass"
         :class="{ 'mailbox-message--mine': msg.sender_id === user?.id }"
       >
         <header>
@@ -156,23 +165,23 @@ onMounted(loadData)
               target="_blank"
               rel="noopener"
             >
-              📎 {{ file.file_name }}
+              {{ file.file_name }}
             </a>
             <span v-else>{{ file.file_name }}</span>
           </li>
         </ul>
-        <button
-          v-if="msg.sender_id === user?.id"
-          type="button"
-          class="mailbox-danger-btn mailbox-danger-btn--inline"
-          @click="onDeleteMessage(msg.id)"
-        >
-          Eliminar
-        </button>
+        <div v-if="msg.sender_id === user?.id" class="mgmt-mailbox-card__actions" style="margin-top: 0.65rem;">
+          <CampusAdminCampusTableIconBtn
+            icon="mdi:trash-can-outline"
+            label="Eliminar mensaje"
+            danger
+            @click="onDeleteMessage(msg.id)"
+          />
+        </div>
       </article>
     </div>
 
-    <section class="mailbox-reply-box">
+    <section class="mailbox-reply-box campus-glass">
       <h2>Responder</h2>
       <ClientOnly>
         <CampusRichTextEditor

@@ -27,9 +27,26 @@ const form = reactive({
   header_html: '',
   footer_html: '',
   message_type: 'message' as 'message' | 'alert',
+  notify_email: true,
 })
 
 const canCompose = computed(() => hasAnyStaffRole() || hasRole('docente', 'tutor'))
+
+async function notifyRecipientEmail(input: {
+  recipient_id: string
+  subject: string
+  preview: string
+  thread_id: string
+}) {
+  try {
+    await $fetch('/api/campus/mailbox/notify-email', {
+      method: 'POST',
+      body: input,
+    })
+  } catch {
+    // Best-effort: el mensaje interno ya se guardó.
+  }
+}
 
 onMounted(async () => {
   await fetchProfile()
@@ -82,6 +99,14 @@ async function onSubmit() {
         await uploadAttachments(messageId, attachments.value)
       }
     }
+    if (form.notify_email) {
+      await notifyRecipientEmail({
+        recipient_id: form.recipient_id,
+        subject: form.subject.trim(),
+        preview: stripHtml(form.body_html).slice(0, 240),
+        thread_id: threadId,
+      })
+    }
     notifyMailboxUpdated()
     await navigateTo(`/campus/buzon/${threadId}`)
   } catch (error: unknown) {
@@ -93,13 +118,25 @@ async function onSubmit() {
 </script>
 
 <template>
-  <div class="campus-page mailbox-compose-page">
-    <CampusPageHeader eyebrow="REDACTAR" title="Nuevo mensaje" />
+  <div class="campus-mgmt-ambient mailbox-compose-page">
+    <CampusPageHeader
+      eyebrow="REDACTAR"
+      title="Nuevo mensaje"
+      description="Escribí a un usuario del campus. Podés adjuntar archivos y usar encabezado o pie."
+    >
+      <template #actions>
+        <CampusAdminCampusTableIconBtn
+          icon="mdi:arrow-left"
+          label="Volver al buzón"
+          to="/campus/buzon"
+        />
+      </template>
+    </CampusPageHeader>
 
     <p v-if="errorMessage" class="campus-banner campus-banner--error">{{ errorMessage }}</p>
-    <p v-if="loading" class="campus-banner">Cargando contactos…</p>
+    <p v-if="loading" class="mgmt-empty campus-glass">Cargando contactos…</p>
 
-    <form v-else class="mailbox-compose-form" @submit.prevent="onSubmit">
+    <form v-else class="mailbox-compose-form campus-glass" @submit.prevent="onSubmit">
       <label>
         Destinatario
         <select v-model="form.recipient_id" required>
@@ -131,6 +168,11 @@ async function onSubmit() {
       />
 
       <CampusMailboxAttachmentField v-model="attachments" :disabled="saving" />
+
+      <label class="mailbox-compose-check">
+        <input v-model="form.notify_email" type="checkbox">
+        También avisar por correo electrónico al destinatario
+      </label>
 
       <div class="mailbox-compose-actions">
         <NuxtLink to="/campus/buzon" class="mailbox-compose-cancel">Cancelar</NuxtLink>

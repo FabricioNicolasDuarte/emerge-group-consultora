@@ -1,6 +1,7 @@
 <template>
   <CampusPanelShell :role="activePanel">
     <main id="main-content" class="campus-page">
+      <CampusUnreadAlert />
       <slot />
     </main>
   </CampusPanelShell>

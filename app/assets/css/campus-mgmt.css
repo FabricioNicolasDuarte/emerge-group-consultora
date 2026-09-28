@@ -411,6 +411,8 @@
   font-size: 0.68rem;
   font-weight: 800;
   letter-spacing: 0.02em;
+  background: rgba(37, 99, 235, 0.12);
+  color: var(--eg-action);
 }
 
 .mgmt-pill--ok {
@@ -421,6 +423,16 @@
 .mgmt-pill--draft {
   background: var(--eg-bg-alt);
   color: var(--campus-muted);
+}
+
+.mgmt-pill--soft {
+  background: rgba(37, 99, 235, 0.1);
+  color: var(--eg-action);
+}
+
+.mgmt-pill--accent {
+  background: rgba(242, 140, 40, 0.14);
+  color: var(--eg-accent);
 }
 
 .mgmt-lesson-card__actions {
@@ -587,5 +599,128 @@
 
   .mgmt-lesson-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+/* Mailbox / communications */
+.mgmt-mailbox-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.mgmt-mailbox-card {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.65rem;
+  align-items: center;
+  padding: 0.95rem 1.05rem;
+  transition: border-color 0.2s ease, transform 0.2s var(--eg-ease);
+}
+
+.mgmt-mailbox-card:hover {
+  border-color: rgba(37, 99, 235, 0.28);
+}
+
+.mgmt-mailbox-card--unread {
+  border-color: rgba(37, 99, 235, 0.3);
+  background: linear-gradient(180deg, rgba(37, 99, 235, 0.07), rgba(255, 255, 255, 0.62));
+}
+
+.mgmt-mailbox-card__link {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 0.85rem;
+  align-items: center;
+  min-width: 0;
+  text-decoration: none;
+  color: inherit;
+}
+
+.mgmt-mailbox-card__body {
+  min-width: 0;
+}
+
+.mgmt-mailbox-card__top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+  margin-bottom: 0.2rem;
+}
+
+.mgmt-mailbox-card__top strong {
+  font-size: 0.98rem;
+  letter-spacing: -0.01em;
+}
+
+.mgmt-mailbox-card__from {
+  margin: 0;
+  font-size: 0.84rem;
+  font-weight: 650;
+  color: var(--campus-ink);
+}
+
+.mgmt-mailbox-card__preview {
+  margin: 0.2rem 0 0;
+  font-size: 0.84rem;
+  color: var(--campus-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mgmt-mailbox-card__time {
+  font-size: 0.74rem;
+  color: var(--campus-ink-soft);
+  white-space: nowrap;
+}
+
+.mgmt-mailbox-card__actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.mgmt-announcement-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.mgmt-announcement-card {
+  overflow: hidden;
+}
+
+.mgmt-announcement-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.85rem 1.1rem 1rem;
+  border-top: 1px solid rgba(13, 44, 84, 0.06);
+}
+
+.mgmt-announcement-card__actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-left: auto;
+}
+
+@media (max-width: 768px) {
+  .mgmt-mailbox-card {
+    grid-template-columns: 1fr;
+  }
+
+  .mgmt-mailbox-card__link {
+    grid-template-columns: auto 1fr;
+  }
+
+  .mgmt-mailbox-card__time {
+    grid-column: 2;
+  }
+
+  .mgmt-announcement-card__actions {
+    margin-left: 0;
+    width: 100%;
   }
 }

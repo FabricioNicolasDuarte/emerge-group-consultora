@@ -1,15 +1,31 @@
 <script setup lang="ts">
 import { Icon } from '@iconify/vue'
+import { MAILBOX_UPDATED_EVENT } from '~/utils/mailbox-events'
 
 const router = useRouter()
 const { logo, brand } = useAppBrand()
 const { breadcrumbs, backTo, showBack, homePath } = useCampusTopBar()
 const { displayName, profile, signOut } = useCampusAuth()
+const { fetchUnreadCount } = useCampusMailbox()
+const user = useSupabaseUser()
 
 const menuOpen = ref(false)
 const menuRoot = ref<HTMLElement | null>(null)
+const unreadCount = ref(0)
 
 const mobileNav = inject<{ toggleMobileNav: () => void } | null>('campusMobileNav', null)
+
+async function refreshUnread() {
+  if (!user.value) {
+    unreadCount.value = 0
+    return
+  }
+  try {
+    unreadCount.value = await fetchUnreadCount()
+  } catch {
+    unreadCount.value = 0
+  }
+}
 
 function goBack() {
   if (backTo.value) {
@@ -34,15 +50,30 @@ async function onSignOut() {
   await signOut()
 }
 
+watch(user, () => refreshUnread())
+
 onMounted(() => {
+  refreshUnread()
+  if (import.meta.client) {
+    window.addEventListener('focus', refreshUnread)
+    window.addEventListener(MAILBOX_UPDATED_EVENT, refreshUnread)
+  }
   const onDocClick = (event: MouseEvent) => {
     if (!menuRoot.value?.contains(event.target as Node)) {
       closeMenu()
     }
   }
   document.addEventListener('click', onDocClick)
-  onUnmounted(() => document.removeEventListener('click', onDocClick))
+  onUnmounted(() => {
+    document.removeEventListener('click', onDocClick)
+    if (import.meta.client) {
+      window.removeEventListener('focus', refreshUnread)
+      window.removeEventListener(MAILBOX_UPDATED_EVENT, refreshUnread)
+    }
+  })
 })
+
+useCampusAutoRefresh(refreshUnread, 45_000)
 </script>
 
 <template>
@@ -105,7 +136,13 @@ onMounted(() => {
         <slot name="actions" />
       </div>
 
-      <NuxtLink to="/campus/buzon" class="campus-topbar__icon-btn campus-topbar__bell" aria-label="Notificaciones y mensajes" title="Notificaciones y mensajes">
+      <NuxtLink
+        to="/campus/buzon"
+        class="campus-topbar__icon-btn campus-topbar__bell"
+        :class="{ 'has-unread': unreadCount > 0 }"
+        :aria-label="unreadCount > 0 ? `Mensajes (${unreadCount} sin leer)` : 'Notificaciones y mensajes'"
+        :title="unreadCount > 0 ? `${unreadCount} mensaje(s) sin leer` : 'Notificaciones y mensajes'"
+      >
         <Icon icon="mdi:bell-outline" class="campus-topbar__bell-icon" aria-hidden="true" />
         <CampusMailboxBadge placement="inline" />
       </NuxtLink>
@@ -293,6 +330,17 @@ onMounted(() => {
   background: var(--eg-row-bg);
   text-decoration: none;
   color: var(--campus-ink);
+}
+
+.campus-topbar__bell.has-unread {
+  border-color: rgba(242, 140, 40, 0.55);
+  background: rgba(242, 140, 40, 0.12);
+  animation: campus-bell-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes campus-bell-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(242, 140, 40, 0.35); }
+  50% { box-shadow: 0 0 0 6px rgba(242, 140, 40, 0); }
 }
 
 .campus-topbar__bell-icon {

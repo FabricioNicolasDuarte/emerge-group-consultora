@@ -38,11 +38,13 @@
     "@tiptap/starter-kit": "^3.30.5",
     "@tiptap/vue-3": "^3.30.5",
     "exceljs": "^4.4.0",
+    "nodemailer": "^10.0.12",
     "nuxt": "^4.4.2",
     "vue": "^3.5.32",
     "vue-router": "^5.0.4"
   },
   "devDependencies": {
+    "@types/nodemailer": "^8.0.2",
     "pg": "^8.23.0",
     "playwright": "^1.63.0"
   }

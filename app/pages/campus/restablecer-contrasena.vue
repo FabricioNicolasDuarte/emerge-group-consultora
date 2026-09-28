@@ -11,19 +11,67 @@ usePublicSeo({
 
 const { updatePassword } = useCampusAuth()
 const supabase = useSupabaseClient()
+const route = useRoute()
 
 const password = ref('')
 const confirmPassword = ref('')
 const loading = ref(false)
 const ready = ref(false)
+const bootstrapping = ref(true)
 const errorMessage = ref('')
 const success = ref(false)
 
-onMounted(async () => {
+function tokenFromUrl() {
+  const queryHash = typeof route.query.token_hash === 'string' ? route.query.token_hash : ''
+  if (queryHash) return queryHash
+
+  if (!import.meta.client) return ''
+  const hash = window.location.hash.replace(/^#/, '')
+  const params = new URLSearchParams(hash)
+  return params.get('token_hash')
+    || params.get('recovery_token')
+    || ''
+}
+
+async function ensureRecoverySession() {
+  const tokenHash = tokenFromUrl()
+  if (tokenHash) {
+    // Prefer the recovery token over any leftover browser session,
+    // so "forgot password" always updates the intended account.
+    await supabase.auth.signOut({ scope: 'local' }).catch(() => {})
+    const { error } = await supabase.auth.verifyOtp({
+      token_hash: tokenHash,
+      type: 'recovery',
+    })
+    if (error) {
+      errorMessage.value = error.message || 'El enlace de recuperación no es válido.'
+      ready.value = false
+      return
+    }
+    ready.value = true
+    return
+  }
+
+  const { data: existing } = await supabase.auth.getSession()
+  if (existing.session) {
+    ready.value = true
+    return
+  }
+
+  // Give the client a moment to parse access_token from the URL hash (magic link).
+  await new Promise((resolve) => setTimeout(resolve, 600))
   const { data } = await supabase.auth.getSession()
   ready.value = Boolean(data.session)
   if (!ready.value) {
     errorMessage.value = 'El enlace de recuperación expiró o no es válido. Solicitá uno nuevo desde el login.'
+  }
+}
+
+onMounted(async () => {
+  try {
+    await ensureRecoverySession()
+  } finally {
+    bootstrapping.value = false
   }
 })
 
@@ -70,7 +118,9 @@ async function onSubmit() {
     <span class="auth-card__kicker">Seguridad</span>
     <h2>Nueva contraseña</h2>
 
-    <p v-if="success" class="auth-alert auth-alert--success" role="status">
+    <p v-if="bootstrapping" class="auth-card__intro">Validando enlace…</p>
+
+    <p v-else-if="success" class="auth-alert auth-alert--success" role="status">
       Contraseña actualizada. Te redirigimos al login…
     </p>
 

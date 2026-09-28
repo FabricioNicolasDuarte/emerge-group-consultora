@@ -25,7 +25,6 @@ const {
 } = useCampusComms()
 
 const {
-  anunciosPath,
   anunciosNuevoPath,
   comunicacionesPath,
   anuncioEditarPath,
@@ -52,6 +51,12 @@ function statusLabel(status: string) {
   return 'Borrador'
 }
 
+function statusPill(status: string) {
+  if (status === 'published') return 'mgmt-pill--ok'
+  if (status === 'archived') return 'mgmt-pill--draft'
+  return 'mgmt-pill--soft'
+}
+
 async function onToggle(row: AdminAnnouncement) {
   const next = row.status === 'published' ? 'draft' : 'published'
   await updateAnnouncementStatus(row.id, next)
@@ -68,41 +73,66 @@ onMounted(loadData)
 </script>
 
 <template>
-  <div>
+  <div class="campus-mgmt-ambient">
     <CampusPageHeader
       eyebrow="Comunicación visual"
       title="Editor de anuncios"
       description="Diseñá avisos con tipografías, colores, íconos, imágenes y videos."
     >
       <template #actions>
-        <div class="campus-course-actions">
-          <NuxtLink :to="comunicacionesPath" class="campus-btn">Centro de comunicación →</NuxtLink>
-          <NuxtLink :to="anunciosNuevoPath" class="campus-btn campus-btn--primary">+ Nuevo anuncio</NuxtLink>
-        </div>
+        <CampusAdminCampusTableIconBtn
+          icon="mdi:view-dashboard-outline"
+          label="Centro de comunicación"
+          :to="comunicacionesPath"
+        />
+        <CampusAdminCampusTableIconBtn
+          icon="mdi:plus"
+          label="Nuevo anuncio"
+          :to="anunciosNuevoPath"
+        />
       </template>
     </CampusPageHeader>
 
     <p v-if="errorMessage" class="campus-banner campus-banner--error">{{ errorMessage }}</p>
-    <p v-if="loading" class="campus-banner">Cargando anuncios…</p>
+    <p v-if="loading" class="mgmt-empty campus-glass">Cargando anuncios…</p>
 
-    <div v-else-if="!announcements.length" class="campus-admin-empty">
+    <div v-else-if="!announcements.length" class="mgmt-empty campus-glass">
       <p>Todavía no hay anuncios. Creá el primero con el editor visual.</p>
       <NuxtLink :to="anunciosNuevoPath" class="empty-cta">Crear anuncio →</NuxtLink>
     </div>
 
-    <div v-else class="announcement-list">
-      <article v-for="row in announcements" :key="row.id" class="campus-admin-panel campus-card announcement-card">
+    <div v-else class="mgmt-announcement-list">
+      <article
+        v-for="row in announcements"
+        :key="row.id"
+        class="mgmt-announcement-card campus-glass"
+      >
         <CampusAnnouncementRenderer :announcement="row" compact />
-        <div class="announcement-card__meta">
-          <span>{{ AUDIENCE_LABELS[row.audience] }}</span>
-          <span>{{ statusLabel(row.status) }}</span>
-          <div class="announcement-card__actions">
-            <NuxtLink :to="anuncioEditarPath(row.id)">Editar</NuxtLink>
-            <NuxtLink :to="`/campus/anuncios/${row.id}`" target="_blank">Vista pública</NuxtLink>
-            <button type="button" @click="onToggle(row)">
-              {{ row.status === 'published' ? 'Ocultar' : 'Publicar' }}
-            </button>
-            <button type="button" class="danger" @click="onDelete(row.id)">Eliminar</button>
+        <div class="mgmt-announcement-card__meta">
+          <span class="mgmt-pill mgmt-pill--soft">{{ AUDIENCE_LABELS[row.audience] }}</span>
+          <span class="mgmt-pill" :class="statusPill(row.status)">{{ statusLabel(row.status) }}</span>
+          <div class="mgmt-announcement-card__actions">
+            <CampusAdminCampusTableIconBtn
+              icon="mdi:pencil-outline"
+              label="Editar"
+              :to="anuncioEditarPath(row.id)"
+            />
+            <CampusAdminCampusTableIconBtn
+              icon="mdi:eye-outline"
+              label="Vista pública"
+              :to="`/campus/anuncios/${row.id}`"
+            />
+            <CampusAdminCampusTableIconBtn
+              :icon="row.status === 'published' ? 'mdi:eye-off-outline' : 'mdi:publish'"
+              :label="row.status === 'published' ? 'Ocultar' : 'Publicar'"
+              @click="onToggle(row)"
+            />
+            <CampusAdminCampusTableIconBtn
+              icon="mdi:trash-can-outline"
+              label="Eliminar"
+              danger
+              @click="onDelete(row.id)"
+            />
           </div>
         </div>
       </article>

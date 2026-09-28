@@ -17,7 +17,7 @@ const { buildWhatsappHref } = useAppContact()
 const supportWhatsappHref = computed(() =>
   buildWhatsappHref('Hola, tengo dificultades para ingresar al Campus Emerge.'),
 )
-const { signIn, dashboardPath, requestPasswordReset } = useCampusAuth()
+const { user, profile, displayName, signIn, signOut, dashboardPath, requestPasswordReset } = useCampusAuth()
 
 const REMEMBER_KEY = 'campus-remember-email'
 
@@ -25,8 +25,17 @@ const email = ref('')
 const password = ref('')
 const remember = ref(false)
 const loading = ref(false)
+const switchingAccount = ref(false)
 const errorMessage = ref('')
 const resetSent = ref(false)
+
+const activeSessionEmail = computed(() =>
+  profile.value?.email
+  || (typeof user.value?.email === 'string' ? user.value.email : '')
+  || '',
+)
+
+const hasActiveSession = computed(() => Boolean(user.value))
 
 const registerLink = computed(() => {
   const redirect = route.query.redirect
@@ -77,6 +86,22 @@ async function onForgotPassword() {
   }
 }
 
+async function continueAsCurrentUser() {
+  await navigateTo(getPostLoginRedirect(dashboardPath.value))
+}
+
+async function useAnotherAccount() {
+  switchingAccount.value = true
+  errorMessage.value = ''
+  try {
+    await signOut()
+  } catch (error: unknown) {
+    errorMessage.value = error instanceof Error ? error.message : 'No se pudo cerrar la sesión.'
+  } finally {
+    switchingAccount.value = false
+  }
+}
+
 onMounted(() => {
   const saved = localStorage.getItem(REMEMBER_KEY)
   if (saved) {
@@ -105,62 +130,93 @@ onMounted(() => {
 
     <span class="auth-card__kicker">Acceso al Campus</span>
     <h2>Bienvenido/a</h2>
-    <p class="auth-card__intro">
-      Ingresá tus datos para continuar tu recorrido de aprendizaje en {{ brand.shortName }}.
-    </p>
 
-    <p v-if="errorMessage" class="auth-alert auth-alert--error" role="alert">
-      {{ errorMessage }}
-    </p>
-
-    <p v-if="resetSent" class="auth-alert auth-alert--success" role="status">
-      Te enviamos un enlace de recuperación a tu correo.
-    </p>
-
-    <form @submit.prevent="onSubmit">
-      <div class="auth-field">
-        <label for="email">Correo electrónico</label>
-        <input
-          id="email"
-          v-model="email"
-          type="email"
-          autocomplete="email"
-          required
-          placeholder="nombre@correo.com"
-        >
-      </div>
-
-      <div class="auth-field">
-        <label for="password">Contraseña</label>
-        <input
-          id="password"
-          v-model="password"
-          type="password"
-          autocomplete="current-password"
-          required
-          placeholder="Ingresá tu contraseña"
-        >
-      </div>
-
-      <div class="auth-row">
-        <label class="auth-check">
-          <input v-model="remember" type="checkbox">
-          Recordarme
-        </label>
-        <button type="button" class="auth-link" @click="onForgotPassword">
-          ¿Olvidaste tu contraseña?
-        </button>
-      </div>
-
-      <button class="auth-submit" type="submit" :disabled="loading">
-        {{ loading ? 'Ingresando…' : 'Ingresar al Campus' }}
+    <template v-if="hasActiveSession">
+      <p class="auth-card__intro">
+        Hay una sesión abierta en este navegador.
+      </p>
+      <p class="auth-alert auth-alert--success" role="status">
+        Sesión activa:
+        <strong>{{ displayName || activeSessionEmail || 'usuario' }}</strong>
+        <template v-if="displayName && activeSessionEmail">
+          <br>
+          <span class="auth-session-email">{{ activeSessionEmail }}</span>
+        </template>
+      </p>
+      <p v-if="errorMessage" class="auth-alert auth-alert--error" role="alert">
+        {{ errorMessage }}
+      </p>
+      <button class="auth-submit" type="button" :disabled="switchingAccount" @click="continueAsCurrentUser">
+        Continuar con esta cuenta
       </button>
-    </form>
+      <button
+        class="auth-submit auth-submit--secondary"
+        type="button"
+        :disabled="switchingAccount"
+        @click="useAnotherAccount"
+      >
+        {{ switchingAccount ? 'Cerrando sesión…' : 'Usar otra cuenta' }}
+      </button>
+    </template>
 
-    <p class="auth-foot">
-      ¿No tenés cuenta?
-      <NuxtLink :to="registerLink">Registrate gratis</NuxtLink>
-    </p>
+    <template v-else>
+      <p class="auth-card__intro">
+        Ingresá tus datos para continuar tu recorrido de aprendizaje en {{ brand.shortName }}.
+      </p>
+
+      <p v-if="errorMessage" class="auth-alert auth-alert--error" role="alert">
+        {{ errorMessage }}
+      </p>
+
+      <p v-if="resetSent" class="auth-alert auth-alert--success" role="status">
+        Te enviamos un enlace de recuperación a tu correo.
+      </p>
+
+      <form @submit.prevent="onSubmit">
+        <div class="auth-field">
+          <label for="email">Correo electrónico</label>
+          <input
+            id="email"
+            v-model="email"
+            type="email"
+            autocomplete="email"
+            required
+            placeholder="nombre@correo.com"
+          >
+        </div>
+
+        <div class="auth-field">
+          <label for="password">Contraseña</label>
+          <input
+            id="password"
+            v-model="password"
+            type="password"
+            autocomplete="current-password"
+            required
+            placeholder="Ingresá tu contraseña"
+          >
+        </div>
+
+        <div class="auth-row">
+          <label class="auth-check">
+            <input v-model="remember" type="checkbox">
+            Recordarme
+          </label>
+          <button type="button" class="auth-link" @click="onForgotPassword">
+            ¿Olvidaste tu contraseña?
+          </button>
+        </div>
+
+        <button class="auth-submit" type="submit" :disabled="loading">
+          {{ loading ? 'Ingresando…' : 'Ingresar al Campus' }}
+        </button>
+      </form>
+
+      <p class="auth-foot">
+        ¿No tenés cuenta?
+        <NuxtLink :to="registerLink">Registrate gratis</NuxtLink>
+      </p>
+    </template>
 
     <p class="auth-foot">
       ¿Tenés dificultades para ingresar?
@@ -168,3 +224,17 @@ onMounted(() => {
     </p>
   </CampusAuthLayout>
 </template>
+
+<style scoped>
+.auth-session-email {
+  font-weight: 500;
+  opacity: 0.85;
+}
+
+.auth-submit--secondary {
+  margin-top: 0.75rem;
+  background: transparent;
+  color: inherit;
+  border: 1px solid currentColor;
+}
+</style>

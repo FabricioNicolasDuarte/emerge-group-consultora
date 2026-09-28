@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Icon } from '@iconify/vue'
 import type { CampusAnnouncement, CampusNotification } from '~/types/comms'
 import { NOTIFICATION_TYPE_LABELS } from '~/types/comms'
 import { stripHtml } from '~/utils/sanitize-html'
@@ -21,6 +22,7 @@ const {
   markNotificationRead,
   markAllNotificationsRead,
 } = useCampusComms()
+const { buzonPath } = useCampusCommsPaths()
 
 const announcements = ref<CampusAnnouncement[]>([])
 const notifications = ref<CampusNotification[]>([])
@@ -117,78 +119,97 @@ defineExpose({ unreadCount, loadData })
 
 <template>
   <div class="comms-widget" :class="{ compact }">
-
-    <div v-if="showNotifications && unreadCount > 0 && !compact" class="unread-banner">
-      <span>{{ unreadCount }} notificación{{ unreadCount === 1 ? '' : 'es' }} sin leer</span>
-      <button type="button" :disabled="markingAll" @click="onReadAll">
+    <div v-if="showNotifications && unreadCount > 0 && !compact" class="comms-unread campus-glass">
+      <div class="comms-unread__copy">
+        <Icon icon="mdi:bell-badge-outline" width="20" height="20" aria-hidden="true" />
+        <span>{{ unreadCount }} notificación{{ unreadCount === 1 ? '' : 'es' }} sin leer</span>
+      </div>
+      <button type="button" class="comms-text-btn" :disabled="markingAll" @click="onReadAll">
         {{ markingAll ? 'Marcando…' : 'Marcar todas leídas' }}
       </button>
     </div>
 
-    <div v-if="showAnnouncements" class="block">
-      <h3 v-if="!compact">Avisos del campus</h3>
-      <p v-if="loading" class="empty">Cargando avisos…</p>
-      <p v-else-if="!announcements.length" class="empty">No hay avisos por ahora.</p>
+    <section v-if="showAnnouncements" class="comms-block">
+      <header class="comms-block__head">
+        <h3>
+          <Icon icon="mdi:bullhorn-outline" width="20" height="20" aria-hidden="true" />
+          Avisos del campus
+        </h3>
+      </header>
+
+      <p v-if="loading" class="comms-empty">Cargando avisos…</p>
+      <p v-else-if="!announcements.length" class="comms-empty">No hay avisos por ahora.</p>
+
       <article
         v-for="item in announcements"
         :key="item.id"
-        class="announcement-item"
-        :class="{ pinned: item.is_pinned }"
+        class="comms-item campus-glass--soft"
+        :class="{ 'comms-item--pinned': item.is_pinned }"
       >
-        <div class="item-top">
+        <div class="comms-item__top">
           <strong>{{ item.title }}</strong>
-          <span v-if="item.is_pinned" class="tag">Destacado</span>
+          <span v-if="item.is_pinned" class="mgmt-pill mgmt-pill--accent">Destacado</span>
         </div>
         <p>{{ item.excerpt || item.body || stripPreview(item.body_html) }}</p>
-        <small v-if="item.published_at">{{ formatDate(item.published_at) }}</small>
-        <NuxtLink :to="`/campus/anuncios/${item.id}`" class="read-more">Ver completo →</NuxtLink>
+        <div class="comms-item__foot">
+          <small v-if="item.published_at">{{ formatDate(item.published_at) }}</small>
+          <NuxtLink :to="`/campus/anuncios/${item.id}`" class="comms-text-btn">
+            Ver completo
+            <Icon icon="mdi:arrow-right" width="16" height="16" aria-hidden="true" />
+          </NuxtLink>
+        </div>
       </article>
-    </div>
+    </section>
 
-    <div v-if="showNotifications" id="notificaciones" class="block">
-      <div class="block-head">
-        <h3 v-if="!compact">
+    <section v-if="showNotifications" id="notificaciones" class="comms-block">
+      <header class="comms-block__head">
+        <h3>
+          <Icon icon="mdi:bell-outline" width="20" height="20" aria-hidden="true" />
           Alertas del sistema
-          <span v-if="unreadCount" class="badge">{{ unreadCount }}</span>
+          <span v-if="unreadCount" class="mgmt-pill">{{ unreadCount }}</span>
         </h3>
-        <NuxtLink to="/campus/buzon" class="mailbox-link">
-          Ir al buzón
-          <CampusMailboxBadge placement="inline" />
-          →
-        </NuxtLink>
-        <button
-          v-if="unreadNotifications.length && !compact"
-          type="button"
-          class="link-btn"
-          :disabled="markingAll"
-          @click="onReadAll"
-        >
-          {{ markingAll ? 'Marcando…' : 'Marcar todas leídas' }}
-        </button>
-      </div>
+        <div class="comms-block__actions">
+          <NuxtLink :to="buzonPath" class="comms-text-btn">
+            Ir al buzón
+            <CampusMailboxBadge placement="inline" />
+          </NuxtLink>
+          <button
+            v-if="unreadNotifications.length && !compact"
+            type="button"
+            class="comms-text-btn"
+            :disabled="markingAll"
+            @click="onReadAll"
+          >
+            {{ markingAll ? 'Marcando…' : 'Marcar leídas' }}
+          </button>
+        </div>
+      </header>
 
-      <p v-if="actionError" class="action-error" role="alert">{{ actionError }}</p>
-
-      <p v-if="loading" class="empty">Cargando notificaciones…</p>
-      <p v-else-if="!notifications.length" class="empty">No tenés notificaciones todavía.</p>
+      <p v-if="actionError" class="comms-error" role="alert">{{ actionError }}</p>
+      <p v-if="loading" class="comms-empty">Cargando notificaciones…</p>
+      <p v-else-if="!notifications.length" class="comms-empty">No tenés notificaciones todavía.</p>
 
       <button
         v-for="item in notifications.slice(0, compact ? 5 : 20)"
         :key="item.id"
         type="button"
-        class="notification-item"
-        :class="{ unread: !item.is_read }"
+        class="comms-item comms-item--button campus-glass--soft"
+        :class="{ 'comms-item--unread': !item.is_read }"
         @click="onRead(item)"
       >
-        <div>
-          <strong>{{ item.title }}</strong>
-          <small>{{ NOTIFICATION_TYPE_LABELS[item.notification_type] || 'Aviso' }} · {{ formatDate(item.created_at) }}</small>
+        <div class="comms-item__content">
+          <div class="comms-item__top">
+            <strong>{{ item.title }}</strong>
+            <span v-if="!item.is_read" class="comms-dot" aria-hidden="true" />
+          </div>
+          <small>
+            {{ NOTIFICATION_TYPE_LABELS[item.notification_type] || 'Aviso' }}
+            · {{ formatDate(item.created_at) }}
+          </small>
           <p>{{ item.body }}</p>
         </div>
-        <span v-if="!item.is_read" class="dot" aria-hidden="true" />
       </button>
-    </div>
-
+    </section>
   </div>
 </template>
 
@@ -196,176 +217,145 @@ defineExpose({ unreadCount, loadData })
 .comms-widget {
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 1.5rem;
 }
 
-.unread-banner {
+.comms-unread {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 12px;
-  padding: 14px 18px;
-  border-radius: 14px;
-  background: linear-gradient(135deg, var(--eg-ink), var(--eg-action));
-  color: var(--eg-surface);
+  gap: 0.85rem;
+  padding: 0.95rem 1.1rem;
 }
 
-.unread-banner button {
-  border: none;
-  background: rgba(255, 255, 255, 0.15);
-  color: var(--eg-surface);
-  padding: 8px 12px;
-  border-radius: 8px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.block h3 {
-  font-family: var(--eg-font-display);
-  font-size: 28px;
-  margin: 0 0 18px;
-  display: flex;
+.comms-unread__copy {
+  display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 0.55rem;
+  font-weight: 700;
+  color: var(--campus-ink);
 }
 
-.block-head {
+.comms-block__head {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 18px;
+  gap: 0.75rem;
+  margin-bottom: 0.85rem;
 }
 
-.block-head h3 { margin: 0; }
-
-.badge {
+.comms-block__head h3 {
+  margin: 0;
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  min-width: 24px;
-  height: 24px;
-  padding: 0 8px;
-  border-radius: 999px;
-  background: var(--eg-accent);
-  color: var(--eg-surface);
-  font-size: 12px;
-  font-family: var(--eg-font-body);
+  gap: 0.5rem;
+  font-family: var(--eg-font-display);
+  font-size: 1.15rem;
 }
 
-.link-btn,
-.mailbox-link {
+.comms-block__actions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.comms-text-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
   border: none;
   background: none;
+  padding: 0;
   color: var(--eg-action);
+  font: inherit;
+  font-size: 0.86rem;
   font-weight: 700;
   cursor: pointer;
   text-decoration: none;
-  font-family: inherit;
-  font-size: 14px;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
 }
 
-.read-more {
-  display: inline-block;
-  margin-top: 10px;
-  color: var(--eg-action);
-  font-weight: 700;
-  text-decoration: none;
-  font-size: 14px;
-}
-
-.announcement-item,
-.notification-item {
-  width: 100%;
-  text-align: left;
-  background: var(--eg-surface);
-  border: 1px solid var(--eg-border);
-  border-radius: 16px;
-  padding: 18px 20px;
-  margin-bottom: 12px;
-  box-shadow: var(--eg-shadow-sm);
-}
-
-.announcement-item.pinned {
-  border-color: rgba(242, 140, 40, 0.35);
-}
-
-.notification-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 12px;
-  cursor: pointer;
-  font-family: inherit;
-}
-
-.notification-item.unread {
-  border-color: rgba(37, 99, 235, 0.25);
-  background: var(--eg-highlight-bg);
-}
-
-.item-top {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
-}
-
-.announcement-item strong,
-.notification-item strong {
-  display: block;
-  margin-bottom: 6px;
-}
-
-.announcement-item p,
-.notification-item p {
-  margin: 8px 0 0;
-  color: var(--eg-muted);
-  line-height: 1.6;
-}
-
-.announcement-item small,
-.notification-item small {
-  color: var(--eg-subtle);
-}
-
-.tag {
-  font-size: 11px;
-  font-weight: 800;
-  color: var(--eg-accent);
-}
-
-.dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--eg-action);
-  flex-shrink: 0;
-  margin-top: 6px;
-}
-
-.empty {
-  color: var(--eg-subtle);
-}
-
-.action-error {
-  color: var(--eg-error);
-  font-size: 14px;
-  margin: 0 0 12px;
-}
-
-.link-btn:disabled,
-.unread-banner button:disabled {
-  opacity: 0.6;
+.comms-text-btn:disabled {
+  opacity: 0.55;
   cursor: not-allowed;
 }
 
-.compact .announcement-item,
-.compact .notification-item {
-  padding: 14px 16px;
+.comms-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 1rem 1.1rem;
+  margin-bottom: 0.7rem;
+  color: inherit;
+}
+
+.comms-item--button {
+  font: inherit;
+  cursor: pointer;
+}
+
+.comms-item--pinned {
+  border-color: rgba(242, 140, 40, 0.35);
+}
+
+.comms-item--unread {
+  border-color: rgba(37, 99, 235, 0.28);
+  background: linear-gradient(180deg, rgba(37, 99, 235, 0.06), rgba(255, 255, 255, 0.55));
+}
+
+.comms-item__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem;
+  margin-bottom: 0.35rem;
+}
+
+.comms-item__top strong {
+  margin: 0;
+}
+
+.comms-item p {
+  margin: 0.35rem 0 0;
+  color: var(--campus-muted);
+  line-height: 1.55;
+  font-size: 0.92rem;
+}
+
+.comms-item small {
+  color: var(--campus-ink-soft);
+  font-size: 0.78rem;
+}
+
+.comms-item__foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.comms-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--eg-action);
+  flex-shrink: 0;
+}
+
+.comms-empty {
+  color: var(--campus-muted);
+  margin: 0;
+}
+
+.comms-error {
+  color: var(--eg-error);
+  font-size: 0.88rem;
+  margin: 0 0 0.75rem;
+}
+
+.compact .comms-item {
+  padding: 0.85rem 0.95rem;
 }
 </style>

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Icon } from '@iconify/vue'
 import type { MailboxThread } from '~/types/mailbox'
 import type { MailboxThreadFilter } from '~/composables/useCampusMailbox'
 import { formatSupabaseError } from '~/utils/supabase-error'
@@ -38,7 +39,7 @@ definePageMeta({
 
 const { user, hasRole, hasAnyStaffRole, fetchProfile } = useCampusAuth()
 const { fetchThreads, fetchUnreadCount, archiveThread } = useCampusMailbox()
-const { redactarPath } = useCampusCommsPaths()
+const { redactarPath, hubPath } = useCampusCommsPaths()
 
 const threads = ref<MailboxThread[]>([])
 const unreadCount = ref(0)
@@ -65,6 +66,15 @@ const filteredThreads = computed(() => {
       || (t.last_message_preview ?? '').toLowerCase().includes(q)
   })
 })
+
+function formatThreadTime(value: string) {
+  return new Date(value).toLocaleString('es-AR', {
+    day: 'numeric',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+}
 
 async function loadData() {
   loading.value = true
@@ -110,21 +120,29 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="campus-page mailbox-page">
+  <div class="campus-mgmt-ambient">
     <CampusPageHeader
       eyebrow="COMUNICACIÓN INTERNA"
       title="Mi buzón"
       description="Mensajes, alertas y respuestas del equipo de Campus Emerge."
     >
       <template #actions>
-        <span v-if="unreadCount" class="mailbox-unread-pill">{{ unreadCount }} sin leer</span>
-        <NuxtLink v-if="canCompose" :to="redactarPath" class="campus-btn campus-btn--primary">
-          Redactar
-        </NuxtLink>
+        <span v-if="unreadCount" class="mgmt-pill">{{ unreadCount }} sin leer</span>
+        <CampusAdminCampusTableIconBtn
+          icon="mdi:view-dashboard-outline"
+          label="Centro de comunicación"
+          :to="hubPath"
+        />
+        <CampusAdminCampusTableIconBtn
+          v-if="canCompose"
+          icon="mdi:pencil-plus-outline"
+          label="Redactar"
+          :to="redactarPath"
+        />
       </template>
     </CampusPageHeader>
 
-    <div class="mailbox-toolbar">
+    <div class="mgmt-toolbar campus-glass--soft">
       <CampusSegmented
         v-model="filter"
         :options="filterOptions"
@@ -134,16 +152,15 @@ onMounted(async () => {
         v-model="search"
         type="search"
         placeholder="Buscar conversación…"
-        class="mailbox-search"
         aria-label="Buscar conversación"
       >
     </div>
 
     <p v-if="actionMessage" class="campus-banner campus-banner--success">{{ actionMessage }}</p>
     <p v-if="errorMessage" class="campus-banner campus-banner--error">{{ errorMessage }}</p>
-    <p v-if="loading" class="campus-banner">Cargando buzón…</p>
+    <p v-if="loading" class="mgmt-empty campus-glass">Cargando buzón…</p>
 
-    <div v-else-if="!filteredThreads.length" class="mailbox-empty">
+    <div v-else-if="!filteredThreads.length" class="mgmt-empty campus-glass">
       <p>
         {{
           filter === 'archived'
@@ -158,33 +175,47 @@ onMounted(async () => {
       </NuxtLink>
     </div>
 
-    <div v-else class="mailbox-thread-list">
+    <div v-else class="mgmt-mailbox-list">
       <article
         v-for="thread in filteredThreads"
         :key="thread.thread_id"
-        class="mailbox-thread-card"
-        :class="{ 'mailbox-thread-card--unread': thread.unread_count > 0 }"
+        class="mgmt-mailbox-card campus-glass"
+        :class="{ 'mgmt-mailbox-card--unread': thread.unread_count > 0 }"
       >
-        <NuxtLink :to="`/campus/buzon/${thread.thread_id}`" class="mailbox-thread-link">
-          <div>
-            <div class="mailbox-thread-top">
+        <NuxtLink :to="`/campus/buzon/${thread.thread_id}`" class="mgmt-mailbox-card__link">
+          <CampusAvatar
+            :name="thread.other_participant_name || 'Campus Emerge'"
+            size="md"
+          />
+          <div class="mgmt-mailbox-card__body">
+            <div class="mgmt-mailbox-card__top">
               <strong>{{ thread.subject }}</strong>
-              <span v-if="thread.is_outgoing" class="mailbox-tag mailbox-tag--sent">Enviado</span>
-              <span v-if="thread.unread_count" class="mailbox-unread-dot">{{ thread.unread_count }}</span>
+              <span v-if="thread.is_outgoing" class="mgmt-pill mgmt-pill--soft">Enviado</span>
+              <span v-if="thread.unread_count" class="mgmt-pill">{{ thread.unread_count }}</span>
             </div>
-            <p>{{ thread.other_participant_name || 'Campus Emerge' }}</p>
-            <small>{{ thread.last_message_preview }}</small>
+            <p class="mgmt-mailbox-card__from">
+              {{ thread.other_participant_name || 'Campus Emerge' }}
+            </p>
+            <p class="mgmt-mailbox-card__preview">
+              {{ thread.last_message_preview || 'Sin vista previa' }}
+            </p>
           </div>
-          <time>{{ new Date(thread.last_message_at).toLocaleString('es-AR') }}</time>
+          <time class="mgmt-mailbox-card__time">{{ formatThreadTime(thread.last_message_at) }}</time>
         </NuxtLink>
-        <div class="mailbox-thread-actions">
-          <button
-            type="button"
-            class="mailbox-archive-btn"
+        <div class="mgmt-mailbox-card__actions">
+          <CampusAdminCampusTableIconBtn
+            :icon="filter === 'archived' ? 'mdi:inbox-arrow-up-outline' : 'mdi:archive-outline'"
+            :label="filter === 'archived' ? 'Restaurar' : 'Archivar'"
             @click="onArchive(thread.thread_id, filter !== 'archived')"
+          />
+          <NuxtLink
+            :to="`/campus/buzon/${thread.thread_id}`"
+            class="campus-icon-btn"
+            title="Abrir"
+            aria-label="Abrir conversación"
           >
-            {{ filter === 'archived' ? 'Restaurar' : 'Archivar' }}
-          </button>
+            <Icon icon="mdi:chevron-right" width="18" height="18" aria-hidden="true" />
+          </NuxtLink>
         </div>
       </article>
     </div>
