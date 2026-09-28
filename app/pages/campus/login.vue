@@ -83,7 +83,7 @@ async function onForgotPassword() {
     const raw = error instanceof Error ? error.message : 'No se pudo enviar el correo.'
     const lower = raw.toLowerCase()
     if (lower.includes('rate limit') || lower.includes('only request this after')) {
-      errorMessage.value = 'Se pidió recuperación demasiadas veces. Esperá 1–2 minutos e intentá de nuevo.'
+      errorMessage.value = 'No se pudo enviar ahora. Probá de nuevo en unos segundos.'
     } else {
       errorMessage.value = raw
     }

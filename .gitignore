@@ -29,6 +29,7 @@ temp-course-styles.css
 # Credenciales de alumnos (locales)
 credentials/*.local.csv
 credentials/*.local.xlsx
+credentials/*.local.json
 credentials/*generadas*
 credentials/*pendientes*
 !credentials/alumnos.example.csv

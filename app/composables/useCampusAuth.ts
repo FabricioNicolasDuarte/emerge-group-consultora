@@ -193,14 +193,11 @@ export function useCampusAuth() {
   }
 
   async function requestPasswordReset(email: string) {
-    const redirectTo = import.meta.client
-      ? `${window.location.origin}/campus/restablecer-contrasena`
-      : undefined
-
-    const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-      redirectTo,
+    // Via API + Gmail SMTP (evita el rate limit ~2/h del mailer built-in de Supabase).
+    await $fetch('/api/campus/auth/request-password-reset', {
+      method: 'POST',
+      body: { email: email.trim() },
     })
-    if (error) throw error
   }
 
   watch(
