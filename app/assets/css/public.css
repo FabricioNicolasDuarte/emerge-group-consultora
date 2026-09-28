@@ -1564,7 +1564,7 @@
   .public-header__cta { margin-top: 0.5rem; }
 }
 
-/* ── AppFooter (sutil) ── */
+/* ── AppFooter (sutil, chips equidistantes) ── */
 .app-footer {
   flex-shrink: 0;
   width: 100%;
@@ -1578,70 +1578,50 @@
   background: transparent;
 }
 
-.app-footer__inner {
-  max-width: var(--eg-container-footer);
+.app-footer__rail {
+  max-width: min(1600px, calc(100% - 2rem));
   margin: 0 auto;
-  padding: 0.85rem 1.25rem 1.1rem;
+  padding: 0.95rem 0 1.15rem;
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.35rem;
-  text-align: center;
-}
-
-.app-footer__inner--subtle {
-  gap: 0.3rem;
-}
-
-.app-footer__line {
-  margin: 0;
-  font-size: 0.72rem;
-  line-height: 1.5;
-  color: var(--eg-muted);
-  font-weight: 500;
-}
-
-.app-footer__dot {
-  margin: 0 0.35rem;
-  opacity: 0.45;
-}
-
-.app-footer__muted {
-  opacity: 0.85;
-}
-
-.app-footer__quiet {
-  color: inherit;
-  text-decoration: none;
-}
-
-.app-footer__quiet:hover {
-  color: var(--eg-ink-soft);
-  text-decoration: underline;
-}
-
-.app-footer__links {
-  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 0.55rem;
   flex-wrap: wrap;
-  justify-content: center;
-  gap: 0.2rem 0.75rem;
 }
 
-.app-footer__links--subtle a {
-  color: rgba(13, 44, 84, 0.45);
+.app-footer__chip {
+  flex: 1 1 0;
+  min-width: 5.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0.65rem 0.75rem;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(13, 44, 84, 0.08);
+  box-shadow: 0 8px 22px rgba(13, 44, 84, 0.04);
+  color: rgba(13, 44, 84, 0.62);
+  font-size: 0.74rem;
+  font-weight: 700;
   text-decoration: none;
-  font-size: 0.7rem;
+  line-height: 1.25;
+}
+
+a.app-footer__chip:hover {
+  color: var(--eg-ink);
+  border-color: rgba(37, 99, 235, 0.22);
+}
+
+.app-footer__chip--muted {
+  color: rgba(13, 44, 84, 0.45);
   font-weight: 600;
 }
 
-.app-footer__links--subtle a:hover {
-  color: var(--eg-ink-soft);
-  text-decoration: underline;
-}
-
-@media (min-width: 768px) {
-  .app-footer__inner {
-    padding: 0.9rem 2rem 1.15rem;
+@media (max-width: 720px) {
+  .app-footer__chip {
+    flex: 1 1 calc(50% - 0.55rem);
+    min-width: calc(50% - 0.55rem);
   }
 }
 

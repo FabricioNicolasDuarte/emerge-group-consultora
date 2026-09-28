@@ -6,25 +6,48 @@ const { public: { appVersion } } = useRuntimeConfig()
 const { contact, emailHref, whatsappHref } = useAppContact()
 
 const year = new Date().getFullYear()
+
+const chips = computed(() => [
+  { id: 'copy', kind: 'text' as const, label: `© ${year} ${brand.legalName}` },
+  ...INSTITUTIONAL_NAV.map((item) => ({
+    id: item.to,
+    kind: 'link' as const,
+    label: item.label,
+    to: item.to,
+  })),
+  { id: 'mail', kind: 'href' as const, label: 'Email', href: emailHref.value },
+  { id: 'wa', kind: 'href' as const, label: 'WhatsApp', href: whatsappHref.value },
+  { id: 'version', kind: 'text' as const, label: `v${appVersion}` },
+])
 </script>
 
 <template>
   <footer class="app-footer app-footer--subtle">
-    <div class="app-footer__inner app-footer__inner--subtle">
-      <p class="app-footer__line">
-        © {{ year }} {{ brand.legalName }}
-        <span class="app-footer__dot" aria-hidden="true">·</span>
-        <span class="app-footer__muted" :title="`Campus Emerge v${appVersion}`">v{{ appVersion }}</span>
-        <span class="app-footer__dot" aria-hidden="true">·</span>
-        <a :href="emailHref" class="app-footer__quiet">{{ contact.email }}</a>
-        <span class="app-footer__dot" aria-hidden="true">·</span>
-        <a :href="whatsappHref" class="app-footer__quiet" target="_blank" rel="noopener noreferrer">WhatsApp</a>
-      </p>
-      <nav class="app-footer__links app-footer__links--subtle" aria-label="Información institucional">
-        <NuxtLink v-for="item in INSTITUTIONAL_NAV" :key="item.to" :to="item.to">
-          {{ item.label }}
+    <div class="app-footer__rail">
+      <template v-for="chip in chips" :key="chip.id">
+        <NuxtLink
+          v-if="chip.kind === 'link'"
+          :to="chip.to"
+          class="app-footer__chip"
+        >
+          {{ chip.label }}
         </NuxtLink>
-      </nav>
+        <a
+          v-else-if="chip.kind === 'href'"
+          :href="chip.href"
+          class="app-footer__chip"
+          :target="chip.id === 'wa' ? '_blank' : undefined"
+          :rel="chip.id === 'wa' ? 'noopener noreferrer' : undefined"
+        >
+          {{ chip.label }}
+        </a>
+        <span
+          v-else
+          class="app-footer__chip app-footer__chip--muted"
+        >
+          {{ chip.label }}
+        </span>
+      </template>
     </div>
   </footer>
 </template>
