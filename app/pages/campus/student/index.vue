@@ -55,7 +55,7 @@ const pulseItems = computed<HomePulseItem[]>(() => {
   if (unreadCount.value > 0) {
     items.push({
       id: 'unread',
-      label: `${unreadCount.value} mensaje${unreadCount.value === 1 ? '' : 's'} sin leer`,
+      label: `${unreadCount.value} sin leer`,
       to: '/campus/buzon',
       icon: 'mdi:email-outline',
       tone: 'alert',
@@ -63,11 +63,10 @@ const pulseItems = computed<HomePulseItem[]>(() => {
   }
 
   if (nextLive.value) {
-    const liveTo = nextLive.value.meeting_url || '/campus/student/cursos'
     items.push({
       id: 'live',
-      label: `Clase: ${formatSessionWhen(nextLive.value.session_date, nextLive.value.start_time)}`,
-      to: liveTo,
+      label: `En vivo · ${formatSessionWhen(nextLive.value.session_date, nextLive.value.start_time)}`,
+      to: nextLive.value.meeting_url || '/campus/student/cursos',
       icon: 'mdi:video-outline',
       tone: 'default',
       external: Boolean(nextLive.value.meeting_url),
@@ -175,8 +174,15 @@ const queueItems = computed<HomeQueueItem[]>(() => {
   return items.slice(0, 5)
 })
 
-const showProgressChart = computed(() => progressChartBars.value.length > 0)
-const showAttendanceChart = computed(() => attendanceChartBars.value.length > 0)
+const meaningfulProgressBars = computed(() =>
+  progressChartBars.value.filter((b) => b.value > 0),
+)
+const meaningfulAttendanceBars = computed(() =>
+  attendanceChartBars.value.filter((b) => b.value > 0),
+)
+
+const showProgressChart = computed(() => meaningfulProgressBars.value.length > 0)
+const showAttendanceChart = computed(() => meaningfulAttendanceBars.value.length > 0)
 const showRhythm = computed(() => showProgressChart.value || showAttendanceChart.value || avgProgress.value > 0)
 
 onMounted(async () => {
@@ -189,77 +195,89 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="campus-home campus-mgmt-ambient">
+  <div class="campus-home campus-home-stage">
     <CampusRoleSwitcher />
 
     <p v-if="loading" class="campus-home__loading">Preparando tu campus…</p>
 
     <template v-else>
-      <CampusHomePulse :items="pulseItems" />
+      <CampusHomePulse class="home-anim" :items="pulseItems" />
 
       <CampusHomeHero
         v-if="nextCourse"
-        eyebrow="Mi campus"
+        class="home-anim home-anim--2"
+        eyebrow="Tu espacio de aprendizaje"
         title="Hola,"
         :highlight="firstName"
-        :copy="`Seguí con ${nextCourse.title}.`"
+        :course-title="nextCourse.title"
+        :copy="nextCourse.progress_percent > 0
+          ? 'Retomá donde lo dejaste. Un clic y seguís.'
+          : 'Tu diplomatura ya está lista. Empezá ahora y marcá el primer avance.'"
         :meta="[
-          `${nextCourse.progress_percent}% completado`,
           nextCourse.category,
+          `${nextCourse.progress_percent}% completado`,
           avgAttendance > 0 ? `Asistencia ${avgAttendance}%` : '',
         ].filter(Boolean)"
-        cta-label="Continuar curso"
+        :cta-label="nextCourse.progress_percent > 0 ? 'Continuar curso' : 'Empezar ahora'"
         :cta-to="`/campus/cursos/${nextCourse.slug}`"
         secondary-label="Ver mis cursos"
         secondary-to="/campus/student/cursos"
         :ring-value="nextCourse.progress_percent"
-        ring-label="En este curso"
+        ring-label="Avance"
+        :ring-note="nextCourse.progress_percent === 0 ? 'Todavía no empezaste' : 'En este programa'"
       />
 
       <CampusHomeHero
         v-else
-        eyebrow="Mi campus"
+        class="home-anim home-anim--2"
+        eyebrow="Tu espacio de aprendizaje"
         title="Hola,"
         :highlight="firstName"
-        copy="Todavía no tenés un curso en marcha. Cuando te inscriban, vas a continuar desde acá."
+        copy="Cuando te asignen un programa, vas a continuar desde acá con un solo clic."
         cta-label="Ver mis cursos"
         cta-to="/campus/student/cursos"
         secondary-label="Ir al buzón"
         secondary-to="/campus/buzon"
       />
 
-      <section v-if="showRhythm" class="home-rhythm" aria-label="Tu ritmo">
-        <div v-if="avgProgress > 0 || activeCount > 0" class="home-rhythm__ring-wrap campus-glass">
+      <section
+        v-if="showRhythm"
+        class="home-rhythm home-anim home-anim--3"
+        :class="{ 'home-rhythm--single': !showProgressChart && !showAttendanceChart }"
+        aria-label="Tu ritmo"
+      >
+        <div v-if="avgProgress > 0 || activeCount > 0" class="home-rhythm__ring-wrap">
           <CampusHomeRing :value="avgProgress" size="lg" />
           <span class="home-rhythm__ring-label">Progreso general</span>
         </div>
 
-        <div v-if="showProgressChart" class="home-rhythm__panel campus-glass">
+        <div v-if="showProgressChart" class="home-rhythm__panel">
           <h3>Progreso por curso</h3>
-          <CampusMiniBarChart :bars="progressChartBars" :max="100" />
+          <CampusMiniBarChart :bars="meaningfulProgressBars" :max="100" />
           <NuxtLink to="/campus/student/progreso" class="home-rhythm__link">Ver progreso →</NuxtLink>
         </div>
 
-        <div v-else-if="showAttendanceChart" class="home-rhythm__panel campus-glass">
+        <div v-else-if="showAttendanceChart" class="home-rhythm__panel">
           <h3>Asistencia por curso</h3>
-          <CampusMiniBarChart :bars="attendanceChartBars" :max="100" />
+          <CampusMiniBarChart :bars="meaningfulAttendanceBars" :max="100" />
           <NuxtLink to="/campus/student/asistencia" class="home-rhythm__link">Ver asistencia →</NuxtLink>
         </div>
       </section>
 
       <section
         v-if="showAttendanceChart && showProgressChart"
-        class="home-rhythm__panel campus-glass"
+        class="home-rhythm__panel home-anim home-anim--3"
         aria-label="Asistencia"
       >
         <h3>Asistencia por curso</h3>
-        <CampusMiniBarChart :bars="attendanceChartBars" :max="100" />
+        <CampusMiniBarChart :bars="meaningfulAttendanceBars" :max="100" />
         <NuxtLink to="/campus/student/asistencia" class="home-rhythm__link">Ver asistencia →</NuxtLink>
       </section>
 
-      <CampusHomeToolkit :tools="toolkit" />
+      <CampusHomeToolkit class="home-anim home-anim--4" :tools="toolkit" />
 
       <CampusHomeQueue
+        class="home-anim home-anim--5"
         :items="queueItems"
         empty-text="Estás al día. Cuando haya clases, mensajes o pendientes, aparecen acá."
       />
