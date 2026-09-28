@@ -43,8 +43,13 @@ const admin = useAdminCampusData()
         class="table-row table-row--students-admin"
       >
         <div>
-          <strong>{{ student.full_name }}</strong>
-          <small v-if="student.audience" style="display:block; opacity:0.75;">{{ student.audience }}</small>
+          <div class="roster-student">
+            <CampusAvatar :name="student.full_name" :src="student.avatar_url" size="sm" />
+            <div>
+              <strong>{{ student.full_name }}</strong>
+              <small v-if="student.audience" style="display:block; opacity:0.75;">{{ student.audience }}</small>
+            </div>
+          </div>
         </div>
         <div>
           <span>{{ student.email || '—' }}</span>

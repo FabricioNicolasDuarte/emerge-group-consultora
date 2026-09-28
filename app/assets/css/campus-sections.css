@@ -916,6 +916,27 @@
   margin-top: 0.2rem;
 }
 
+.roster-student {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-width: 0;
+}
+
+.roster-student > div {
+  min-width: 0;
+}
+
+.roster-student strong,
+.roster-student small,
+.student-cell small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+  display: block;
+}
+
 /* Content admin */
 .course-module-block {
   margin-bottom: 1.25rem;

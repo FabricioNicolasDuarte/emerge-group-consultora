@@ -32,6 +32,7 @@ export interface SessionStudentRow {
   student_id: string
   full_name: string
   email: string | null
+  avatar_url: string | null
   record_id: string | null
   status: AttendanceStatus | null
 }

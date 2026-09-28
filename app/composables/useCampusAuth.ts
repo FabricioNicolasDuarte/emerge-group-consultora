@@ -107,6 +107,85 @@ export function useCampusAuth() {
     if (error) throw error
   }
 
+  async function updateOwnProfile(input: {
+    full_name: string
+    phone?: string | null
+    city?: string | null
+    job_role?: string | null
+    occupation?: string | null
+    audience?: string | null
+    challenge?: string | null
+  }) {
+    const userId = authUserId.value
+    if (!userId) throw new Error('Debés iniciar sesión')
+
+    const payload = {
+      full_name: input.full_name.trim(),
+      phone: input.phone?.trim() || null,
+      city: input.city?.trim() || null,
+      job_role: input.job_role?.trim() || null,
+      occupation: input.occupation?.trim() || null,
+      audience: input.audience?.trim() || null,
+      challenge: input.challenge?.trim() || null,
+    }
+
+    if (!payload.full_name) throw new Error('El nombre es obligatorio')
+
+    const { error } = await supabase
+      .from('profiles')
+      .update(payload)
+      .eq('id', userId)
+
+    if (error) throw error
+    await fetchProfile()
+  }
+
+  async function uploadOwnAvatar(file: File) {
+    const userId = authUserId.value
+    if (!userId) throw new Error('Debés iniciar sesión')
+
+    if (!file.type.startsWith('image/')) {
+      throw new Error('El archivo debe ser una imagen')
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      throw new Error('La imagen no puede superar 5 MB')
+    }
+
+    const ext = file.name.split('.').pop()?.toLowerCase().replace(/[^a-z0-9]/g, '') || 'jpg'
+    const path = `${userId}/avatar.${ext === 'jpeg' ? 'jpg' : ext}`
+
+    const { error: uploadError } = await supabase.storage
+      .from('avatars')
+      .upload(path, file, { upsert: true, contentType: file.type, cacheControl: '3600' })
+
+    if (uploadError) throw uploadError
+
+    const { data } = supabase.storage.from('avatars').getPublicUrl(path)
+    const avatarUrl = `${data.publicUrl}?v=${Date.now()}`
+
+    const { error } = await supabase
+      .from('profiles')
+      .update({ avatar_url: avatarUrl })
+      .eq('id', userId)
+
+    if (error) throw error
+    await fetchProfile()
+    return avatarUrl
+  }
+
+  async function removeOwnAvatar() {
+    const userId = authUserId.value
+    if (!userId) throw new Error('Debés iniciar sesión')
+
+    const { error } = await supabase
+      .from('profiles')
+      .update({ avatar_url: null })
+      .eq('id', userId)
+
+    if (error) throw error
+    await fetchProfile()
+  }
+
   async function signOut() {
     profile.value = null
     await supabase.auth.signOut()
@@ -153,6 +232,9 @@ export function useCampusAuth() {
     signUp,
     signOut,
     updatePassword,
+    updateOwnProfile,
+    uploadOwnAvatar,
+    removeOwnAvatar,
     requestPasswordReset,
   }
 }

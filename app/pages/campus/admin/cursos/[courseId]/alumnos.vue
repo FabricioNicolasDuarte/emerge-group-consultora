@@ -15,7 +15,7 @@ const { fetchCourseById } = useCourseContent()
 const { fetchCourseStudents } = useCourseTracking()
 
 const course = ref<Awaited<ReturnType<typeof fetchCourseById>>>(null)
-const students = ref<{ id: string, full_name: string, email: string | null }[]>([])
+const students = ref<{ id: string, full_name: string, email: string | null, avatar_url: string | null }[]>([])
 const loading = ref(true)
 const errorMessage = ref('')
 const query = ref('')
@@ -28,15 +28,6 @@ const filteredStudents = computed(() => {
     || (s.email ?? '').toLowerCase().includes(q),
   )
 })
-
-function initials(name: string) {
-  return name
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((p) => p[0]?.toUpperCase() ?? '')
-    .join('') || '?'
-}
 
 async function loadData() {
   loading.value = true
@@ -101,10 +92,14 @@ onMounted(loadData)
           :key="student.id"
           class="mgmt-person-card campus-glass"
         >
-          <div class="mgmt-person-avatar" aria-hidden="true">{{ initials(student.full_name) }}</div>
-          <div>
-            <strong>{{ student.full_name }}</strong>
-            <a v-if="student.email" :href="`mailto:${student.email}`">{{ student.email }}</a>
+          <CampusAvatar :name="student.full_name" :src="student.avatar_url" size="md" />
+          <div class="mgmt-person-card__body">
+            <strong :title="student.full_name">{{ student.full_name }}</strong>
+            <a
+              v-if="student.email"
+              :href="`mailto:${student.email}`"
+              :title="student.email"
+            >{{ student.email }}</a>
             <span v-else>Sin correo</span>
           </div>
         </article>

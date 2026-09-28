@@ -32,18 +32,24 @@ export function useCourseTracking() {
   async function fetchCourseStudents(courseId: string) {
     const { data, error } = await supabase
       .from('enrollments')
-      .select('student_id, profiles:student_id(id, full_name, email)')
+      .select('student_id, profiles:student_id(id, full_name, email, avatar_url)')
       .eq('course_id', courseId)
       .eq('status', 'active')
 
     if (error) throw error
 
     return (data ?? []).map((row) => {
-      const profile = row.profiles as { id: string, full_name: string, email: string | null } | null
+      const profile = row.profiles as {
+        id: string
+        full_name: string
+        email: string | null
+        avatar_url: string | null
+      } | null
       return {
         id: profile?.id ?? row.student_id,
         full_name: profile?.full_name ?? 'Sin nombre',
         email: profile?.email ?? null,
+        avatar_url: profile?.avatar_url ?? null,
       }
     })
   }
@@ -72,6 +78,7 @@ export function useCourseTracking() {
         student_id: student.id,
         full_name: student.full_name,
         email: student.email,
+        avatar_url: student.avatar_url,
         record_id: record?.id ?? null,
         status: record?.status ?? null,
       }

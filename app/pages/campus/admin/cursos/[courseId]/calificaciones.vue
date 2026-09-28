@@ -24,7 +24,7 @@ const {
 
 const course = ref<Awaited<ReturnType<typeof fetchCourseById>>>(null)
 const assessments = ref<Assessment[]>([])
-const students = ref<{ id: string, full_name: string, email: string | null }[]>([])
+const students = ref<{ id: string, full_name: string, email: string | null, avatar_url?: string | null }[]>([])
 const gradeMap = ref<Map<string, { grade_id: string | null, score: number | null, feedback: string }>>(new Map())
 const loading = ref(true)
 const saving = ref(false)
@@ -253,8 +253,13 @@ onMounted(loadData)
           <tbody>
             <tr v-for="student in students" :key="student.id">
               <td class="student-cell">
-                <strong>{{ student.full_name }}</strong>
-                <small>{{ student.email }}</small>
+                <div class="roster-student">
+                  <CampusAvatar :name="student.full_name" :src="student.avatar_url" size="sm" />
+                  <div>
+                    <strong>{{ student.full_name }}</strong>
+                    <small>{{ student.email }}</small>
+                  </div>
+                </div>
               </td>
               <td v-for="assessment in assessments" :key="assessment.id">
                 <input

@@ -4,7 +4,7 @@ import { Icon } from '@iconify/vue'
 const router = useRouter()
 const { logo, brand } = useAppBrand()
 const { breadcrumbs, backTo, showBack, homePath } = useCampusTopBar()
-const { displayName, initials, signOut } = useCampusAuth()
+const { displayName, profile, signOut } = useCampusAuth()
 
 const menuOpen = ref(false)
 const menuRoot = ref<HTMLElement | null>(null)
@@ -119,7 +119,7 @@ onMounted(() => {
           aria-label="Menú de usuario"
           @click.stop="toggleMenu"
         >
-          <span class="campus-topbar__avatar">{{ initials }}</span>
+          <CampusAvatar :name="displayName" :src="profile?.avatar_url" size="sm" />
           <span class="campus-topbar__name">{{ displayName }}</span>
           <svg class="campus-topbar__chevron" viewBox="0 0 24 24" aria-hidden="true">
             <path fill="currentColor" d="M7 10l5 5 5-5z" />
@@ -128,6 +128,13 @@ onMounted(() => {
 
         <div v-if="menuOpen" class="campus-topbar__dropdown" role="menu">
           <p class="campus-topbar__dropdown-label">{{ displayName }}</p>
+          <NuxtLink
+            to="/campus/perfil"
+            role="menuitem"
+            @click="closeMenu"
+          >
+            Mi perfil
+          </NuxtLink>
           <NuxtLink
             :to="homePath"
             role="menuitem"
@@ -333,6 +340,13 @@ onMounted(() => {
   font-size: 0.78rem;
   font-weight: 800;
   flex-shrink: 0;
+}
+
+.campus-topbar__user-btn :deep(.campus-avatar) {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 0.72rem;
 }
 
 .campus-topbar__name {

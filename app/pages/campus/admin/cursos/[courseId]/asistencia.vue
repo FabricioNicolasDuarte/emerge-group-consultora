@@ -270,9 +270,12 @@ onMounted(loadData)
             <span>Estado</span>
           </div>
           <div v-for="row in roster" :key="row.student_id" class="roster-row">
-            <div>
-              <strong>{{ row.full_name }}</strong>
-              <small>{{ row.email }}</small>
+            <div class="roster-student">
+              <CampusAvatar :name="row.full_name" :src="row.avatar_url" size="sm" />
+              <div>
+                <strong>{{ row.full_name }}</strong>
+                <small>{{ row.email }}</small>
+              </div>
             </div>
             <select
               :value="row.status || 'absent'"
