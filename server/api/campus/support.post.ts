@@ -1,5 +1,5 @@
 import { serverSupabaseUser } from '#supabase/server'
-import { getMailConfig, sendTransactionalEmail } from '../../../utils/mail'
+import { getMailConfig, sendTransactionalEmail } from '../../utils/mail'
 
 type SupportBody = {
   subject?: string
