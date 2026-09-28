@@ -59,8 +59,7 @@ async function onSubmit() {
     }
     await navigateTo(getPostLoginRedirect(dashboardPath.value))
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'No se pudo iniciar sesión.'
-    errorMessage.value = message
+    errorMessage.value = humanizeAuthError(error, 'No se pudo iniciar sesión.')
   } finally {
     loading.value = false
   }
@@ -80,17 +79,26 @@ async function onForgotPassword() {
     await requestPasswordReset(email.value)
     resetSent.value = true
   } catch (error: unknown) {
-    const raw = error instanceof Error ? error.message : 'No se pudo enviar el correo.'
-    const lower = raw.toLowerCase()
-    if (lower.includes('rate limit') || lower.includes('only request this after')) {
-      errorMessage.value = 'No se pudo enviar ahora. Probá de nuevo en unos segundos.'
-    } else {
-      errorMessage.value = raw
-    }
+    errorMessage.value = humanizeAuthError(error, 'No se pudo enviar el correo.')
     resetSent.value = false
   } finally {
     loading.value = false
   }
+}
+
+function humanizeAuthError(error: unknown, fallback: string) {
+  const raw = error instanceof Error ? error.message : fallback
+  const lower = raw.toLowerCase()
+  if (lower.includes('email rate limit') || lower.includes('over_email_send_rate_limit')) {
+    return 'Supabase limitó el envío de correos por demasiados intentos de recuperación. Esperá unos minutos e intentá ingresar con tu contraseña (no uses “Olvidé mi contraseña” otra vez ahora).'
+  }
+  if (lower.includes('rate limit') || lower.includes('only request this after')) {
+    return 'Demasiados intentos. Esperá unos minutos e intentá de nuevo.'
+  }
+  if (lower.includes('invalid login credentials')) {
+    return 'Correo o contraseña incorrectos.'
+  }
+  return raw || fallback
 }
 
 async function continueAsCurrentUser() {
@@ -140,7 +148,8 @@ onMounted(() => {
 
     <template v-if="hasActiveSession">
       <p class="auth-card__intro">
-        Hay una sesión abierta en este navegador.
+        Hay una sesión abierta en este navegador. Para entrar con otro correo,
+        primero cerrá esta sesión.
       </p>
       <p class="auth-alert auth-alert--success" role="status">
         Sesión activa:
@@ -162,7 +171,7 @@ onMounted(() => {
         :disabled="switchingAccount"
         @click="useAnotherAccount"
       >
-        {{ switchingAccount ? 'Cerrando sesión…' : 'Usar otra cuenta' }}
+        {{ switchingAccount ? 'Cerrando sesión…' : 'Cerrar sesión y usar otra cuenta' }}
       </button>
     </template>
 
