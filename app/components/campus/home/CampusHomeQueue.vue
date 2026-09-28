@@ -9,7 +9,7 @@ defineProps<{
 </script>
 
 <template>
-  <section v-if="items.length || emptyText" class="home-queue campus-glass">
+  <section v-if="items.length || emptyText" class="home-queue">
     <div class="home-queue__head">
       <h3>{{ title || 'Requiere tu atención' }}</h3>
       <span v-if="items.length">{{ items.length }} ítem{{ items.length === 1 ? '' : 's' }}</span>

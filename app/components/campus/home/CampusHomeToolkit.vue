@@ -13,7 +13,7 @@ defineProps<{
       v-for="tool in tools"
       :key="tool.id"
       :to="tool.to"
-      class="home-toolkit__item campus-glass"
+      class="home-toolkit__item"
     >
       <div class="home-toolkit__head">
         <span class="home-toolkit__icon" aria-hidden="true">

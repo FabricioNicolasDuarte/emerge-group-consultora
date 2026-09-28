@@ -18,7 +18,7 @@ function isExternal(to?: string, external?: boolean) {
       <a
         v-if="item.to && isExternal(item.to, item.external)"
         :href="item.to"
-        class="home-pulse__item campus-glass--soft"
+        class="home-pulse__item"
         :class="{
           'home-pulse__item--alert': item.tone === 'alert',
           'home-pulse__item--muted': item.tone === 'muted',
@@ -33,7 +33,7 @@ function isExternal(to?: string, external?: boolean) {
       <NuxtLink
         v-else-if="item.to"
         :to="item.to"
-        class="home-pulse__item campus-glass--soft"
+        class="home-pulse__item"
         :class="{
           'home-pulse__item--alert': item.tone === 'alert',
           'home-pulse__item--muted': item.tone === 'muted',
@@ -45,7 +45,7 @@ function isExternal(to?: string, external?: boolean) {
       </NuxtLink>
       <span
         v-else
-        class="home-pulse__item campus-glass--soft"
+        class="home-pulse__item"
         :class="{
           'home-pulse__item--alert': item.tone === 'alert',
           'home-pulse__item--muted': item.tone === 'muted',
