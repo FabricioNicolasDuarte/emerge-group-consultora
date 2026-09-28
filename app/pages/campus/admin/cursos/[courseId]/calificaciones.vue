@@ -11,7 +11,6 @@ definePageMeta({
 const route = useRoute()
 const courseId = computed(() => route.params.courseId as string)
 const { panelPath, panelLabel } = useCampusBackLink()
-const { courseAsistenciaPath, courseContenidoPath } = useCampusStaffPaths()
 
 const { fetchCourseById } = useCourseContent()
 const {
@@ -102,11 +101,12 @@ async function onCreateAssessment() {
   }
 }
 
-async function onTogglePublish(assessment: Assessment) {
+async function setAssessmentPublished(assessment: Assessment, value: boolean) {
+  if (assessment.is_published === value) return
   saving.value = true
   try {
-    await updateAssessment(assessment.id, { is_published: !assessment.is_published })
-    await loadGradebook()
+    await updateAssessment(assessment.id, { is_published: value })
+    assessment.is_published = value
   } catch (error: unknown) {
     errorMessage.value = error instanceof Error ? error.message : 'No se pudo actualizar'
   } finally {
@@ -166,7 +166,7 @@ onMounted(loadData)
 </script>
 
 <template>
-  <div>
+  <div class="campus-mgmt-ambient">
     <NuxtLink :to="panelPath" class="panel-back">← Volver a {{ panelLabel }}</NuxtLink>
     <CampusPageHeader
       eyebrow="CALIFICACIONES"
@@ -174,11 +174,12 @@ onMounted(loadData)
       description="Libro de notas por evaluación y alumno."
     >
       <template #actions>
-        <div class="campus-course-actions">
-          <NuxtLink v-if="course" :to="courseContenidoPath(courseId)" class="campus-btn">Contenido →</NuxtLink>
-          <NuxtLink v-if="course" :to="courseAsistenciaPath(courseId)" class="campus-btn">Asistencia →</NuxtLink>
-          <NuxtLink v-if="course" :to="`/campus/cursos/${course.slug}`" class="campus-btn campus-btn--primary">Ver curso</NuxtLink>
-        </div>
+        <CampusAdminCampusTableIconBtn
+          v-if="course"
+          icon="mdi:eye-outline"
+          label="Vista alumno"
+          :to="`/campus/cursos/${course.slug}`"
+        />
       </template>
     </CampusPageHeader>
 
@@ -189,27 +190,33 @@ onMounted(loadData)
     />
 
     <p v-if="errorMessage" class="campus-banner campus-banner--error">{{ errorMessage }}</p>
-    <p v-if="loading" class="campus-banner">Cargando…</p>
+    <p v-if="loading" class="mgmt-empty campus-glass">Cargando…</p>
 
-    <section v-if="!loading && course" class="campus-admin-panel campus-card">
+    <section v-if="!loading && course" class="mgmt-compose campus-glass">
       <h2>Nueva evaluación</h2>
-      <div class="campus-inline-form">
+      <div class="mgmt-compose-form">
         <input v-model="newAssessment.title" type="text" placeholder="Título de la evaluación" aria-label="Título de la evaluación">
         <input v-model.number="newAssessment.max_score" type="number" min="1" placeholder="Puntaje máximo" aria-label="Puntaje máximo">
         <input v-model.number="newAssessment.weight_percent" type="number" min="1" max="100" placeholder="Peso %" aria-label="Peso porcentual">
         <input v-model="newAssessment.due_date" type="date" aria-label="Fecha de entrega">
-        <button type="button" class="campus-btn campus-btn--primary" :disabled="saving" @click="onCreateAssessment">
-          + Evaluación
-        </button>
+        <CampusAdminCampusTableIconBtn
+          icon="mdi:plus"
+          label="Crear evaluación"
+          :disabled="saving || !newAssessment.title.trim()"
+          @click="onCreateAssessment"
+        />
       </div>
     </section>
 
-    <section v-if="!loading && course" class="campus-admin-panel campus-card">
+    <section v-if="!loading && course" class="campus-admin-panel campus-glass">
       <div class="campus-admin-panel__top">
         <h2>Libro de notas</h2>
-        <button type="button" class="campus-btn campus-btn--primary" :disabled="saving || !assessments.length" @click="onSaveGrades">
-          Guardar notas
-        </button>
+        <CampusAdminCampusTableIconBtn
+          icon="mdi:content-save-outline"
+          label="Guardar notas"
+          :disabled="saving || !assessments.length"
+          @click="onSaveGrades"
+        />
       </div>
 
       <p v-if="!assessments.length" class="campus-admin-empty">Creá una evaluación para empezar a cargar notas.</p>
@@ -225,12 +232,18 @@ onMounted(loadData)
                   <span>{{ assessment.title }}</span>
                   <small>Máx {{ assessment.max_score }} · {{ assessment.weight_percent }}%</small>
                   <div class="assessment-actions">
-                    <button type="button" class="campus-btn" @click="onTogglePublish(assessment)">
-                      {{ assessment.is_published ? 'Ocultar' : 'Publicar' }}
-                    </button>
-                    <button type="button" class="campus-btn danger" @click="onDeleteAssessment(assessment.id)">
-                      ✕
-                    </button>
+                    <CampusSwitch
+                      :model-value="assessment.is_published"
+                      :label="assessment.is_published ? 'Visible' : 'Oculta'"
+                      :disabled="saving"
+                      @update:model-value="(v) => setAssessmentPublished(assessment, v)"
+                    />
+                    <CampusAdminCampusTableIconBtn
+                      icon="mdi:trash-can-outline"
+                      label="Eliminar evaluación"
+                      danger
+                      @click="onDeleteAssessment(assessment.id)"
+                    />
                   </div>
                 </div>
               </th>

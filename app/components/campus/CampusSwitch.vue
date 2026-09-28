@@ -4,14 +4,11 @@ const props = withDefaults(defineProps<{
   label?: string
   disabled?: boolean
 }>(), {
+  label: '',
   disabled: false,
 })
 
-const emit = defineEmits<{
-  'update:modelValue': [value: boolean]
-}>()
-
-const id = useId()
+const emit = defineEmits<{ 'update:modelValue': [value: boolean] }>()
 
 function toggle() {
   if (props.disabled) return
@@ -20,70 +17,18 @@ function toggle() {
 </script>
 
 <template>
-  <label class="campus-switch" :class="{ 'is-disabled': disabled }" :for="id">
-    <span v-if="label" class="campus-switch__label">{{ label }}</span>
-    <button
-      :id="id"
-      type="button"
-      class="campus-switch__track"
-      role="switch"
-      :aria-checked="modelValue ? 'true' : 'false'"
-      :disabled="disabled"
-      @click="toggle"
-    >
+  <button
+    type="button"
+    class="campus-switch"
+    role="switch"
+    :aria-checked="modelValue"
+    :aria-label="label || (modelValue ? 'Activado' : 'Desactivado')"
+    :disabled="disabled"
+    @click="toggle"
+  >
+    <span class="campus-switch__track" :class="{ 'is-on': modelValue }">
       <span class="campus-switch__thumb" />
-    </button>
-  </label>
+    </span>
+    <span v-if="label" class="campus-switch__label">{{ label }}</span>
+  </button>
 </template>
-
-<style scoped>
-.campus-switch {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.55rem;
-  cursor: pointer;
-}
-
-.campus-switch.is-disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-}
-
-.campus-switch__label {
-  font-size: 0.84rem;
-  font-weight: 600;
-  color: var(--campus-ink);
-}
-
-.campus-switch__track {
-  position: relative;
-  width: 42px;
-  height: 24px;
-  padding: 0;
-  border: none;
-  border-radius: var(--campus-radius-pill, 999px);
-  background: var(--eg-switch-track);
-  cursor: pointer;
-  transition: background 0.2s var(--campus-ease, ease);
-}
-
-.campus-switch__track[aria-checked='true'] {
-  background: linear-gradient(135deg, var(--eg-action) 0%, var(--eg-action-hover) 100%);
-}
-
-.campus-switch__thumb {
-  position: absolute;
-  top: 3px;
-  left: 3px;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: var(--eg-surface);
-  box-shadow: 0 2px 6px rgba(13, 44, 84, 0.2);
-  transition: transform 0.2s var(--campus-ease, ease);
-}
-
-.campus-switch__track[aria-checked='true'] .campus-switch__thumb {
-  transform: translateX(18px);
-}
-</style>

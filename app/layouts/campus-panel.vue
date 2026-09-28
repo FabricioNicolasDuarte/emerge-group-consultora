@@ -9,6 +9,7 @@
 <script setup lang="ts">
 import '~/assets/css/campus-shell.css'
 import '~/assets/css/campus-sections.css'
+import '~/assets/css/campus-mgmt.css'
 
 const { activePanel } = useCampusActivePanel()
 

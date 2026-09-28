@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { Icon } from '@iconify/vue'
+
 definePageMeta({
   layout: 'campus-panel',
   middleware: ['campus-role'],
@@ -36,27 +38,31 @@ const areas = computed(() => {
   return [
     {
       title: 'Contenido',
-      description: 'Módulos, clases, videos y materiales del programa.',
+      description: 'Módulos, clases, videos y materiales.',
       to: courseContenidoPath(courseId.value),
       meta: `${stats.modules} módulos · ${stats.lessons} clases`,
+      icon: 'mdi:play-box-multiple-outline',
     },
     {
       title: 'Alumnos',
-      description: 'Listado de inscriptos y datos de contacto.',
+      description: 'Inscriptos activos y contacto.',
       to: courseAlumnosPath(courseId.value),
       meta: `${stats.students} activos`,
+      icon: 'mdi:account-group-outline',
     },
     {
       title: 'Asistencia',
-      description: 'Sesiones en vivo y registro de presencia.',
+      description: 'Sesiones y registro de presencia.',
       to: courseAsistenciaPath(courseId.value),
       meta: `${stats.sessions} sesiones`,
+      icon: 'mdi:calendar-check-outline',
     },
     {
       title: 'Calificaciones',
       description: 'Evaluaciones y planilla de notas.',
       to: courseCalificacionesPath(courseId.value),
       meta: 'Planilla del curso',
+      icon: 'mdi:clipboard-text-outline',
     },
   ]
 })
@@ -94,124 +100,63 @@ onMounted(loadData)
 </script>
 
 <template>
-  <div>
+  <div class="campus-mgmt-ambient">
     <NuxtLink :to="panelPath" class="panel-back">← Volver a {{ panelLabel }}</NuxtLink>
     <CampusPageHeader
       eyebrow="GESTIÓN DEL CURSO"
       :title="course?.title || 'Cargando…'"
-      :description="course ? 'Elegí un área para gestionar el programa.' : undefined"
+      :description="course ? 'Elegí un área para operar el programa.' : undefined"
     >
       <template #actions>
-        <NuxtLink
+        <CampusAdminCampusTableIconBtn
           v-if="course"
+          icon="mdi:eye-outline"
+          label="Vista alumno"
           :to="`/campus/cursos/${course.slug}`"
-          class="campus-btn campus-btn--primary"
-        >
-          Vista alumno →
-        </NuxtLink>
+        />
       </template>
     </CampusPageHeader>
 
     <CampusCourseManagementNav v-if="course" :course-id="courseId" active="resumen" />
 
     <p v-if="errorMessage" class="campus-banner campus-banner--error">{{ errorMessage }}</p>
-    <p v-if="loading" class="campus-banner">Cargando resumen…</p>
+    <p v-if="loading" class="mgmt-empty campus-glass">Cargando resumen…</p>
 
-    <section v-if="!loading && course" class="course-hub-stats">
-      <div class="course-hub-stat campus-card">
-        <strong>{{ stats.modules }}</strong>
-        <span>Módulos</span>
-      </div>
-      <div class="course-hub-stat campus-card">
-        <strong>{{ stats.publishedLessons }}/{{ stats.lessons }}</strong>
-        <span>Clases publicadas</span>
-      </div>
-      <div class="course-hub-stat campus-card">
-        <strong>{{ stats.students }}</strong>
-        <span>Alumnos</span>
-      </div>
-      <div class="course-hub-stat campus-card">
-        <strong>{{ stats.sessions }}</strong>
-        <span>Sesiones</span>
-      </div>
-    </section>
+    <template v-if="!loading && course">
+      <section class="mgmt-hub-stats">
+        <div class="mgmt-hub-stat campus-glass">
+          <strong>{{ stats.modules }}</strong>
+          <span>Módulos</span>
+        </div>
+        <div class="mgmt-hub-stat campus-glass">
+          <strong>{{ stats.publishedLessons }}/{{ stats.lessons }}</strong>
+          <span>Publicadas</span>
+        </div>
+        <div class="mgmt-hub-stat campus-glass">
+          <strong>{{ stats.students }}</strong>
+          <span>Alumnos</span>
+        </div>
+        <div class="mgmt-hub-stat campus-glass">
+          <strong>{{ stats.sessions }}</strong>
+          <span>Sesiones</span>
+        </div>
+      </section>
 
-    <section v-if="!loading && course" class="course-hub-grid">
-      <NuxtLink
-        v-for="area in areas"
-        :key="area.to"
-        :to="area.to"
-        class="course-hub-card campus-card"
-      >
-        <h2>{{ area.title }}</h2>
-        <p>{{ area.description }}</p>
-        <small>{{ area.meta }}</small>
-      </NuxtLink>
-    </section>
+      <section class="mgmt-hub-grid">
+        <NuxtLink
+          v-for="area in areas"
+          :key="area.to"
+          :to="area.to"
+          class="mgmt-hub-card campus-glass"
+        >
+          <div class="mgmt-hub-card__icon">
+            <Icon :icon="area.icon" width="22" height="22" aria-hidden="true" />
+          </div>
+          <h2>{{ area.title }}</h2>
+          <p>{{ area.description }}</p>
+          <small>{{ area.meta }}</small>
+        </NuxtLink>
+      </section>
+    </template>
   </div>
 </template>
-
-<style scoped>
-.course-hub-stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 0.75rem;
-  margin-bottom: 1.25rem;
-}
-
-.course-hub-stat {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  padding: 1rem 1.1rem;
-}
-
-.course-hub-stat strong {
-  font-size: 1.35rem;
-  color: var(--eg-ink);
-}
-
-.course-hub-stat span {
-  font-size: 0.8rem;
-  color: var(--eg-ink-soft);
-}
-
-.course-hub-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 0.9rem;
-}
-
-.course-hub-card {
-  display: flex;
-  flex-direction: column;
-  gap: 0.45rem;
-  padding: 1.15rem 1.2rem;
-  text-decoration: none;
-  color: inherit;
-  transition: border-color 0.15s ease, transform 0.15s ease;
-}
-
-.course-hub-card:hover {
-  border-color: var(--eg-ink);
-  transform: translateY(-1px);
-}
-
-.course-hub-card h2 {
-  margin: 0;
-  font-size: 1.05rem;
-}
-
-.course-hub-card p {
-  margin: 0;
-  font-size: 0.88rem;
-  color: var(--eg-ink-soft);
-  flex: 1;
-}
-
-.course-hub-card small {
-  font-size: 0.78rem;
-  font-weight: 700;
-  color: var(--eg-ink);
-}
-</style>

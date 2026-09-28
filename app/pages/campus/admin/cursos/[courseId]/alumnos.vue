@@ -29,6 +29,15 @@ const filteredStudents = computed(() => {
   )
 })
 
+function initials(name: string) {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((p) => p[0]?.toUpperCase() ?? '')
+    .join('') || '?'
+}
+
 async function loadData() {
   loading.value = true
   errorMessage.value = ''
@@ -50,7 +59,7 @@ onMounted(loadData)
 </script>
 
 <template>
-  <div>
+  <div class="campus-mgmt-ambient">
     <NuxtLink :to="panelPath" class="panel-back">← Volver a {{ panelLabel }}</NuxtLink>
     <CampusPageHeader
       eyebrow="ALUMNOS DEL CURSO"
@@ -58,66 +67,57 @@ onMounted(loadData)
       :description="course ? 'Inscriptos activos en este programa.' : undefined"
     >
       <template #actions>
-        <NuxtLink :to="comunicacionesPath" class="campus-btn">
-          Comunicaciones →
-        </NuxtLink>
+        <CampusAdminCampusTableIconBtn
+          icon="mdi:message-text-outline"
+          label="Comunicaciones"
+          :to="comunicacionesPath"
+        />
       </template>
     </CampusPageHeader>
 
     <CampusCourseManagementNav v-if="course" :course-id="courseId" active="alumnos" />
 
     <p v-if="errorMessage" class="campus-banner campus-banner--error">{{ errorMessage }}</p>
-    <p v-if="loading" class="campus-banner">Cargando alumnos…</p>
+    <p v-if="loading" class="mgmt-empty campus-glass">Cargando alumnos…</p>
 
-    <section v-if="!loading && course" class="campus-admin-panel campus-card">
-      <div class="campus-inline-form">
+    <template v-if="!loading && course">
+      <div class="mgmt-toolbar campus-glass campus-glass--soft">
         <input
           v-model="query"
           type="search"
           placeholder="Buscar por nombre o correo"
           aria-label="Buscar alumnos"
         >
-        <span class="course-alumnos-count">{{ filteredStudents.length }} de {{ students.length }}</span>
+        <span class="course-alumnos-count">{{ filteredStudents.length }} / {{ students.length }}</span>
       </div>
 
-      <p v-if="!students.length" class="campus-admin-empty">
+      <p v-if="!students.length" class="mgmt-empty campus-glass">
         No hay alumnos inscriptos en este curso.
       </p>
 
-      <div v-else class="table-wrap">
-        <table class="campus-table">
-          <thead>
-            <tr>
-              <th>Nombre</th>
-              <th>Correo</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="student in filteredStudents" :key="student.id">
-              <td>{{ student.full_name }}</td>
-              <td>
-                <a v-if="student.email" :href="`mailto:${student.email}`">{{ student.email }}</a>
-                <span v-else>—</span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      <div v-else class="mgmt-people-grid">
+        <article
+          v-for="student in filteredStudents"
+          :key="student.id"
+          class="mgmt-person-card campus-glass"
+        >
+          <div class="mgmt-person-avatar" aria-hidden="true">{{ initials(student.full_name) }}</div>
+          <div>
+            <strong>{{ student.full_name }}</strong>
+            <a v-if="student.email" :href="`mailto:${student.email}`">{{ student.email }}</a>
+            <span v-else>Sin correo</span>
+          </div>
+        </article>
       </div>
-    </section>
+    </template>
   </div>
 </template>
 
 <style scoped>
 .course-alumnos-count {
-  align-self: center;
-  font-size: 0.82rem;
-  font-weight: 700;
-  color: var(--eg-ink-soft);
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: var(--campus-ink-soft);
   white-space: nowrap;
-}
-
-.table-wrap {
-  overflow-x: auto;
-  margin-top: 1rem;
 }
 </style>

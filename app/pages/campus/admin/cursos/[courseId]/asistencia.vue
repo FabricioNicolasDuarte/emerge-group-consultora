@@ -11,7 +11,6 @@ definePageMeta({
 
 const route = useRoute()
 const { panelPath, panelLabel } = useCampusBackLink()
-const { courseCalificacionesPath, courseContenidoPath } = useCampusStaffPaths()
 const courseId = computed(() => route.params.courseId as string)
 
 const { fetchCourseById } = useCourseContent()
@@ -166,7 +165,7 @@ onMounted(loadData)
 </script>
 
 <template>
-  <div>
+  <div class="campus-mgmt-ambient">
     <NuxtLink :to="panelPath" class="panel-back">← Volver a {{ panelLabel }}</NuxtLink>
     <CampusPageHeader
       eyebrow="ASISTENCIA"
@@ -174,21 +173,22 @@ onMounted(loadData)
       description="Registrá la asistencia por encuentro sincrónico o presencial."
     >
       <template #actions>
-        <div class="campus-course-actions">
-          <NuxtLink v-if="course" :to="courseContenidoPath(courseId)" class="campus-btn">Contenido →</NuxtLink>
-          <NuxtLink v-if="course" :to="courseCalificacionesPath(courseId)" class="campus-btn">Calificaciones →</NuxtLink>
-          <NuxtLink v-if="course" :to="`/campus/cursos/${course.slug}`" class="campus-btn campus-btn--primary">Ver curso</NuxtLink>
-        </div>
+        <CampusAdminCampusTableIconBtn
+          v-if="course"
+          icon="mdi:eye-outline"
+          label="Vista alumno"
+          :to="`/campus/cursos/${course.slug}`"
+        />
       </template>
     </CampusPageHeader>
 
     <CampusCourseManagementNav v-if="course" :course-id="courseId" active="asistencia" />
 
     <p v-if="errorMessage" class="campus-banner campus-banner--error">{{ errorMessage }}</p>
-    <p v-if="loading" class="campus-banner">Cargando…</p>
+    <p v-if="loading" class="mgmt-empty campus-glass">Cargando…</p>
 
     <div v-if="!loading && course" class="campus-attendance-layout">
-      <section class="campus-admin-panel campus-card">
+      <section class="campus-admin-panel campus-glass">
         <h2>Sesiones</h2>
         <div class="campus-inline-form campus-inline-form--stack">
           <input v-model="newSession.title" type="text" placeholder="Título del encuentro" aria-label="Título del encuentro">
@@ -202,21 +202,27 @@ onMounted(loadData)
             <option value="teams">Microsoft Teams</option>
             <option value="other">Otro</option>
           </select>
-          <button type="button" class="campus-btn campus-btn--primary" :disabled="saving" @click="onCreateSession">
-            + Sesión
-          </button>
+          <CampusAdminCampusTableIconBtn
+            icon="mdi:plus"
+            label="Crear sesión"
+            :disabled="saving || !newSession.title.trim()"
+            @click="onCreateSession"
+          />
         </div>
 
         <p v-if="!sessions.length" class="campus-admin-empty">No hay sesiones cargadas.</p>
 
         <div class="session-list">
-          <button
+          <div
             v-for="session in sessions"
             :key="session.id"
-            type="button"
             class="session-item"
             :class="{ active: selectedSessionId === session.id }"
+            role="button"
+            tabindex="0"
             @click="onSelectSession(session.id)"
+            @keydown.enter.prevent="onSelectSession(session.id)"
+            @keydown.space.prevent="onSelectSession(session.id)"
           >
             <div>
               <strong>{{ session.title }}</strong>
@@ -224,13 +230,18 @@ onMounted(loadData)
             </div>
             <div class="session-meta">
               <span>{{ session.present_count }}/{{ session.total_marked }} presentes</span>
-              <span class="delete-btn" role="button" @click.stop="onDeleteSession(session.id)">✕</span>
+              <CampusAdminCampusTableIconBtn
+                icon="mdi:trash-can-outline"
+                label="Eliminar sesión"
+                danger
+                @click.stop="onDeleteSession(session.id)"
+              />
             </div>
-          </button>
+          </div>
         </div>
       </section>
 
-      <section class="campus-admin-panel campus-card">
+      <section class="campus-admin-panel campus-glass">
         <div class="campus-admin-panel__top">
           <div>
             <h2>{{ selectedSession?.title || 'Seleccioná una sesión' }}</h2>
@@ -241,9 +252,13 @@ onMounted(loadData)
               </template>
             </p>
           </div>
-          <button v-if="selectedSession" type="button" class="campus-btn" :disabled="saving" @click="onMarkAllPresent">
-            Marcar todos presentes
-          </button>
+          <CampusAdminCampusTableIconBtn
+            v-if="selectedSession"
+            icon="mdi:check-all"
+            label="Marcar todos presentes"
+            :disabled="saving"
+            @click="onMarkAllPresent"
+          />
         </div>
 
         <p v-if="!selectedSession" class="campus-admin-empty">Elegí una sesión para cargar asistencia.</p>

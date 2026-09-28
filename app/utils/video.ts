@@ -1,7 +1,7 @@
 export type VideoEmbed =
-  | { kind: 'youtube'; embedUrl: string }
-  | { kind: 'vimeo'; embedUrl: string }
-  | { kind: 'drive'; embedUrl: string; openUrl: string }
+  | { kind: 'youtube'; embedUrl: string; videoId: string }
+  | { kind: 'vimeo'; embedUrl: string; videoId: string }
+  | { kind: 'drive'; embedUrl: string; openUrl: string; fileId: string }
   | { kind: 'direct'; src: string }
   | { kind: 'none' }
 
@@ -30,6 +30,7 @@ export function parseVideoUrl(url: string | null | undefined): VideoEmbed {
     return {
       kind: 'youtube',
       embedUrl: `https://www.youtube.com/embed/${youtubeMatch[1]}`,
+      videoId: youtubeMatch[1],
     }
   }
 
@@ -38,6 +39,7 @@ export function parseVideoUrl(url: string | null | undefined): VideoEmbed {
     return {
       kind: 'vimeo',
       embedUrl: `https://player.vimeo.com/video/${vimeoMatch[1]}`,
+      videoId: vimeoMatch[1],
     }
   }
 
@@ -47,6 +49,7 @@ export function parseVideoUrl(url: string | null | undefined): VideoEmbed {
       kind: 'drive',
       embedUrl: `https://drive.google.com/file/d/${driveId}/preview`,
       openUrl: `https://drive.google.com/file/d/${driveId}/view`,
+      fileId: driveId,
     }
   }
 
@@ -59,6 +62,21 @@ export function parseVideoUrl(url: string | null | undefined): VideoEmbed {
   }
 
   return { kind: 'none' }
+}
+
+/** Thumbnail for cards/previews (YouTube / Drive when available). */
+export function videoThumbnailUrl(url: string | null | undefined): string | null {
+  const parsed = parseVideoUrl(url)
+  if (parsed.kind === 'youtube') {
+    return `https://i.ytimg.com/vi/${parsed.videoId}/hqdefault.jpg`
+  }
+  if (parsed.kind === 'drive') {
+    return `https://drive.google.com/thumbnail?id=${parsed.fileId}&sz=w640`
+  }
+  if (parsed.kind === 'direct' && /\.(jpe?g|png|webp|gif)(\?|$)/i.test(parsed.src)) {
+    return parsed.src
+  }
+  return null
 }
 
 export function lessonTypeLabel(type: string) {
