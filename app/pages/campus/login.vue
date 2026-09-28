@@ -73,14 +73,21 @@ async function onForgotPassword() {
   }
 
   errorMessage.value = ''
+  resetSent.value = false
   loading.value = true
 
   try {
     await requestPasswordReset(email.value)
     resetSent.value = true
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'No se pudo enviar el correo.'
-    errorMessage.value = message
+    const raw = error instanceof Error ? error.message : 'No se pudo enviar el correo.'
+    const lower = raw.toLowerCase()
+    if (lower.includes('rate limit') || lower.includes('only request this after')) {
+      errorMessage.value = 'Se pidió recuperación demasiadas veces. Esperá 1–2 minutos e intentá de nuevo.'
+    } else {
+      errorMessage.value = raw
+    }
+    resetSent.value = false
   } finally {
     loading.value = false
   }
