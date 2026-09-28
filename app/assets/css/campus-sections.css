@@ -970,8 +970,14 @@
 .course-materials-list li {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 0.6rem;
   font-size: 0.82rem;
+}
+
+.course-materials-list .material-item-error {
+  color: #b91c1c;
+  width: 100%;
 }
 
 .course-materials-hint {

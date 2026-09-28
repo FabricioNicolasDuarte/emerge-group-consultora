@@ -1,17 +1,21 @@
 <script setup lang="ts">
 const props = defineProps<{
   courseId: string
-  active: 'contenido' | 'asistencia' | 'calificaciones'
+  active: 'resumen' | 'contenido' | 'alumnos' | 'asistencia' | 'calificaciones'
 }>()
 
 const {
+  courseHubPath,
   courseContenidoPath,
+  courseAlumnosPath,
   courseAsistenciaPath,
   courseCalificacionesPath,
 } = useCampusStaffPaths()
 
 const tabs = computed(() => [
+  { key: 'resumen' as const, label: 'Resumen', to: courseHubPath(props.courseId) },
   { key: 'contenido' as const, label: 'Contenido', to: courseContenidoPath(props.courseId) },
+  { key: 'alumnos' as const, label: 'Alumnos', to: courseAlumnosPath(props.courseId) },
   { key: 'asistencia' as const, label: 'Asistencia', to: courseAsistenciaPath(props.courseId) },
   { key: 'calificaciones' as const, label: 'Calificaciones', to: courseCalificacionesPath(props.courseId) },
 ])

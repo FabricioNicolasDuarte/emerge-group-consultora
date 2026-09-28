@@ -25,6 +25,7 @@ const {
   deleteLesson,
   uploadLessonMaterial,
   fetchLessonMaterials,
+  getMaterialDownloadUrl,
   deleteMaterial,
 } = useCourseContent()
 
@@ -41,6 +42,14 @@ const lessonForms = ref<Record<string, { title: string, video_url: string }>>({}
 const editingLesson = ref<LessonRow | null>(null)
 const lessonMaterials = ref<Record<string, LessonMaterial[]>>({})
 const materialsLoading = ref<Record<string, boolean>>({})
+const materialUrls = ref<Record<string, string>>({})
+const materialUrlErrors = ref<Record<string, string>>({})
+const openingMaterialId = ref<string | null>(null)
+
+function lessonPlayerPath(lessonId: string) {
+  if (!course.value?.slug) return '#'
+  return `/campus/cursos/${course.value.slug}/${lessonId}`
+}
 
 async function loadData() {
   loading.value = true
@@ -171,14 +180,38 @@ async function onDeleteLesson(lessonId: string) {
   }
 }
 
+async function resolveMaterialUrl(material: LessonMaterial) {
+  try {
+    materialUrls.value[material.id] = await getMaterialDownloadUrl(material.storage_path, {
+      downloadName: material.title,
+    })
+    delete materialUrlErrors.value[material.id]
+  } catch (error: unknown) {
+    materialUrlErrors.value[material.id] = error instanceof Error
+      ? error.message
+      : 'No se pudo preparar el enlace'
+  }
+}
+
 async function loadLessonMaterials(lessonId: string) {
   materialsLoading.value[lessonId] = true
   try {
-    lessonMaterials.value[lessonId] = await fetchLessonMaterials(lessonId)
+    const rows = await fetchLessonMaterials(lessonId)
+    lessonMaterials.value[lessonId] = rows
+    await Promise.all(rows.map((material) => resolveMaterialUrl(material)))
   } catch (error: unknown) {
     errorMessage.value = error instanceof Error ? error.message : 'No se pudieron cargar los materiales'
   } finally {
     materialsLoading.value[lessonId] = false
+  }
+}
+
+async function refreshMaterialUrl(material: LessonMaterial) {
+  openingMaterialId.value = material.id
+  try {
+    await resolveMaterialUrl(material)
+  } finally {
+    openingMaterialId.value = null
   }
 }
 
@@ -278,7 +311,7 @@ onMounted(loadData)
     <p v-if="successMessage" class="campus-banner campus-banner--success">{{ successMessage }}</p>
     <p v-if="loading" class="campus-banner">Cargando contenido…</p>
     <p v-if="!loading && course && !canMutateContent" class="campus-banner">
-      Solo el <strong>superadmin</strong> puede crear, editar o eliminar módulos y clases. Podés consultar el contenido.
+      Podés ver clases, videos y materiales. Solo el <strong>superadmin</strong> puede crear o editar contenido.
     </p>
 
     <section v-if="!loading && course && canMutateContent" class="campus-admin-panel campus-card">
@@ -321,18 +354,35 @@ onMounted(loadData)
               <template v-if="lesson.video_url"> · Video cargado</template>
             </small>
           </div>
-          <div v-if="canMutateContent" class="campus-course-actions">
-            <button type="button" class="campus-btn" @click="onEditLesson(lesson)">Editar</button>
-            <button type="button" class="campus-btn" @click="togglePublish(lesson)">
-              {{ lesson.is_published ? 'Ocultar' : 'Publicar' }}
-            </button>
-            <label class="campus-btn campus-upload-btn">
-              Subir PDF
-              <input type="file" accept=".pdf,.doc,.docx,.ppt,.pptx" hidden @change="onUploadMaterial(lesson, $event)">
-            </label>
-            <button type="button" class="campus-btn danger" @click="onDeleteLesson(lesson.id)">
-              Eliminar
-            </button>
+          <div class="campus-course-actions">
+            <NuxtLink
+              :to="lessonPlayerPath(lesson.id)"
+              class="campus-btn campus-btn--primary"
+            >
+              Ver clase →
+            </NuxtLink>
+            <a
+              v-if="lesson.video_url"
+              :href="lesson.video_url"
+              class="campus-btn"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Abrir video
+            </a>
+            <template v-if="canMutateContent">
+              <button type="button" class="campus-btn" @click="onEditLesson(lesson)">Editar</button>
+              <button type="button" class="campus-btn" @click="togglePublish(lesson)">
+                {{ lesson.is_published ? 'Ocultar' : 'Publicar' }}
+              </button>
+              <label class="campus-btn campus-upload-btn">
+                Subir PDF
+                <input type="file" accept=".pdf,.doc,.docx,.ppt,.pptx" hidden @change="onUploadMaterial(lesson, $event)">
+              </label>
+              <button type="button" class="campus-btn danger" @click="onDeleteLesson(lesson.id)">
+                Eliminar
+              </button>
+            </template>
           </div>
 
           <div v-if="materialsLoading[lesson.id]" class="course-materials-hint">Cargando materiales…</div>
@@ -340,6 +390,27 @@ onMounted(loadData)
             <li v-for="material in lessonMaterials[lesson.id]" :key="material.id">
               <span>{{ material.title }}</span>
               <small>{{ material.mime_type || 'archivo' }}</small>
+              <small v-if="materialUrlErrors[material.id]" class="material-item-error">
+                {{ materialUrlErrors[material.id] }}
+              </small>
+              <a
+                v-if="materialUrls[material.id]"
+                :href="materialUrls[material.id]"
+                class="campus-btn"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Abrir
+              </a>
+              <button
+                v-else
+                type="button"
+                class="campus-btn"
+                :disabled="openingMaterialId === material.id"
+                @click="refreshMaterialUrl(material)"
+              >
+                {{ openingMaterialId === material.id ? '…' : 'Reintentar' }}
+              </button>
               <button
                 v-if="canMutateContent"
                 type="button"

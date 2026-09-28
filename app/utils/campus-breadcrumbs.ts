@@ -18,6 +18,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   auditoria: 'Auditoría',
   cursos: 'Cursos',
   contenido: 'Contenido',
+  alumnos: 'Alumnos',
   asistencia: 'Asistencia',
   calificaciones: 'Calificaciones',
   notas: 'Mis notas',

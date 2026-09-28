@@ -6,7 +6,7 @@ export const TEACHER_STAFF_ROUTE_PATTERNS = [
 
   /^\/campus\/teacher\/comunicaciones(\/|$)/,
 
-  /^\/campus\/teacher\/cursos\/[^/]+\/(contenido|asistencia|calificaciones)(\/|$)/,
+  /^\/campus\/teacher\/cursos\/[^/]+(\/(contenido|alumnos|asistencia|calificaciones))?(\/|$)/,
 
 ] as const
 

@@ -6,9 +6,11 @@ import {
   staffAnunciosNuevoPath,
   staffAnunciosPath,
   staffComunicacionesPath,
+  staffCourseAlumnosPath,
   staffCourseAsistenciaPath,
   staffCourseCalificacionesPath,
   staffCourseContenidoPath,
+  staffCourseHubPath,
   TEACHER_STAFF_PREFIX,
 } from '~/utils/campus-staff-paths'
 import { isPanelPreservedRoute } from '~/utils/campus-shared-routes'
@@ -49,8 +51,16 @@ export function useCampusStaffPaths() {
     return staffAnuncioEditarPath(basePath.value, id)
   }
 
+  function courseHubPath(courseId: string) {
+    return staffCourseHubPath(basePath.value, courseId)
+  }
+
   function courseContenidoPath(courseId: string) {
     return staffCourseContenidoPath(basePath.value, courseId)
+  }
+
+  function courseAlumnosPath(courseId: string) {
+    return staffCourseAlumnosPath(basePath.value, courseId)
   }
 
   function courseAsistenciaPath(courseId: string) {
@@ -67,7 +77,9 @@ export function useCampusStaffPaths() {
     anunciosNuevoPath,
     comunicacionesPath,
     anuncioEditarPath,
+    courseHubPath,
     courseContenidoPath,
+    courseAlumnosPath,
     courseAsistenciaPath,
     courseCalificacionesPath,
   }

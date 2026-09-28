@@ -46,9 +46,19 @@ const admin = useAdminCampusData()
         <span class="status" :class="course.status === 'published' ? 'active' : 'draft'">{{ admin.statusLabel(course.status) }}</span>
         <div class="row-actions row-actions--icons">
           <CampusAdminCampusTableIconBtn
+            icon="mdi:view-dashboard-outline"
+            label="Abrir curso"
+            :to="`/campus/admin/cursos/${course.id}`"
+          />
+          <CampusAdminCampusTableIconBtn
             icon="mdi:book-open-page-variant-outline"
             label="Contenido"
             :to="`/campus/admin/cursos/${course.id}/contenido`"
+          />
+          <CampusAdminCampusTableIconBtn
+            icon="mdi:account-group-outline"
+            label="Alumnos"
+            :to="`/campus/admin/cursos/${course.id}/alumnos`"
           />
           <CampusAdminCampusTableIconBtn
             icon="mdi:calendar-check-outline"

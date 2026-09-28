@@ -13,7 +13,9 @@ const { fetchCurriculum, getAllLessons } = useCourseContent()
 const { user, hasAnyStaffRole } = useCampusAuth()
 const { homePath, homeLabel } = useCampusPanelHome()
 const {
+  courseHubPath,
   courseContenidoPath,
+  courseAlumnosPath,
   courseAsistenciaPath,
   courseCalificacionesPath,
 } = useCampusStaffPaths()
@@ -181,7 +183,9 @@ usePublicSeo(() => ({
         <section v-if="isStaff && curriculum" class="staff-course-tools">
           <span class="section-label">GESTIÓN DEL CURSO</span>
           <div class="staff-course-links">
+            <NuxtLink :to="courseHubPath(curriculum.course.id)">Resumen</NuxtLink>
             <NuxtLink :to="courseContenidoPath(curriculum.course.id)">Contenido</NuxtLink>
+            <NuxtLink :to="courseAlumnosPath(curriculum.course.id)">Alumnos</NuxtLink>
             <NuxtLink :to="courseAsistenciaPath(curriculum.course.id)">Asistencia</NuxtLink>
             <NuxtLink :to="courseCalificacionesPath(curriculum.course.id)">Calificaciones</NuxtLink>
           </div>

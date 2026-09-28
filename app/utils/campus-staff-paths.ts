@@ -20,7 +20,7 @@ export function isLegacyTeacherAdminPath(path: string) {
   const normalized = path.replace(/\/$/, '') || '/'
   if (normalized.startsWith('/campus/admin/anuncios')) return true
   if (normalized.startsWith('/campus/admin/comunicaciones')) return true
-  return /^\/campus\/admin\/cursos\/[^/]+\/(contenido|asistencia|calificaciones)(\/|$)/.test(normalized)
+  return /^\/campus\/admin\/cursos\/[^/]+(\/(contenido|alumnos|asistencia|calificaciones))?(\/|$)/.test(normalized)
 }
 
 export function toTeacherStaffPath(adminPath: string) {
@@ -43,8 +43,16 @@ export function staffComunicacionesPath(base: string) {
   return `${base}/comunicaciones`
 }
 
+export function staffCourseHubPath(base: string, courseId: string) {
+  return `${base}/cursos/${courseId}`
+}
+
 export function staffCourseContenidoPath(base: string, courseId: string) {
   return `${base}/cursos/${courseId}/contenido`
+}
+
+export function staffCourseAlumnosPath(base: string, courseId: string) {
+  return `${base}/cursos/${courseId}/alumnos`
 }
 
 export function staffCourseAsistenciaPath(base: string, courseId: string) {

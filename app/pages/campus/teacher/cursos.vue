@@ -14,7 +14,9 @@ definePageMeta({
 
 const { courses, loading } = useTeacherCampusData()
 const {
+  courseHubPath,
   courseContenidoPath,
+  courseAlumnosPath,
   courseAsistenciaPath,
   courseCalificacionesPath,
 } = useCampusStaffPaths()
@@ -22,7 +24,11 @@ const {
 
 <template>
   <div>
-    <CampusPageHeader eyebrow="MIS PROGRAMAS" title="Cursos asignados" description="Gestioná contenido, asistencia y notas." />
+    <CampusPageHeader
+      eyebrow="MIS PROGRAMAS"
+      title="Cursos asignados"
+      description="Entrá al curso para gestionar contenido, alumnos, asistencia y notas."
+    />
 
     <p v-if="loading" class="empty-message">Cargando cursos…</p>
     <p v-else-if="!courses.length" class="empty-message">
@@ -36,10 +42,11 @@ const {
         <div class="course-footer">
           <span>{{ course.enrollment_count }} alumnos</span>
           <div class="course-links">
+            <NuxtLink :to="courseHubPath(course.course_id)">Abrir curso →</NuxtLink>
             <NuxtLink :to="courseContenidoPath(course.course_id)">Contenido</NuxtLink>
+            <NuxtLink :to="courseAlumnosPath(course.course_id)">Alumnos</NuxtLink>
             <NuxtLink :to="courseAsistenciaPath(course.course_id)">Asistencia</NuxtLink>
             <NuxtLink :to="courseCalificacionesPath(course.course_id)">Notas</NuxtLink>
-            <NuxtLink :to="`/campus/cursos/${course.slug}`">Vista alumno →</NuxtLink>
           </div>
         </div>
       </article>
