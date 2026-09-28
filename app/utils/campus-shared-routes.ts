@@ -100,4 +100,32 @@ export function isCampusGuestRoute(path: string) {
 
 }
 
+/** Catálogo y reproductor de curso: layout propio sin panel lateral. */
+
+export function isCampusCourseRoute(path: string) {
+
+  const normalized = path.replace(/\/$/, '') || '/'
+
+  return normalized === '/campus/cursos' || normalized.startsWith('/campus/cursos/')
+
+}
+
+/** Páginas con layout: false (anuncios públicos, pagos, certificados). */
+
+export function isCampusStandaloneLayoutRoute(path: string) {
+
+  const normalized = path.replace(/\/$/, '') || '/'
+
+  if (isPublicCertificateRoute(normalized)) return true
+
+  return normalized === '/campus/anuncios'
+
+    || normalized.startsWith('/campus/anuncios/')
+
+    || normalized === '/campus/pagos'
+
+    || normalized.startsWith('/campus/pagos/')
+
+}
+
 

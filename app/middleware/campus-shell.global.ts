@@ -1,7 +1,8 @@
 import {
-  CAMPUS_ENTRY_PATH,
   CAMPUS_PUBLIC_ROUTES,
+  isCampusCourseRoute,
   isCampusGuestRoute,
+  isCampusStandaloneLayoutRoute,
 } from '~/utils/campus-shared-routes'
 
 export default defineNuxtRouteMiddleware((to) => {
@@ -15,6 +16,15 @@ export default defineNuxtRouteMiddleware((to) => {
     if (isCampusGuestRoute(path)) return
     const redirect = encodeURIComponent(to.fullPath)
     return navigateTo(`/campus/login?redirect=${redirect}`)
+  }
+
+  if (isCampusCourseRoute(path)) {
+    setPageLayout('campus-course')
+    return
+  }
+
+  if (isCampusStandaloneLayoutRoute(path)) {
+    return
   }
 
   setPageLayout('campus-panel')
