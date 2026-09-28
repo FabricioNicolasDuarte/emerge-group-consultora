@@ -154,6 +154,9 @@ onMounted(loadData)
       >
         <header>
           <strong>{{ msg.sender_name }}</strong>
+          <span v-if="msg.source === 'email'" class="mailbox-source-tag" title="Respondido desde el correo">
+            vía email
+          </span>
           <time>{{ new Date(msg.created_at).toLocaleString('es-AR') }}</time>
         </header>
         <div class="mailbox-message-body" v-html="sanitizeHtml(msg.body_html)" />

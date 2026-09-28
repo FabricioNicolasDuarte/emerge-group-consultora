@@ -35,6 +35,7 @@ export interface MailboxMessage {
   body_html: string
   body_text: string
   message_type: MailboxMessageType
+  source?: 'campus' | 'email' | null
   created_at: string
   attachments: MailboxAttachment[]
 }

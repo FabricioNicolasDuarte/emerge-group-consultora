@@ -115,6 +115,8 @@ onMounted(async () => {
     return
   }
   await fetchProfile()
+  // Trae respuestas hechas desde Gmail (IMAP) sin esperar al cron.
+  void $fetch('/api/campus/mailbox/ingest-replies').catch(() => {})
   await loadData()
 })
 </script>
