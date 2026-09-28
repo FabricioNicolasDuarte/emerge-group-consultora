@@ -33,6 +33,7 @@ const isComplete = ref(false)
 const lessonData = ref<Awaited<ReturnType<typeof fetchLesson>>>(null)
 const curriculum = ref<Awaited<ReturnType<typeof fetchCurriculum>>>(null)
 const materials = ref<LessonMaterial[]>([])
+const materialsLoading = ref(false)
 const materialUrls = ref<Record<string, string>>({})
 const materialUrlErrors = ref<Record<string, string>>({})
 const certificateCode = ref<string | null>(null)
@@ -60,22 +61,32 @@ const nextLesson = computed(() =>
 )
 
 async function loadMaterials() {
+  materialsLoading.value = true
   materialError.value = ''
   materialUrls.value = {}
   materialUrlErrors.value = {}
-  materials.value = await fetchLessonMaterials(lessonId.value)
 
-  await Promise.all(materials.value.map(async (material) => {
-    try {
-      materialUrls.value[material.id] = await getMaterialDownloadUrl(material.storage_path, {
-        downloadName: material.title,
-      })
-    } catch (error: unknown) {
-      materialUrlErrors.value[material.id] = error instanceof Error
-        ? error.message
-        : 'No se pudo preparar el enlace'
-    }
-  }))
+  try {
+    materials.value = await fetchLessonMaterials(lessonId.value)
+
+    await Promise.all(materials.value.map(async (material) => {
+      try {
+        materialUrls.value[material.id] = await getMaterialDownloadUrl(material.storage_path, {
+          downloadName: material.title,
+        })
+      } catch (error: unknown) {
+        materialUrlErrors.value[material.id] = error instanceof Error
+          ? error.message
+          : 'No se pudo preparar el enlace'
+      }
+    }))
+  } catch (error: unknown) {
+    materialError.value = error instanceof Error
+      ? error.message
+      : 'No se pudieron cargar los materiales'
+  } finally {
+    materialsLoading.value = false
+  }
 }
 
 async function refreshMaterialUrl(material: LessonMaterial) {
@@ -158,8 +169,8 @@ onMounted(async () => {
     }
 
     isComplete.value = curriculum.value?.completions.has(lessonId.value) ?? false
-    await loadMaterials()
-    await refreshProgress()
+    void refreshProgress()
+    void loadMaterials()
   } catch (error: unknown) {
     errorMessage.value = formatSupabaseError(error, 'Error al cargar la clase')
   } finally {
@@ -285,10 +296,11 @@ usePublicSeo(() => ({
 
           <aside class="lesson-resources">
 
-            <div v-if="materials.length" class="resource-card">
+            <div v-if="materials.length || materialsLoading" class="resource-card">
               <span class="section-label">MATERIALES</span>
               <h3>Recursos de la clase</h3>
-              <p v-if="materialError" class="material-error">{{ materialError }}</p>
+              <p v-if="materialsLoading && !materials.length" class="material-error">Preparando materiales…</p>
+              <p v-else-if="materialError" class="material-error">{{ materialError }}</p>
 
               <div
                 v-for="material in materials"

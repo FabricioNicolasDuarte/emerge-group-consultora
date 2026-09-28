@@ -310,9 +310,24 @@
 }
 
 @media (max-width: 850px) {
-  .course-page { grid-template-columns: 1fr; }
-  .course-sidebar { position: relative; height: auto; }
-  .course-main { padding: 40px 20px; }
+  .course-page {
+    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .course-main {
+    order: 1;
+    padding: 24px 16px 32px;
+  }
+
+  .course-sidebar {
+    order: 2;
+    position: relative;
+    height: auto;
+    padding: 24px 16px 32px;
+  }
+
   .access-banner,
   .continue-learning { flex-direction: column; align-items: flex-start; }
   .continue-button { width: 100%; text-align: center; box-sizing: border-box; }
@@ -638,8 +653,24 @@
 }
 
 @media (max-width: 900px) {
-  .lesson-page { grid-template-columns: 1fr; }
-  .lesson-sidebar { position: relative; height: auto; }
+  .lesson-page {
+    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .lesson-main {
+    order: 1;
+    padding: 24px 16px 32px;
+  }
+
+  .lesson-sidebar {
+    order: 2;
+    position: relative;
+    height: auto;
+    padding: 24px 16px 32px;
+  }
+
   .lesson-content-grid { grid-template-columns: 1fr; }
   .lesson-navigation { grid-template-columns: 1fr; }
   .nav-btn.next { justify-self: start; }

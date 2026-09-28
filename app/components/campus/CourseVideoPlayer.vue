@@ -7,6 +7,7 @@ const props = defineProps<{
 }>()
 
 const embed = computed(() => parseVideoUrl(props.url))
+const isDesktop = useMediaQuery('(min-width: 769px)')
 </script>
 
 <template>
@@ -26,14 +27,14 @@ const embed = computed(() => parseVideoUrl(props.url))
 
     <template v-else-if="embed.kind === 'drive'">
       <iframe
-        class="video-player__embed-desktop"
+        v-if="isDesktop"
         :src="embed.embedUrl"
         :title="title || 'Video de la clase'"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
         allowfullscreen
         playsinline
       />
-      <div class="video-player__drive-mobile">
+      <div v-else class="video-player__drive-mobile">
         <div class="play-icon">▶</div>
         <strong>{{ title || 'Video de la clase' }}</strong>
         <p>En el celular, el video se abre en Google Drive para una mejor reproducción.</p>
@@ -47,7 +48,8 @@ const embed = computed(() => parseVideoUrl(props.url))
         </a>
       </div>
       <a
-        class="video-open-link video-open-link--desktop"
+        v-if="isDesktop"
+        class="video-open-link"
         :href="embed.openUrl"
         target="_blank"
         rel="noopener noreferrer"
@@ -114,9 +116,9 @@ const embed = computed(() => parseVideoUrl(props.url))
 }
 
 .video-player__drive-mobile {
-  display: none;
   width: 100%;
   height: 100%;
+  display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
@@ -179,15 +181,6 @@ const embed = computed(() => parseVideoUrl(props.url))
 }
 
 @media (max-width: 768px) {
-  .video-player--drive .video-player__embed-desktop,
-  .video-player--drive .video-open-link--desktop {
-    display: none;
-  }
-
-  .video-player--drive .video-player__drive-mobile {
-    display: flex;
-  }
-
   .video-player--drive {
     aspect-ratio: auto;
     min-height: 280px;

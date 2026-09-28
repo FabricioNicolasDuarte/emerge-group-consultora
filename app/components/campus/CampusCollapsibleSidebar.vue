@@ -51,8 +51,21 @@ function closeMobileNav() {
   mobileOpen.value = false
 }
 
+function syncBodyScrollLock() {
+  if (!import.meta.client) return
+  document.body.style.overflow = mobileOpen.value ? 'hidden' : ''
+}
+
+watch(mobileOpen, syncBodyScrollLock)
+
 const route = useRoute()
 watch(() => route.fullPath, () => closeMobileNav())
+
+onBeforeUnmount(() => {
+  if (import.meta.client) {
+    document.body.style.overflow = ''
+  }
+})
 
 provide('campusSidebarCollapsed', collapsed)
 provide('campusMobileNav', { mobileOpen, toggleMobileNav, closeMobileNav })
