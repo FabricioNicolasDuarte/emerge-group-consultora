@@ -1,6 +1,6 @@
 import { serverSupabaseServiceRole, serverSupabaseUser } from '#supabase/server'
-import { resolveAuthUserId } from '../../utils/campus-admin'
-import { getMailConfig, sendTransactionalEmail } from '../../utils/mail'
+import { resolveAuthUserId } from '../../../utils/campus-admin'
+import { getMailConfig, sendTransactionalEmail } from '../../../utils/mail'
 
 export default defineEventHandler(async (event) => {
   const claims = await serverSupabaseUser(event) as Record<string, unknown> | null
