@@ -101,7 +101,7 @@ export function useAcademic() {
 
     const { data: profiles, error } = await supabase
       .from('profiles')
-      .select('id, full_name, email')
+      .select('id, full_name, email, avatar_url')
       .in('id', ids)
 
     if (error) throw error

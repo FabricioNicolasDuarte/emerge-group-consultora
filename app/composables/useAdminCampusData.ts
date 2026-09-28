@@ -92,7 +92,7 @@ function createAdminCampusData() {
     activeEnrollments: 0,
   }))
   const students = useState<StudentProfile[]>('admin-students', () => [])
-  const teachers = useState<{ id: string, full_name: string, email: string | null }[]>('admin-teachers', () => [])
+  const teachers = useState<{ id: string, full_name: string, email: string | null, avatar_url?: string | null }[]>('admin-teachers', () => [])
   const courseAssignments = useState<CourseAssignmentRow[]>('admin-course-assignments', () => [])
   const loading = useState('admin-campus-loading', () => true)
   const errorMessage = useState('admin-error', () => '')

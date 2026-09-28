@@ -60,9 +60,12 @@ function coursesFor(teacherId: string) {
         :key="teacher.id"
         class="table-row table-row--teachers"
       >
-        <div>
-          <strong>{{ teacher.full_name }}</strong>
-          <small style="display:block; opacity:0.75;">{{ teacher.email || '—' }}</small>
+        <div class="roster-student">
+          <CampusAvatar :name="teacher.full_name" :src="teacher.avatar_url" size="sm" />
+          <div>
+            <strong>{{ teacher.full_name }}</strong>
+            <small style="display:block; opacity:0.75;">{{ teacher.email || '—' }}</small>
+          </div>
         </div>
         <div class="teacher-courses">
           <template v-if="coursesFor(teacher.id).length">
