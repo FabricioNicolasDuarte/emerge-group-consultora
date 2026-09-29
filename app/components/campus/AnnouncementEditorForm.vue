@@ -169,12 +169,16 @@ async function onSave() {
   try {
     if (persistedId.value) {
       await updateAnnouncement({ id: persistedId.value, ...payload })
-      successMessage.value = 'Anuncio actualizado.'
+      successMessage.value = form.status === 'published'
+        ? 'Anuncio publicado. Ya es visible para la audiencia.'
+        : 'Borrador guardado. Todavía no es visible para alumnos.'
       emit('saved', persistedId.value)
     } else {
       const created = await createAnnouncement(payload)
       persistedId.value = created.id
-      successMessage.value = 'Anuncio creado. Ya podés subir medios adicionales.'
+      successMessage.value = form.status === 'published'
+        ? 'Anuncio creado y publicado.'
+        : 'Borrador creado. Publicá cuando esté listo.'
       emit('saved', created.id)
       await router.replace(anuncioEditarPath(created.id))
     }
@@ -183,6 +187,16 @@ async function onSave() {
   } finally {
     saving.value = false
   }
+}
+
+async function onSaveAsDraft() {
+  form.status = 'draft'
+  await onSave()
+}
+
+async function onPublishNow() {
+  form.status = 'published'
+  await onSave()
 }
 
 async function onCoverSelected(event: Event) {
@@ -355,11 +369,14 @@ onMounted(async () => {
 
         <label>Estado
           <select v-model="form.status">
-            <option value="draft">Borrador</option>
-            <option value="published">Publicado</option>
+            <option value="draft">Borrador (solo staff)</option>
+            <option value="published">Publicado (visible)</option>
             <option value="archived">Archivado</option>
           </select>
         </label>
+        <p v-if="form.status === 'draft'" class="hint warn-hint">
+          En borrador nadie del público/alumnado lo ve. Usá <strong>Publicar ahora</strong> cuando esté listo.
+        </p>
 
         <label>Vencimiento (opcional)
           <input v-model="form.expires_at" type="datetime-local">
@@ -370,9 +387,14 @@ onMounted(async () => {
           Destacar anuncio
         </label>
 
-        <button type="button" class="save-btn" :disabled="saving" @click="onSave">
-          {{ saving ? 'Guardando…' : canUploadMedia ? 'Guardar cambios' : 'Crear anuncio' }}
-        </button>
+        <div class="save-row">
+          <button type="button" class="save-btn save-btn--secondary" :disabled="saving" @click="onSaveAsDraft">
+            {{ saving ? 'Guardando…' : 'Guardar borrador' }}
+          </button>
+          <button type="button" class="save-btn" :disabled="saving" @click="onPublishNow">
+            {{ saving ? 'Guardando…' : 'Publicar ahora' }}
+          </button>
+        </div>
 
         <div class="preview-wrap">
           <h3>Vista previa</h3>
@@ -453,6 +475,7 @@ select {
 }
 
 .hint { color: var(--eg-subtle); font-size: 13px; margin: 0; }
+.warn-hint { color: var(--eg-ink); background: var(--eg-warn-bg, #f5f0e6); padding: 8px 10px; border-radius: 8px; }
 
 .file-input {
   position: absolute;
@@ -477,10 +500,21 @@ button {
   font-family: inherit;
 }
 
+.save-row {
+  display: grid;
+  gap: 8px;
+}
+
 .save-btn {
   background: var(--eg-accent);
   border-color: var(--eg-accent);
   color: var(--eg-surface);
+}
+
+.save-btn--secondary {
+  background: var(--eg-surface);
+  border-color: var(--eg-field-border);
+  color: var(--eg-action);
 }
 
 .media-btn {

@@ -35,6 +35,38 @@ export interface SessionStudentRow {
   avatar_url: string | null
   record_id: string | null
   status: AttendanceStatus | null
+  notes: string
+}
+
+export interface CourseStudentAttendanceSummary {
+  course_id: string
+  student_id: string
+  full_name: string
+  email: string | null
+  avatar_url: string | null
+  total_sessions: number
+  marked_sessions: number
+  present_count: number
+  absent_count: number
+  late_count: number
+  excused_count: number
+  attendance_percent: number
+}
+
+export interface CourseStudentAttendanceDetail {
+  id: string
+  status: AttendanceStatus
+  notes: string
+  marked_at: string
+  student_id: string
+  full_name?: string
+  email?: string | null
+  avatar_url?: string | null
+  session_id: string
+  course_id: string
+  session_title: string
+  session_date: string
+  start_time: string | null
 }
 
 export interface Assessment {

@@ -20,6 +20,8 @@ const loading = ref(true)
 const errorMessage = ref('')
 const query = ref('')
 
+useTrackFenixLoader(loading)
+
 const filteredStudents = computed(() => {
   const q = query.value.trim().toLowerCase()
   if (!q) return students.value

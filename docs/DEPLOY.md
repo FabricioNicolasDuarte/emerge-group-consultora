@@ -107,7 +107,8 @@ Mínimo incluir:
 ### Base de datos
 
 - Todas las migraciones en `supabase/migrations/` aplicadas en el proyecto de **producción**
-- No ejecutar `npm run seed:all` en prod (solo usuarios de desarrollo)
+- No ejecutar `npm run seed:all` / `seed:manual` en prod (borran enrollments). Requieren `ALLOW_DESTRUCTIVE_SEED=1`.
+- Aplicar migraciones pendientes tras cada deploy (`npm run db:migrate`)
 
 ### Storage
 

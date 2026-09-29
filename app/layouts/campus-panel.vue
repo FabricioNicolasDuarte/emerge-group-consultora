@@ -9,6 +9,7 @@
     </main>
     <CampusHelpNotch />
     <CampusSupportModal />
+    <CampusFenixLoader />
   </CampusPanelShell>
 </template>
 
@@ -23,6 +24,14 @@ const { activePanel } = useCampusActivePanel()
 const student = useStudentCampusData()
 const teacher = useTeacherCampusData()
 const admin = useAdminCampusData()
+
+const panelLoading = computed(() => {
+  if (activePanel.value === 'student') return student.loading.value
+  if (activePanel.value === 'teacher') return teacher.loading.value
+  return admin.loading.value
+})
+
+useTrackFenixLoader(panelLoading)
 
 async function refreshPanelData() {
   if (activePanel.value === 'student') {

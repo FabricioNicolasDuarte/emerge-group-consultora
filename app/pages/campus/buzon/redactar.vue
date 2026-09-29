@@ -20,6 +20,8 @@ const saving = ref(false)
 const errorMessage = ref('')
 const attachments = ref<File[]>([])
 
+useTrackFenixLoader(loading)
+
 const form = reactive({
   recipient_id: String(route.query.to || ''),
   subject: '',

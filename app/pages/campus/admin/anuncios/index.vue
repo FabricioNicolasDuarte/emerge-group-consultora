@@ -34,6 +34,8 @@ const announcements = ref<AdminAnnouncement[]>([])
 const loading = ref(true)
 const errorMessage = ref('')
 
+useTrackFenixLoader(loading)
+
 async function loadData() {
   loading.value = true
   try {

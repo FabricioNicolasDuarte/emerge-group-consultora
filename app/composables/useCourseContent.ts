@@ -7,13 +7,14 @@ import type {
   LessonRow,
   ModuleRow,
   UpdateLessonInput,
+  UpdateModuleInput,
 } from '~/types/content'
 import { resolveAuthUserId } from '~/utils/auth-user'
 
 export function useCourseContent() {
   const supabase = useSupabaseClient()
   const user = useSupabaseUser()
-  const { hasAnyStaffRole } = useCampusAuth()
+  const { hasAnyStaffRole, fetchProfile } = useCampusAuth()
 
   function currentUserId() {
     return resolveAuthUserId(user.value)
@@ -138,6 +139,9 @@ export function useCourseContent() {
   }
 
   async function fetchCurriculum(slug: string): Promise<CourseCurriculum | null> {
+    // El layout de curso no corre campus-role: asegurar roles antes del access check.
+    await fetchProfile()
+
     const course = await fetchCourseBySlug(slug)
     if (!course) return null
 
@@ -163,14 +167,15 @@ export function useCourseContent() {
 
     const isStaff = hasAnyStaffRole()
     const isEnrolled = enrollmentProgress !== null || await checkEnrollment(course.id)
-    const canAccessContent = isStaff || isEnrolled || course.status === 'published'
+    // Staff (incl. superadmin) y alumnos inscriptos pueden ver contenido.
+    const canAccessContent = isStaff || isEnrolled
 
     return {
       course,
       modules: modulesWithLessons,
       completions,
       enrollmentProgress,
-      canAccessContent: canAccessContent && (isStaff || isEnrolled),
+      canAccessContent,
       isEnrolled,
       enrollmentMeta,
     }
@@ -276,6 +281,23 @@ export function useCourseContent() {
     return data as ModuleRow
   }
 
+  async function updateModule(moduleId: string, input: UpdateModuleInput) {
+    const payload: UpdateModuleInput = {}
+    if (input.title !== undefined) payload.title = input.title.trim()
+    if (input.description !== undefined) payload.description = input.description.trim()
+    if (input.sort_order !== undefined) payload.sort_order = input.sort_order
+
+    const { data, error } = await supabase
+      .from('modules')
+      .update(payload)
+      .eq('id', moduleId)
+      .select()
+      .single()
+
+    if (error) throw error
+    return data as ModuleRow
+  }
+
   async function createLesson(input: CreateLessonInput) {
     const { data, error } = await supabase
       .from('lessons')
@@ -288,7 +310,7 @@ export function useCourseContent() {
         content_html: input.content_html ?? '',
         duration_minutes: input.duration_minutes ?? null,
         sort_order: input.sort_order ?? 0,
-        is_published: input.is_published ?? false,
+        is_published: input.is_published ?? true,
       })
       .select()
       .single()
@@ -403,6 +425,7 @@ export function useCourseContent() {
     markLessonComplete,
     unmarkLessonComplete,
     createModule,
+    updateModule,
     createLesson,
     updateLesson,
     deleteModule,

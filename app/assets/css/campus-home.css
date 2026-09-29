@@ -359,6 +359,29 @@
   grid-template-columns: 1fr;
 }
 
+.home-rhythm__stat-value {
+  font-size: clamp(2.4rem, 4vw, 3.25rem);
+  font-weight: 850;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  color: var(--eg-ink);
+}
+
+.home-rhythm__stat-note {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--campus-muted);
+  text-align: center;
+  max-width: 16ch;
+}
+
+.home-rhythm__empty {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--campus-muted);
+  line-height: 1.45;
+}
+
 /* Toolkit — big tiles */
 .home-toolkit {
   display: grid;

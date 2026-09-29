@@ -30,11 +30,12 @@ export const CAMPUS_HELP_GUIDE: CampusHelpEntry[] = [
   },
   {
     match: /^\/campus\/student\/asistencia/,
-    title: 'Asistencia',
-    summary: 'Resumen de tu presencia en clases y sesiones registradas.',
+    title: 'Mi asistencia',
+    summary: 'Tu perfil de presentes, ausencias y justificaciones (carga del docente/superadmin).',
     steps: [
-      'Consultá el porcentaje por curso.',
-      'Si falta una marca, contactá a tu docente o a administración.',
+      'Los gráficos resumen tu asistencia por curso y por tipo de marca.',
+      'El historial muestra cada encuentro; si hubo justificación, ves el motivo.',
+      'No podés marcar ni editar tu propia asistencia.',
     ],
   },
   {
@@ -105,11 +106,11 @@ export const CAMPUS_HELP_GUIDE: CampusHelpEntry[] = [
   {
     match: /^\/campus\/teacher\/?$/,
     title: 'Inicio docente',
-    summary: 'Panorama de tus cursos, alumnos y próximas clases.',
+    summary: 'Tu base de enseñanza: cursos a cargo, clases en vivo y pendientes del día.',
     steps: [
-      'Revisá inscriptos por curso.',
-      'Entrá a “Mis cursos” para gestionar contenido, asistencia y notas.',
-      'Usá el buzón para mensajes con alumnos.',
+      'El hero destaca el programa principal o la próxima clase.',
+      'Usá las herramientas rápidas para cursos, comunicaciones, buzón y anuncios.',
+      'En “Requiere tu atención” aparecen mensajes, vivos y cursos sin alumnos.',
     ],
   },
   {
@@ -122,13 +123,15 @@ export const CAMPUS_HELP_GUIDE: CampusHelpEntry[] = [
     ],
   },
   {
-    match: /^\/campus\/admin\/?$/,
-    title: 'Inicio administración',
-    summary: 'Salud general del Campus: cursos, alumnos e inscripciones.',
+    match: /\/cursos\/[^/]+\/asistencia/,
+    title: 'Asistencia del curso',
+    summary: 'Carga manual después de cada encuentro. El alumno solo consulta.',
     steps: [
-      'Creá cursos o inscripciones desde las acciones rápidas.',
-      'Usá Reportes para análisis más amplio.',
-      'Importá cohortes desde Solicitudes si trabajás con Excel.',
+      'Tocá “Nuevo registro de asistencia”.',
+      'Elegí fecha, alumno y Asistió / No asistió / Ausente justificado (con motivo).',
+      'Los registros aparecen en la lista a medida que los guardás.',
+      'En “Por alumno” ves el historial completo de cada inscripto.',
+      'Solo el superadmin puede eliminar un registro cargado por error.',
     ],
   },
   {

@@ -1,5 +1,8 @@
 <template>
-  <slot />
+  <div>
+    <slot />
+    <CampusFenixLoader />
+  </div>
 </template>
 
 <script setup lang="ts">

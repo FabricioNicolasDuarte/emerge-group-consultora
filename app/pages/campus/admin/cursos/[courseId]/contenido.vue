@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import type { LessonRow, ModuleRow, LessonMaterial } from '~/types/content'
 import { Icon } from '@iconify/vue'
-import { formatDuration, lessonTypeLabel } from '~/utils/video'
+import { formatDuration, lessonTypeLabel, videoUrlHint, isRecognizedVideoUrl } from '~/utils/video'
+import { formatSupabaseError } from '~/utils/supabase-error'
 
 definePageMeta({
   layout: 'campus-panel',
@@ -13,8 +14,35 @@ definePageMeta({
 const route = useRoute()
 const courseId = computed(() => route.params.courseId as string)
 const { panelPath, panelLabel } = useCampusBackLink()
-const { hasRole } = useCampusAuth()
-const canMutateContent = computed(() => hasRole('superadmin'))
+const { hasRole, authUserId } = useCampusAuth()
+const supabase = useSupabaseClient()
+const isAssignedTeacher = ref(false)
+const canMutateContent = computed(
+  () => hasRole('superadmin', 'admin', 'coordinador') || isAssignedTeacher.value,
+)
+
+async function refreshContentPermission() {
+  if (hasRole('superadmin', 'admin', 'coordinador')) {
+    isAssignedTeacher.value = true
+    return
+  }
+  const uid = authUserId.value
+  if (!uid) {
+    isAssignedTeacher.value = false
+    return
+  }
+  const { data, error } = await supabase
+    .from('course_assignments')
+    .select('id')
+    .eq('course_id', courseId.value)
+    .eq('teacher_id', uid)
+    .maybeSingle()
+  if (error) {
+    isAssignedTeacher.value = false
+    return
+  }
+  isAssignedTeacher.value = Boolean(data)
+}
 
 const {
   fetchCourseById,
@@ -22,6 +50,7 @@ const {
   fetchLessonsForCourse,
   createModule,
   createLesson,
+  updateModule,
   updateLesson,
   deleteModule,
   deleteLesson,
@@ -38,8 +67,11 @@ const saving = ref(false)
 const errorMessage = ref('')
 const successMessage = ref('')
 
+useTrackFenixLoader(loading)
+
 const newModuleTitle = ref('')
 const expandedModule = ref<string | null>(null)
+const editingModule = ref<ModuleRow | null>(null)
 const lessonForms = ref<Record<string, { title: string, video_url: string }>>({})
 const editingLesson = ref<LessonRow | null>(null)
 const lessonMaterials = ref<Record<string, LessonMaterial[]>>({})
@@ -66,6 +98,7 @@ async function loadData() {
   loading.value = true
   errorMessage.value = ''
   try {
+    await refreshContentPermission()
     course.value = await fetchCourseById(courseId.value)
     if (!course.value) {
       errorMessage.value = 'Curso no encontrado.'
@@ -108,6 +141,7 @@ async function onCreateModule() {
   if (!canMutateContent.value) return
   if (!newModuleTitle.value.trim()) return
   saving.value = true
+  errorMessage.value = ''
   try {
     const sortOrder = modules.value.length + 1
     await createModule({
@@ -119,7 +153,36 @@ async function onCreateModule() {
     successMessage.value = 'Módulo creado.'
     await loadData()
   } catch (error: unknown) {
-    errorMessage.value = error instanceof Error ? error.message : 'No se pudo crear el módulo'
+    errorMessage.value = formatSupabaseError(error, 'No se pudo crear el módulo')
+  } finally {
+    saving.value = false
+  }
+}
+
+function onEditModule(mod: ModuleRow) {
+  if (!canMutateContent.value) return
+  editingModule.value = { ...mod }
+}
+
+async function onSaveModule() {
+  if (!canMutateContent.value || !editingModule.value) return
+  if (!editingModule.value.title.trim()) {
+    errorMessage.value = 'El título del módulo no puede estar vacío.'
+    return
+  }
+  saving.value = true
+  errorMessage.value = ''
+  try {
+    await updateModule(editingModule.value.id, {
+      title: editingModule.value.title,
+      description: editingModule.value.description,
+      sort_order: editingModule.value.sort_order,
+    })
+    editingModule.value = null
+    successMessage.value = 'Módulo actualizado.'
+    await loadData()
+  } catch (error: unknown) {
+    errorMessage.value = formatSupabaseError(error, 'No se pudo guardar el módulo')
   } finally {
     saving.value = false
   }
@@ -136,7 +199,13 @@ async function onCreateLesson(moduleId: string) {
   if (!canMutateContent.value) return
   const form = getLessonForm(moduleId)
   if (!form.title.trim()) return
+  const videoHint = form.video_url.trim() ? videoUrlHint(form.video_url) : null
+  if (form.video_url.trim() && !isRecognizedVideoUrl(form.video_url)) {
+    errorMessage.value = videoHint || 'URL de video no válida.'
+    return
+  }
   saving.value = true
+  errorMessage.value = ''
   try {
     const mod = modules.value.find((m) => m.id === moduleId)
     const sortOrder = (mod?.lessons?.length ?? 0) + 1
@@ -146,13 +215,16 @@ async function onCreateLesson(moduleId: string) {
       video_url: form.video_url || null,
       sort_order: sortOrder,
       is_published: true,
+      content_type: form.video_url.trim() ? 'video' : 'reading',
     })
     form.title = ''
     form.video_url = ''
-    successMessage.value = 'Clase creada y publicada.'
+    successMessage.value = videoHint
+      ? `Clase creada y publicada. ${videoHint}`
+      : 'Clase creada y publicada. Los alumnos ya pueden verla.'
     await loadData()
   } catch (error: unknown) {
-    errorMessage.value = error instanceof Error ? error.message : 'No se pudo crear la clase'
+    errorMessage.value = formatSupabaseError(error, 'No se pudo crear la clase')
   } finally {
     saving.value = false
   }
@@ -161,12 +233,15 @@ async function onCreateLesson(moduleId: string) {
 async function setPublished(lesson: LessonRow, value: boolean) {
   if (!canMutateContent.value || lesson.is_published === value) return
   saving.value = true
+  errorMessage.value = ''
   try {
     await updateLesson(lesson.id, { is_published: value })
     lesson.is_published = value
-    successMessage.value = value ? 'Clase publicada.' : 'Clase oculta.'
+    successMessage.value = value
+      ? 'Clase publicada. Los alumnos inscriptos ya la ven.'
+      : 'Clase oculta. Los alumnos ya no la ven en el campus.'
   } catch (error: unknown) {
-    errorMessage.value = error instanceof Error ? error.message : 'No se pudo actualizar la clase'
+    errorMessage.value = formatSupabaseError(error, 'No se pudo actualizar la clase')
   } finally {
     saving.value = false
   }
@@ -292,7 +367,13 @@ async function onEditLesson(lesson: LessonRow) {
 
 async function onSaveLesson() {
   if (!canMutateContent.value || !editingLesson.value) return
+  const url = editingLesson.value.video_url
+  if (url?.trim() && !isRecognizedVideoUrl(url)) {
+    errorMessage.value = videoUrlHint(url) || 'URL de video no válida.'
+    return
+  }
   saving.value = true
+  errorMessage.value = ''
   try {
     await updateLesson(editingLesson.value.id, {
       title: editingLesson.value.title,
@@ -302,15 +383,22 @@ async function onSaveLesson() {
       duration_minutes: editingLesson.value.duration_minutes,
       content_type: editingLesson.value.content_type,
     })
+    const hint = videoUrlHint(editingLesson.value.video_url)
     editingLesson.value = null
-    successMessage.value = 'Clase actualizada.'
+    successMessage.value = hint
+      ? `Clase actualizada. ${hint}`
+      : 'Clase actualizada. Si está publicada, los alumnos ven el cambio al recargar.'
     await loadData()
   } catch (error: unknown) {
-    errorMessage.value = error instanceof Error ? error.message : 'No se pudo guardar la clase'
+    errorMessage.value = formatSupabaseError(error, 'No se pudo guardar la clase')
   } finally {
     saving.value = false
   }
 }
+
+const editingVideoHint = computed(() =>
+  editingLesson.value ? videoUrlHint(editingLesson.value.video_url) : null,
+)
 
 onMounted(loadData)
 </script>
@@ -339,7 +427,12 @@ onMounted(loadData)
     <p v-if="successMessage" class="campus-banner campus-banner--success">{{ successMessage }}</p>
     <p v-if="loading" class="mgmt-empty campus-glass">Cargando contenido…</p>
     <p v-if="!loading && course && !canMutateContent" class="campus-banner">
-      Podés ver y abrir clases. Solo el <strong>superadmin</strong> edita o publica contenido.
+      Podés ver y abrir clases. Para editar o publicar necesitás ser
+      <strong>admin/coordinación</strong> o estar <strong>asignado como docente</strong> de este curso.
+    </p>
+    <p v-if="!loading && course && canMutateContent" class="campus-banner campus-banner--info">
+      Las clases nuevas se publican al crearlas. Si las ocultás (borrador), los alumnos no las ven.
+      Preferí YouTube/Vimeo; en Drive el archivo debe ser “Cualquiera con el enlace”.
     </p>
 
     <section v-if="!loading && course && canMutateContent" class="mgmt-compose campus-glass">
@@ -386,6 +479,12 @@ onMounted(loadData)
           />
           <CampusAdminCampusTableIconBtn
             v-if="canMutateContent"
+            icon="mdi:pencil-outline"
+            label="Editar módulo"
+            @click="onEditModule(mod)"
+          />
+          <CampusAdminCampusTableIconBtn
+            v-if="canMutateContent"
             icon="mdi:trash-can-outline"
             label="Eliminar módulo"
             danger
@@ -414,6 +513,12 @@ onMounted(loadData)
               <div class="mgmt-lesson-card__meta">
                 <span class="mgmt-pill" :class="lesson.is_published ? 'mgmt-pill--ok' : 'mgmt-pill--draft'">
                   {{ lesson.is_published ? 'Publicada' : 'Borrador' }}
+                </span>
+                <span
+                  v-if="lesson.content_type === 'video' && !lesson.video_url"
+                  class="mgmt-pill mgmt-pill--warn"
+                >
+                  Sin enlace de video
                 </span>
                 <span>{{ lessonTypeLabel(lesson.content_type) }}</span>
                 <span v-if="lesson.duration_minutes">{{ formatDuration(lesson.duration_minutes) }}</span>
@@ -532,9 +637,39 @@ onMounted(loadData)
               @click="onCreateLesson(mod.id)"
             />
           </div>
+          <p
+            v-if="getLessonForm(mod.id).video_url.trim()"
+            class="mgmt-hint"
+          >
+            {{ videoUrlHint(getLessonForm(mod.id).video_url) || 'Enlace reconocido.' }}
+          </p>
         </div>
       </div>
     </section>
+
+    <div v-if="editingModule && canMutateContent" class="campus-modal-overlay" @click.self="editingModule = null">
+      <div class="campus-modal campus-glass">
+        <h2>Editar módulo</h2>
+        <label>
+          Título
+          <input v-model="editingModule.title" type="text" autofocus>
+        </label>
+        <label>
+          Descripción (opcional)
+          <textarea v-model="editingModule.description" rows="3" />
+        </label>
+        <label>
+          Orden
+          <input v-model.number="editingModule.sort_order" type="number" min="1">
+        </label>
+        <div class="campus-modal-actions">
+          <button type="button" class="campus-btn" @click="editingModule = null">Cancelar</button>
+          <button type="button" class="campus-btn campus-btn--primary" :disabled="saving" @click="onSaveModule">
+            Guardar
+          </button>
+        </div>
+      </div>
+    </div>
 
     <div v-if="editingLesson && canMutateContent" class="campus-modal-overlay" @click.self="editingLesson = null">
       <div class="campus-modal campus-glass">
@@ -548,9 +683,14 @@ onMounted(loadData)
           <textarea v-model="editingLesson.description" rows="2" />
         </label>
         <label>
-          URL de video
-          <input v-model="editingLesson.video_url" type="url">
+          URL de video (YouTube, Vimeo o Drive — obligatorio para que el alumno lo vea)
+          <input
+            v-model="editingLesson.video_url"
+            type="url"
+            placeholder="https://drive.google.com/file/d/…/view o https://youtu.be/…"
+          >
         </label>
+        <p v-if="editingVideoHint" class="mgmt-hint">{{ editingVideoHint }}</p>
         <label>
           Duración (minutos)
           <input v-model.number="editingLesson.duration_minutes" type="number" min="0">

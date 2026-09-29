@@ -10,7 +10,7 @@ const slug = computed(() => route.params.slug as string)
 definePageMeta({ layout: 'campus-course' })
 
 const { fetchCurriculum, getAllLessons } = useCourseContent()
-const { user, hasAnyStaffRole } = useCampusAuth()
+const { user, hasAnyStaffRole, fetchProfile } = useCampusAuth()
 const { homePath, homeLabel } = useCampusPanelHome()
 const {
   courseHubPath,
@@ -26,11 +26,13 @@ const certificateCode = ref<string | null>(null)
 const loading = ref(true)
 const errorMessage = ref('')
 
+useTrackFenixLoader(loading)
+
 const progress = computed(() => curriculum.value?.enrollmentProgress ?? 0)
 const isCourseComplete = computed(() => progress.value >= 100)
-const canAccess = computed(() => curriculum.value?.canAccessContent ?? false)
-const isEnrolled = computed(() => curriculum.value?.isEnrolled ?? false)
 const isStaff = computed(() => hasAnyStaffRole())
+const canAccess = computed(() => Boolean(curriculum.value?.canAccessContent || isStaff.value))
+const isEnrolled = computed(() => curriculum.value?.isEnrolled ?? false)
 
 const allLessons = computed(() =>
   curriculum.value ? getAllLessons(curriculum.value.modules) : [],
@@ -83,6 +85,7 @@ async function loadCurriculum() {
   loading.value = true
   errorMessage.value = ''
   try {
+    await fetchProfile()
     curriculum.value = await fetchCurriculum(slug.value)
     if (!curriculum.value) {
       errorMessage.value = 'Curso no encontrado.'
@@ -188,6 +191,15 @@ usePublicSeo(() => ({
             <NuxtLink :to="courseAlumnosPath(curriculum.course.id)">Alumnos</NuxtLink>
             <NuxtLink :to="courseAsistenciaPath(curriculum.course.id)">Asistencia</NuxtLink>
             <NuxtLink :to="courseCalificacionesPath(curriculum.course.id)">Calificaciones</NuxtLink>
+          </div>
+        </section>
+
+        <section v-if="!isStaff && isEnrolled" class="staff-course-tools">
+          <span class="section-label">MI SEGUIMIENTO</span>
+          <div class="staff-course-links">
+            <NuxtLink to="/campus/student/asistencia">Mi asistencia</NuxtLink>
+            <NuxtLink to="/campus/student/notas">Mis notas</NuxtLink>
+            <NuxtLink to="/campus/student/progreso">Mi progreso</NuxtLink>
           </div>
         </section>
 

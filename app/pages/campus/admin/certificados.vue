@@ -28,6 +28,8 @@ const errorMessage = ref('')
 const selectedEnrollmentId = ref('')
 const certSearch = ref('')
 
+useTrackFenixLoader(loading)
+
 async function loadData() {
   if (!user.value) return
   loading.value = true

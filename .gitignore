@@ -34,3 +34,5 @@ credentials/*generadas*
 credentials/*pendientes*
 !credentials/alumnos.example.csv
 !credentials/README.md
+.vercel
+.env*

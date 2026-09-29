@@ -26,6 +26,8 @@ const courses = ref<{ id: string, title: string }[]>([])
 const loading = ref(true)
 const errorMessage = ref('')
 
+useTrackFenixLoader(loading)
+
 const filters = reactive({
   action: '',
   entity_type: '',

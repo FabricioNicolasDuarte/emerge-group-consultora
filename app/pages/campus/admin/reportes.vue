@@ -40,6 +40,8 @@ const enrollmentRows = ref<EnrollmentReportRow[]>([])
 const loading = ref(true)
 const errorMessage = ref('')
 
+useTrackFenixLoader(loading)
+
 async function loadData() {
   if (!user.value) return
   loading.value = true

@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Guía práctica — Campus Emerge (Alumnos y Docentes)</title>
+  <style>
+    :root {
+      --ink: #0d2c54;
+      --muted: #5a6b7d;
+      --line: #d7dee8;
+      --accent: #1a6bb5;
+      --warm: #e86a2c;
+      --surface: #fff;
+      --soft: #f4f7fb;
+      --alumno: #1a6bb5;
+      --docente: #c45a1a;
+    }
+    * { box-sizing: border-box; }
+    html { font-size: 11.5pt; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Calibri, Arial, sans-serif;
+      color: var(--ink);
+      line-height: 1.5;
+      background: #e8eef5;
+    }
+    .doc {
+      max-width: 880px;
+      margin: 0 auto;
+      background: var(--surface);
+      box-shadow: 0 0 0 1px var(--line);
+    }
+    .page-pad { padding: 28px 40px 48px; }
+
+    .screen-bar {
+      position: sticky; top: 0; z-index: 20;
+      display: flex; gap: 12px; align-items: center; justify-content: space-between;
+      padding: 10px 16px;
+      background: var(--ink); color: #fff;
+      font-size: 13px;
+    }
+    .screen-bar button {
+      border: 0; border-radius: 8px; padding: 8px 14px;
+      background: #fff; color: var(--ink); font-weight: 700; cursor: pointer;
+    }
+
+    .cover {
+      min-height: 88vh;
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 56px 48px;
+      background: linear-gradient(155deg, #0d2c54 0%, #1a4f8a 50%, #2a6fb0 100%);
+      color: #fff;
+    }
+    .cover .kicker { letter-spacing: .14em; text-transform: uppercase; opacity: .8; font-size: 12px; }
+    .cover h1 { font-size: 2.25rem; margin: 14px 0 10px; line-height: 1.15; }
+    .cover .subtitle { font-size: 1.1rem; opacity: .92; max-width: 34em; }
+    .cover .meta { margin-top: 40px; font-size: 14px; opacity: .88; }
+    .cover .meta a { color: #9fd0ff; }
+    .cover .pills { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+    .cover .pill {
+      display: inline-block; padding: 8px 14px; border-radius: 999px;
+      background: rgba(255,255,255,.15); font-size: 13px; font-weight: 600;
+    }
+
+    h1, h2, h3, h4 { page-break-after: avoid; }
+    h2 {
+      margin: 2.2rem 0 .75rem;
+      padding-bottom: .35rem;
+      border-bottom: 2px solid var(--ink);
+      font-size: 1.45rem;
+    }
+    h3 { margin: 1.5rem 0 .45rem; font-size: 1.15rem; color: var(--accent); }
+    h3.docente-h { color: var(--docente); }
+    p { margin: .45rem 0 .8rem; }
+    ul, ol { margin: .35rem 0 1rem; padding-left: 1.25rem; }
+    li { margin: .28rem 0; }
+    a { color: var(--accent); }
+
+    .toc {
+      background: var(--soft); border: 1px solid var(--line);
+      border-radius: 12px; padding: 18px 22px;
+    }
+    .toc ol { margin: 0; }
+    .toc a { text-decoration: none; color: var(--ink); }
+    .toc a:hover { color: var(--accent); text-decoration: underline; }
+
+    .role-banner {
+      display: flex; align-items: center; gap: 14px;
+      padding: 16px 18px; border-radius: 12px; margin: 1.2rem 0 1.4rem;
+      color: #fff;
+    }
+    .role-banner.alumno { background: linear-gradient(120deg, #0d2c54, #1a6bb5); }
+    .role-banner.docente { background: linear-gradient(120deg, #7a3410, #e86a2c); }
+    .role-banner strong { font-size: 1.15rem; display: block; }
+    .role-banner span { opacity: .92; font-size: 14px; }
+
+    .chip {
+      display: inline-block; padding: 2px 9px; border-radius: 999px;
+      font-size: 11px; font-weight: 700;
+    }
+    .chip.alumno { background: #e7f1fb; color: var(--alumno); }
+    .chip.docente { background: #ffe8db; color: var(--docente); }
+
+    .tip {
+      border-left: 4px solid var(--accent);
+      background: var(--soft);
+      padding: 12px 14px;
+      margin: 1rem 0;
+      border-radius: 0 10px 10px 0;
+    }
+    .importante {
+      border-left: 4px solid var(--warm);
+      background: #fff6f0;
+      padding: 12px 14px;
+      margin: 1rem 0;
+      border-radius: 0 10px 10px 0;
+    }
+
+    .steps { counter-reset: step; list-style: none; padding-left: 0; }
+    .steps li {
+      counter-increment: step;
+      position: relative;
+      padding: 10px 12px 10px 46px;
+      margin: .45rem 0;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+    }
+    .steps li::before {
+      content: counter(step);
+      position: absolute; left: 12px; top: 10px;
+      width: 24px; height: 24px; border-radius: 50%;
+      background: var(--ink); color: #fff;
+      display: grid; place-items: center;
+      font-size: 12px; font-weight: 700;
+    }
+
+    figure.shot {
+      margin: 1rem 0 1.35rem;
+      page-break-inside: avoid;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      overflow: hidden;
+      background: #fafbfc;
+    }
+    figure.shot img {
+      display: block; width: 100%; height: auto;
+      border-bottom: 1px solid var(--line);
+    }
+    figure.shot figcaption {
+      padding: 8px 12px;
+      font-size: 10.5pt;
+      color: var(--muted);
+      background: var(--soft);
+    }
+
+    .link-box {
+      display: block;
+      margin: 1rem 0;
+      padding: 14px 16px;
+      border-radius: 12px;
+      background: #0d2c54;
+      color: #fff !important;
+      text-decoration: none;
+      font-weight: 700;
+      text-align: center;
+    }
+    .link-box span { display: block; font-weight: 500; opacity: .85; font-size: 13px; margin-top: 4px; }
+
+    .chapter-break { page-break-before: always; }
+    footer.doc-end {
+      margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid var(--line);
+      font-size: 10pt; color: var(--muted);
+    }
+
+    @media print {
+      body { background: #fff; }
+      .screen-bar { display: none !important; }
+      .doc { box-shadow: none; max-width: none; }
+      .page-pad { padding: 0; }
+      .cover { min-height: auto; page-break-after: always; }
+      a { color: inherit; text-decoration: none; }
+      .link-box { color: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      @page {
+        size: A4;
+        margin: 18mm 16mm 20mm 16mm;
+        @top-left { content: "Campus Emerge — Guía alumnos y docentes"; font-size: 9pt; color: #5a6b7d; }
+        @top-right { content: "v1.0"; font-size: 9pt; color: #5a6b7d; }
+        @bottom-left { content: "Emerge Group Consultora"; font-size: 8pt; color: #5a6b7d; }
+        @bottom-right { content: "Pág. " counter(page); font-size: 9pt; color: #5a6b7d; }
+      }
+      @page :first {
+        margin: 0;
+        @top-left { content: none; }
+        @top-right { content: none; }
+        @bottom-left { content: none; }
+        @bottom-right { content: none; }
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="screen-bar">
+    <span>Guía práctica — Alumnos y docentes · Campus Emerge</span>
+    <button type="button" onclick="window.print()">Imprimir / Guardar PDF</button>
+  </div>
+
+  <div class="doc">
+    <section class="cover">
+      <div class="kicker">Guía práctica · sin tecnicismos</div>
+      <h1>Cómo usar el Campus<br>Emerge Group</h1>
+      <p class="subtitle">
+        Manual pensado para <strong>alumnos</strong> y <strong>docentes</strong>.
+        Explica paso a paso qué hacer en cada pantalla, con lenguaje simple.
+      </p>
+      <div class="pills">
+        <span class="pill">Sección Alumnos</span>
+        <span class="pill">Sección Docentes</span>
+      </div>
+      <div class="meta">
+        Versión 1.0 — septiembre 2026<br>
+        Entrada al Campus:<br>
+        <a href="https://www.emergegroupconsultora.com.ar/campus">www.emergegroupconsultora.com.ar/campus</a>
+      </div>
+    </section>
+
+    <div class="page-pad">
+      <h2 id="indice">Índice</h2>
+      <nav class="toc" aria-label="Índice">
+        <ol>
+          <li><a href="#empezar">Antes de empezar</a></li>
+          <li><a href="#entrar">Cómo ingresar</a></li>
+          <li><a href="#alumnos">Guía para alumnos</a></li>
+          <li><a href="#docentes">Guía para docentes</a></li>
+          <li><a href="#ayuda">Si necesitás ayuda</a></li>
+          <li><a href="#preguntas">Preguntas frecuentes</a></li>
+        </ol>
+      </nav>
+
+      <!-- ========== EMPEZAR ========== -->
+      <h2 id="empezar" class="chapter-break">1. Antes de empezar</h2>
+      <p>El Campus es el espacio online de Emerge donde:</p>
+      <ul>
+        <li>los <strong>alumnos</strong> ven sus cursos, materiales, asistencia, notas y certificados;</li>
+        <li>los <strong>docentes</strong> acompañan a sus grupos, cargan asistencia y notas, y publican avisos.</li>
+      </ul>
+
+      <a class="link-box" href="https://www.emergegroupconsultora.com.ar/campus">
+        Abrir el Campus
+        <span>www.emergegroupconsultora.com.ar/campus</span>
+      </a>
+
+      <div class="tip">
+        <strong>Consejo:</strong> guardá ese enlace en favoritos.
+        Entrá desde una computadora o tablet con buena conexión, sobre todo para ver videos.
+      </div>
+
+      <p>Vas a necesitar:</p>
+      <ul>
+        <li>el correo electrónico con el que te inscribieron;</li>
+        <li>la contraseña que te enviaron (o la que hayas elegido al registrarte).</li>
+      </ul>
+
+      <!-- ========== ENTRAR ========== -->
+      <h2 id="entrar" class="chapter-break">2. Cómo ingresar</h2>
+
+      <figure class="shot">
+        <img src="assets/01-landing-campus.png" alt="Página de entrada al Campus">
+        <figcaption>Pantalla de bienvenida del Campus.</figcaption>
+      </figure>
+
+      <ol class="steps">
+        <li>Abrí <strong>www.emergegroupconsultora.com.ar/campus</strong>.</li>
+        <li>Tocá <strong>Ingresar</strong> (o andá directo a la pantalla de acceso).</li>
+        <li>Escribí tu correo y tu contraseña.</li>
+        <li>Tocá el botón para entrar.</li>
+      </ol>
+
+      <figure class="shot">
+        <img src="assets/02-login.png" alt="Pantalla para ingresar">
+        <figcaption>Pantalla de ingreso con correo y contraseña.</figcaption>
+      </figure>
+
+      <div class="importante">
+        <strong>¿Olvidaste la contraseña?</strong>
+        En la misma pantalla de ingreso usá la opción para recuperarla.
+        Te llegará un correo con el enlace para crear una nueva.
+      </div>
+
+      <p>
+        Si todavía no tenés cuenta y te invitaron a registrarte, usá
+        <strong>Registrarse</strong> y completá el formulario.
+      </p>
+
+      <figure class="shot">
+        <img src="assets/03-registro.png" alt="Pantalla de registro">
+        <figcaption>Formulario de registro (solo si te lo pidieron).</figcaption>
+      </figure>
+
+      <!-- ========== ALUMNOS ========== -->
+      <h2 id="alumnos" class="chapter-break">3. Guía para alumnos <span class="chip alumno">alumno</span></h2>
+
+      <div class="role-banner alumno">
+        <div>
+          <strong>Tu panel de alumno</strong>
+          <span>Acá seguís tus cursos, ves tu asistencia y tus notas, y leés avisos del equipo.</span>
+        </div>
+      </div>
+
+      <h3>3.1 Tu inicio</h3>
+      <p>
+        Al entrar vas a ver un resumen: el curso que podés continuar, tu avance
+        y atajos a lo más usado.
+      </p>
+      <figure class="shot">
+        <img src="assets/40-student-inicio.png" alt="Inicio del alumno">
+        <figcaption>Inicio del alumno: continuar el curso y ver el progreso.</figcaption>
+      </figure>
+      <ul>
+        <li>Usá <strong>Continuar curso</strong> para retomar donde lo dejaste.</li>
+        <li>Si hay un mensaje sin leer, vas a ver un aviso hacia el buzón.</li>
+        <li>El menú de la izquierda te lleva a cada sección.</li>
+      </ul>
+
+      <h3>3.2 Mis cursos</h3>
+      <figure class="shot">
+        <img src="assets/41-student-cursos.png" alt="Mis cursos">
+        <figcaption>Listado de los programas en los que estás inscripto.</figcaption>
+      </figure>
+      <ol class="steps">
+        <li>Entrá a <strong>Mis cursos</strong>.</li>
+        <li>Elegí el programa que querés abrir.</li>
+        <li>Dentro vas a ver los módulos y las clases (videos, textos y materiales).</li>
+      </ol>
+      <div class="tip">
+        Solo ves los cursos en los que estás inscripto. Si falta uno, escribinos
+        a administración o usá Soporte técnico (más abajo).
+      </div>
+
+      <h3>3.3 Asistencia</h3>
+      <p>
+        Acá consultás si figurás presente, ausente o con ausencia justificada
+        en cada encuentro. <strong>No podés cambiar estos datos vos:</strong>
+        los carga el docente o el equipo de Emerge.
+      </p>
+      <figure class="shot">
+        <img src="assets/42-student-asistencia.png" alt="Mi asistencia">
+        <figcaption>Resumen e historial de asistencia.</figcaption>
+      </figure>
+      <ul>
+        <li>Los gráficos te dan una vista rápida por curso.</li>
+        <li>Si hubo una justificación, también vas a ver el motivo.</li>
+      </ul>
+
+      <h3>3.4 Mis notas</h3>
+      <figure class="shot">
+        <img src="assets/43-student-notas.png" alt="Mis notas">
+        <figcaption>Evaluaciones y comentarios del docente.</figcaption>
+      </figure>
+      <p>
+        Las notas aparecen cuando el docente las publica.
+        Si ves un comentario o devolución, leelo con calma: suele orientar cómo mejorar.
+      </p>
+
+      <h3>3.5 Comunicaciones y buzón</h3>
+      <figure class="shot">
+        <img src="assets/44-student-comunicaciones.png" alt="Comunicaciones del alumno">
+        <figcaption>Avisos generales y acceso al buzón.</figcaption>
+      </figure>
+      <ul>
+        <li><strong>Comunicaciones:</strong> anuncios del Campus.</li>
+        <li><strong>Mi buzón:</strong> mensajes más directos (por ejemplo, recordatorios o respuestas del equipo).</li>
+      </ul>
+
+      <h3>3.6 Mi progreso</h3>
+      <figure class="shot">
+        <img src="assets/45-student-progreso.png" alt="Mi progreso">
+        <figcaption>Cómo vas en cada programa.</figcaption>
+      </figure>
+      <p>Te muestra qué avanzaste y qué te falta. Desde ahí podés volver al curso para seguir.</p>
+
+      <h3>3.7 Certificados</h3>
+      <figure class="shot">
+        <img src="assets/46-student-certificados.png" alt="Certificados">
+        <figcaption>Certificados cuando completás un programa.</figcaption>
+      </figure>
+      <p>
+        Cuando el equipo emite tu certificado, aparece acá.
+        Podés abrirlo o descargarlo. Si terminaste el curso y todavía no figura,
+        avisá a administración.
+      </p>
+
+      <!-- ========== DOCENTES ========== -->
+      <h2 id="docentes" class="chapter-break">4. Guía para docentes <span class="chip docente">docente</span></h2>
+
+      <div class="role-banner docente">
+        <div>
+          <strong>Tu panel docente</strong>
+          <span>Acá ves tus cursos, cargás asistencia y notas, y publicás avisos para el grupo.</span>
+        </div>
+      </div>
+
+      <h3 class="docente-h">4.1 Tu inicio</h3>
+      <figure class="shot">
+        <img src="assets/30-teacher-inicio.png" alt="Inicio del docente">
+        <figcaption>Inicio docente: clase próxima, alumnos a cargo y resumen por curso.</figcaption>
+      </figure>
+      <ul>
+        <li>Vas a ver un acceso rápido al curso de la próxima clase.</li>
+        <li>También un resumen de alumnos y cursos asignados.</li>
+        <li>Si hay mensajes sin leer, te lo avisa el banner superior.</li>
+      </ul>
+
+      <h3 class="docente-h">4.2 Mis cursos</h3>
+      <figure class="shot">
+        <img src="assets/31-teacher-cursos.png" alt="Cursos del docente">
+        <figcaption>Lista de cursos a tu cargo, con accesos a contenido, asistencia y notas.</figcaption>
+      </figure>
+      <p>Desde cada curso podés entrar a:</p>
+      <ul>
+        <li><strong>Contenido</strong> — materiales y clases del programa.</li>
+        <li><strong>Asistencia</strong> — cargar quién vino a cada encuentro.</li>
+        <li><strong>Notas</strong> — evaluaciones y calificaciones.</li>
+      </ul>
+
+      <h3 class="docente-h">4.3 Cómo cargar la asistencia</h3>
+      <p>
+        Después de cada clase, registrá a cada alumno.
+        No hace falta “crear un encuentro” aparte: elegís la fecha y guardás.
+      </p>
+      <figure class="shot">
+        <img src="assets/21-admin-curso-asistencia.png" alt="Pantalla de asistencia">
+        <figcaption>Pantalla de asistencia del curso (pestañas Registros y Por alumno).</figcaption>
+      </figure>
+
+      <ol class="steps">
+        <li>Abrí el curso → <strong>Asistencia</strong>.</li>
+        <li>Tocá <strong>Nuevo registro de asistencia</strong> (el botón +).</li>
+        <li>Elegí la <strong>fecha</strong> de la clase.</li>
+        <li>Elegí el <strong>alumno</strong>.</li>
+        <li>Marcá: <strong>Asistió</strong>, <strong>No asistió</strong> o <strong>Ausente justificado</strong>.</li>
+        <li>Si es justificado, escribí el <strong>motivo</strong> (es obligatorio) y guardá.</li>
+        <li>Repetí para el resto del grupo.</li>
+      </ol>
+
+      <figure class="shot">
+        <img src="assets/21b-admin-asistencia-nuevo-registro.png" alt="Formulario de nuevo registro">
+        <figcaption>Formulario: fecha, alumno y si asistió o no.</figcaption>
+      </figure>
+
+      <figure class="shot">
+        <img src="assets/21c-admin-asistencia-por-alumno.png" alt="Vista por alumno">
+        <figcaption>Vista “Por alumno”: historial de una persona.</figcaption>
+      </figure>
+
+      <div class="tip">
+        La pestaña <strong>Por alumno</strong> sirve para revisar rápido el historial
+        de alguien en particular. El alumno ve su propia asistencia en su panel
+        (solo lectura).
+      </div>
+
+      <div class="importante">
+        Si necesitás corregir un registro ya guardado y no te deja editarlo,
+        pedíselo a quien administra el Campus (solo ese rol puede modificar o borrar).
+      </div>
+
+      <h3 class="docente-h">4.4 Notas y evaluaciones</h3>
+      <figure class="shot">
+        <img src="assets/22-admin-curso-calificaciones.png" alt="Calificaciones">
+        <figcaption>Pantalla de notas del curso.</figcaption>
+      </figure>
+      <ol class="steps">
+        <li>Entrá al curso → <strong>Notas</strong> (o Calificaciones).</li>
+        <li>Creá una evaluación (por ejemplo: trabajo práctico, examen, participación).</li>
+        <li>Cargá la nota de cada alumno y, si querés, un comentario.</li>
+        <li>Guardá. El alumno la verá en <em>Mis notas</em>.</li>
+      </ol>
+
+      <h3 class="docente-h">4.5 Comunicaciones y anuncios</h3>
+      <figure class="shot">
+        <img src="assets/32-teacher-comunicaciones.png" alt="Comunicaciones del docente">
+        <figcaption>Centro de comunicaciones del docente.</figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="assets/33-teacher-anuncios.png" alt="Anuncios">
+        <figcaption>Listado de anuncios: crear, publicar o editar.</figcaption>
+      </figure>
+      <ol class="steps">
+        <li>Andá a <strong>Anuncios</strong> (o desde Comunicaciones).</li>
+        <li>Creá un anuncio nuevo.</li>
+        <li>Escribí el título y el mensaje.</li>
+        <li>Publicá cuando esté listo (o dejalo en borrador si todavía no).</li>
+      </ol>
+      <p>También podés usar <strong>Mi buzón</strong> para mensajes más directos con el equipo o los alumnos.</p>
+
+      <!-- ========== AYUDA ========== -->
+      <h2 id="ayuda" class="chapter-break">5. Si necesitás ayuda</h2>
+      <p>
+        En casi todas las pantallas del panel vas a ver una ayuda rápida
+        (ícono de pregunta o pestaña lateral). Ahí aparecen tips de la pantalla
+        en la que estás.
+      </p>
+      <figure class="shot">
+        <img src="assets/50-ayuda-contextual.png" alt="Ayuda rápida">
+        <figcaption>Ayuda rápida según la pantalla actual.</figcaption>
+      </figure>
+      <ul>
+        <li>Desde esa ayuda podés abrir <strong>Soporte técnico</strong> y escribirle al equipo.</li>
+        <li>En la pantalla de ingreso, <strong>Contactanos</strong> te lleva a WhatsApp de Emerge.</li>
+      </ul>
+
+      <!-- ========== FAQ ========== -->
+      <h2 id="preguntas" class="chapter-break">6. Preguntas frecuentes</h2>
+
+      <h3>No puedo entrar</h3>
+      <p>
+        Revisá que el correo sea el mismo con el que te inscribieron y que la
+        contraseña esté bien escrita (mayúsculas y minúsculas importan).
+        Si no, usá “recuperar contraseña” o Contactanos.
+      </p>
+
+      <h3>No veo mi curso</h3>
+      <p>
+        Puede faltar la inscripción. Avisá a administración con tu nombre y correo.
+      </p>
+
+      <h3>No veo el video o tarda mucho</h3>
+      <p>
+        Probá otra red (por ejemplo datos móviles o Wi‑Fi de casa), cerrá otras pestañas
+        y volvé a entrar a la clase. Si sigue fallando, usá Soporte técnico.
+      </p>
+
+      <h3>¿Puedo marcar yo mi asistencia?</h3>
+      <p>
+        No. La asistencia la carga el docente o el equipo de Emerge.
+        Vos solo la consultás.
+      </p>
+
+      <h3>Cargué mal una asistencia, ¿cómo la corrijo?</h3>
+      <p>
+        Si sos docente y el sistema no te deja editar, pedile la corrección a
+        quien administra el Campus.
+      </p>
+
+      <h3>¿Dónde está el Campus?</h3>
+      <p>
+        Siempre en
+        <a href="https://www.emergegroupconsultora.com.ar/campus">www.emergegroupconsultora.com.ar/campus</a>.
+      </p>
+
+      <footer class="doc-end">
+        <p>
+          <strong>Campus Emerge Group — Guía para alumnos y docentes · v1.0</strong><br>
+          Septiembre 2026 · Emerge Group Consultora<br>
+          <a href="https://www.emergegroupconsultora.com.ar/campus">www.emergegroupconsultora.com.ar/campus</a>
+        </p>
+      </footer>
+    </div>
+  </div>
+</body>
+</html>

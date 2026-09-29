@@ -25,6 +25,8 @@ const course = ref<Awaited<ReturnType<typeof fetchCourseById>>>(null)
 const loading = ref(true)
 const errorMessage = ref('')
 
+useTrackFenixLoader(loading)
+
 const stats = reactive({
   modules: 0,
   lessons: 0,
@@ -52,9 +54,11 @@ const areas = computed(() => {
     },
     {
       title: 'Asistencia',
-      description: 'Sesiones y registro de presencia.',
+      description: 'Nuevo registro por alumno (asistió / no asistió / justificado).',
       to: courseAsistenciaPath(courseId.value),
-      meta: `${stats.sessions} sesiones`,
+      meta: stats.sessions
+        ? `${stats.sessions} encuentro${stats.sessions === 1 ? '' : 's'} registrados`
+        : 'Sin registros · Cargar el primero',
       icon: 'mdi:calendar-check-outline',
     },
     {

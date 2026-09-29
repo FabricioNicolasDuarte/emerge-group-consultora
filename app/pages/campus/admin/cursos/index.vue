@@ -94,7 +94,7 @@ const admin = useAdminCampusData()
             :disabled="admin.formLoading"
             @click="admin.togglePublish(course)"
           />
-          <template v-if="admin.isSuperadmin">
+          <template v-if="admin.canManageCourses">
             <CampusAdminCampusTableIconBtn
               icon="mdi:pencil-outline"
               label="Editar curso"

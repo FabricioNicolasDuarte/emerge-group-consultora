@@ -61,6 +61,12 @@ export interface CreateModuleInput {
   sort_order?: number
 }
 
+export interface UpdateModuleInput {
+  title?: string
+  description?: string
+  sort_order?: number
+}
+
 export interface CreateLessonInput {
   module_id: string
   title: string

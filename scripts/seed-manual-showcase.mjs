@@ -1,9 +1,23 @@
 /**
  * Limpia contenido de prueba feo y carga un showcase prolijo para el manual.
  * Conserva: usuarios (roles), esquema de Solicitudes.
- * Ejecutar: node scripts/seed-manual-showcase.mjs
+ * Ejecutar: ALLOW_DESTRUCTIVE_SEED=1 node scripts/seed-manual-showcase.mjs
+ *
+ * NUNCA en producción real sin backup: borra enrollments, cursos, etc.
  */
 import { connectPostgres } from './pg-connect.mjs'
+
+if (process.env.ALLOW_DESTRUCTIVE_SEED !== '1') {
+  console.error(`
+REFUSADO: este script BORRA enrollments, cursos, clases y más.
+
+Para ejecutarlo (solo staging / demo local):
+  ALLOW_DESTRUCTIVE_SEED=1 npm run seed:manual
+
+Nunca lo corras contra el Supabase de alumnos reales.
+`)
+  process.exit(1)
+}
 
 const EMAILS = {
   admin: 'campus.admin@test.emerge.local',

@@ -34,6 +34,8 @@ const replyHtml = ref('')
 const replyAttachments = ref<File[]>([])
 const attachmentUrls = ref<Record<string, string>>({})
 
+useTrackFenixLoader(loading)
+
 async function loadAttachmentUrls(items: MailboxAttachment[]) {
   const next = { ...attachmentUrls.value }
   for (const item of items) {

@@ -49,6 +49,8 @@ const actionMessage = ref('')
 const filter = ref<MailboxThreadFilter>('inbox')
 const search = ref('')
 
+useTrackFenixLoader(loading)
+
 const filterOptions = [
   { value: 'inbox', label: 'Bandeja' },
   { value: 'sent', label: 'Enviados' },

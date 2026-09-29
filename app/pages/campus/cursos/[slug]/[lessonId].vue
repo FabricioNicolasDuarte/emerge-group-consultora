@@ -20,7 +20,7 @@ const {
   findNextLesson,
   findPreviousLesson,
 } = useCourseContent()
-const { user, hasAnyStaffRole } = useCampusAuth()
+const { user, hasAnyStaffRole, fetchProfile } = useCampusAuth()
 const { fetchMyCertificates } = useCampusCommerce()
 
 const loading = ref(true)
@@ -29,6 +29,8 @@ const completing = ref(false)
 const materialError = ref('')
 const openingMaterialId = ref<string | null>(null)
 const isComplete = ref(false)
+
+useTrackFenixLoader(loading)
 
 const lessonData = ref<Awaited<ReturnType<typeof fetchLesson>>>(null)
 const curriculum = ref<Awaited<ReturnType<typeof fetchCurriculum>>>(null)
@@ -39,7 +41,7 @@ const materialUrlErrors = ref<Record<string, string>>({})
 const certificateCode = ref<string | null>(null)
 
 const isStaff = computed(() => hasAnyStaffRole())
-const canAccess = computed(() => curriculum.value?.canAccessContent || isStaff.value)
+const canAccess = computed(() => Boolean(curriculum.value?.canAccessContent || isStaff.value))
 const isCourseComplete = computed(() => (curriculum.value?.enrollmentProgress ?? 0) >= 100)
 
 const moduleLessons = computed(() => {
@@ -151,6 +153,7 @@ async function toggleComplete() {
 
 onMounted(async () => {
   try {
+    await fetchProfile()
     lessonData.value = await fetchLesson(lessonId.value)
     if (!lessonData.value) {
       errorMessage.value = 'Clase no encontrada.'

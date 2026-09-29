@@ -16,6 +16,8 @@ const announcements = ref<PublicAnnouncement[]>([])
 const loading = ref(true)
 const errorMessage = ref('')
 
+useTrackFenixLoader(loading)
+
 onMounted(async () => {
   try {
     announcements.value = await fetchPublicAnnouncements()
@@ -83,6 +85,7 @@ onMounted(async () => {
       </div>
     </main>
     <CampusPublicWhatsapp />
+    <CampusFenixLoader />
   </div>
 </template>
 

@@ -16,6 +16,8 @@ const loading = ref(true)
 const errorMessage = ref('')
 const copyMessage = ref('')
 
+useTrackFenixLoader(loading)
+
 const publicUrl = computed(() =>
   import.meta.client ? `${window.location.origin}/campus/certificados/${code.value}` : '',
 )
@@ -138,5 +140,6 @@ onMounted(async () => {
         </div>
       </article>
     </main>
+    <CampusFenixLoader />
   </div>
 </template>

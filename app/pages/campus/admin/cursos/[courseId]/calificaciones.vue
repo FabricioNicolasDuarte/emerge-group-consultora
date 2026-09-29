@@ -30,6 +30,8 @@ const loading = ref(true)
 const saving = ref(false)
 const errorMessage = ref('')
 
+useTrackFenixLoader(loading)
+
 const newAssessment = reactive({
   title: '',
   max_score: 100,

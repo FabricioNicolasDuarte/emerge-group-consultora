@@ -3,6 +3,8 @@ import type {
   AttendanceRecord,
   AttendanceStatus,
   CourseSessionStats,
+  CourseStudentAttendanceDetail,
+  CourseStudentAttendanceSummary,
   CreateAssessmentInput,
   CreateSessionInput,
   GradebookCell,
@@ -81,7 +83,68 @@ export function useCourseTracking() {
         avatar_url: student.avatar_url,
         record_id: record?.id ?? null,
         status: record?.status ?? null,
+        notes: record?.notes ?? '',
       }
+    })
+  }
+
+  async function fetchCourseStudentAttendance(courseId: string) {
+    const { data, error } = await supabase
+      .from('course_student_attendance')
+      .select('*')
+      .eq('course_id', courseId)
+      .order('full_name')
+
+    if (error) throw error
+    return (data ?? []) as CourseStudentAttendanceSummary[]
+  }
+
+  async function fetchStudentAttendanceDetail(courseId: string, studentId: string) {
+    const { data, error } = await supabase
+      .from('course_student_attendance_detail')
+      .select('*')
+      .eq('course_id', courseId)
+      .eq('student_id', studentId)
+      .order('session_date', { ascending: false })
+
+    if (error) throw error
+    return (data ?? []) as CourseStudentAttendanceDetail[]
+  }
+
+  async function fetchCourseAttendanceRecords(courseId: string) {
+    const { data, error } = await supabase
+      .from('course_student_attendance_detail')
+      .select('*')
+      .eq('course_id', courseId)
+      .order('session_date', { ascending: false })
+      .order('marked_at', { ascending: false })
+
+    if (error) throw error
+    return (data ?? []) as CourseStudentAttendanceDetail[]
+  }
+
+  /** Crea el encuentro del día si no existe (el docente no tiene que gestionarlo a mano). */
+  async function findOrCreateSessionForDate(
+    courseId: string,
+    sessionDate: string,
+    title?: string,
+  ) {
+    const label = title?.trim() || `Clase del ${sessionDate.split('-').reverse().join('/')}`
+    const existing = await fetchCourseSessions(courseId)
+    const match = existing.find(
+      (s) => s.session_date === sessionDate && s.title === label,
+    )
+    if (match) return match
+
+    const sameDay = existing.find((s) => s.session_date === sessionDate)
+    if (sameDay && !title?.trim()) return sameDay
+
+    return createSession({
+      course_id: courseId,
+      title: label,
+      session_date: sessionDate,
+      start_time: null,
+      meeting_provider: 'other',
     })
   }
 
@@ -111,34 +174,70 @@ export function useCourseTracking() {
     if (error) throw error
   }
 
+  /**
+   * Docente/staff: solo alta inicial.
+   * Superadmin: alta o corrección (update).
+   * Justificado exige motivo.
+   */
   async function upsertAttendance(
     sessionId: string,
     studentId: string,
     status: AttendanceStatus,
+    notes = '',
+    options?: { allowUpdate?: boolean },
   ) {
+    const trimmedNotes = notes.trim()
+    if (status === 'excused' && !trimmedNotes) {
+      throw new Error('La asistencia justificada requiere un motivo.')
+    }
+
+    const payload = {
+      session_id: sessionId,
+      student_id: studentId,
+      status,
+      notes: status === 'excused' ? trimmedNotes : trimmedNotes,
+      marked_by: resolveAuthUserId(user.value),
+      marked_at: new Date().toISOString(),
+    }
+
+    if (options?.allowUpdate) {
+      const { data, error } = await supabase
+        .from('attendance_records')
+        .upsert(payload, { onConflict: 'session_id,student_id' })
+        .select()
+        .single()
+      if (error) throw error
+      return data as AttendanceRecord
+    }
+
     const { data, error } = await supabase
       .from('attendance_records')
-      .upsert(
-        {
-          session_id: sessionId,
-          student_id: studentId,
-          status,
-          marked_by: resolveAuthUserId(user.value),
-          marked_at: new Date().toISOString(),
-        },
-        { onConflict: 'session_id,student_id' },
-      )
+      .insert(payload)
       .select()
       .single()
 
-    if (error) throw error
+    if (error) {
+      if (error.code === '23505') {
+        throw new Error('Ya hay un registro para este alumno en esa fecha. Corregilo desde el formulario (actualizar).')
+      }
+      throw error
+    }
     return data as AttendanceRecord
   }
 
-  async function markAllPresent(sessionId: string, courseId: string) {
-    const students = await fetchCourseStudents(courseId)
+  async function deleteAttendance(recordId: string) {
+    const { error } = await supabase.from('attendance_records').delete().eq('id', recordId)
+    if (error) throw error
+  }
+
+  async function markAllPresent(sessionId: string, courseId: string, allowUpdate = false) {
+    const roster = await fetchSessionRoster(sessionId, courseId)
     await Promise.all(
-      students.map((s) => upsertAttendance(sessionId, s.id, 'present')),
+      roster
+        .filter((row) => allowUpdate || !row.record_id)
+        .map((row) =>
+          upsertAttendance(sessionId, row.student_id, 'present', '', { allowUpdate }),
+        ),
     )
   }
 
@@ -277,9 +376,14 @@ export function useCourseTracking() {
     fetchCourseStudents,
     fetchSessionAttendance,
     fetchSessionRoster,
+    fetchCourseStudentAttendance,
+    fetchStudentAttendanceDetail,
+    fetchCourseAttendanceRecords,
+    findOrCreateSessionForDate,
     createSession,
     deleteSession,
     upsertAttendance,
+    deleteAttendance,
     markAllPresent,
     fetchAssessments,
     createAssessment,

@@ -15,6 +15,8 @@ const loading = ref(true)
 const errorMessage = ref('')
 const notFound = ref(false)
 
+useTrackFenixLoader(loading)
+
 usePublicSeo(computed(() => ({
   title: announcement.value
     ? `${announcement.value.title} — Campus ${brand.shortName}`
@@ -77,6 +79,7 @@ onMounted(async () => {
       </div>
     </main>
     <CampusPublicWhatsapp />
+    <CampusFenixLoader />
   </div>
 </template>
 

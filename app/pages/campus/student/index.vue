@@ -198,9 +198,7 @@ onMounted(async () => {
   <div class="campus-home campus-home-stage">
     <CampusRoleSwitcher />
 
-    <p v-if="loading" class="campus-home__loading">Preparando tu campus…</p>
-
-    <template v-else>
+    <template v-if="!loading">
       <CampusHomePulse class="home-anim" :items="pulseItems" />
 
       <CampusHomeHero

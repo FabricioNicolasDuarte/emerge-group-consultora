@@ -83,6 +83,7 @@ function createAdminCampusData() {
   } = useAcademic()
 
   const isSuperadmin = computed(() => hasRole('superadmin'))
+  const canManageCourses = computed(() => hasRole('superadmin', 'admin', 'coordinador'))
 
   const courses = useState<AdminCourseRow[]>('admin-courses', () => [])
   const recentEnrollments = useState<RecentEnrollment[]>('admin-enrollments', () => [])
@@ -327,7 +328,8 @@ function createAdminCampusData() {
     if (existing && !force) return existing
 
     const generation = ++loadGeneration.value
-    loading.value = true
+    // Solo bloquea UI en la primera carga (loading arranca en true).
+    // Los refrescos en background no reactivan el loader Fenix.
     errorMessage.value = ''
     const errors: string[] = []
 
@@ -377,7 +379,7 @@ function createAdminCampusData() {
   }
 
   function openEditCourse(course: AdminCourseRow) {
-    if (!isSuperadmin.value) return
+    if (!canManageCourses.value) return
     editingCourseId.value = course.id
     Object.assign(newCourse, {
       title: course.title,
@@ -400,8 +402,8 @@ function createAdminCampusData() {
     errorMessage.value = ''
     try {
       if (editingCourseId.value) {
-        if (!isSuperadmin.value) {
-          throw new Error('Solo el superadmin puede editar cursos')
+        if (!canManageCourses.value) {
+          throw new Error('No tenés permiso para editar cursos')
         }
         await $fetch(`/api/campus/admin/courses/${editingCourseId.value}`, {
           method: 'PATCH',
@@ -437,7 +439,7 @@ function createAdminCampusData() {
   }
 
   async function onDeleteCourse(course: AdminCourseRow) {
-    if (!isSuperadmin.value) return
+    if (!canManageCourses.value) return
     const ok = confirm(`¿Eliminar el curso «${course.title}»? Se borrarán módulos, inscripciones y contenido asociados.`)
     if (!ok) return
     formLoading.value = true
@@ -795,6 +797,7 @@ function createAdminCampusData() {
   return reactive({
     paymentsEnabled,
     isSuperadmin,
+    canManageCourses,
     courses,
     recentEnrollments,
     stats,

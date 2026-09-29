@@ -169,7 +169,7 @@
           color: #5a6b7d;
         }
         @top-right {
-          content: "Manual de Usuario v1.1";
+          content: "Manual de Usuario v1.2";
           font-size: 9pt;
           color: #5a6b7d;
         }
@@ -196,7 +196,7 @@
 </head>
 <body>
   <div class="screen-bar">
-    <span>Manual de Usuario v1.1 — Campus Emerge · Abrí este archivo en el navegador</span>
+    <span>Manual de Usuario v1.2 — Campus Emerge · Abrí este archivo en el navegador</span>
     <span>
       <button type="button" onclick="window.print()">Imprimir / Guardar PDF</button>
     </span>
@@ -212,10 +212,13 @@
         de cada sección y el paso a paso de las funciones principales.
       </p>
       <div class="meta">
-        <strong>Versión 1.1 — septiembre 2026</strong>
+        <strong>Versión 1.2 — septiembre 2026</strong>
         Plataforma: Campus Emerge (Nuxt + Supabase)<br>
-        Producción: <a href="https://emerge-group-consultora.vercel.app" style="color:#9fd0ff">emerge-group-consultora.vercel.app</a><br>
-        Destinatarios: operación académica, coordinación y capacitadores internos
+        Producción:
+        <a href="https://www.emergegroupconsultora.com.ar/campus" style="color:#9fd0ff">www.emergegroupconsultora.com.ar/campus</a><br>
+        Destinatarios: operación académica, coordinación y capacitadores internos<br>
+        Novedades v1.2: asistencia por registro individual, ayuda contextual + soporte,
+        paneles renovados, dominio propio
       </div>
     </section>
 
@@ -246,6 +249,7 @@
             </ul>
           </li>
           <li><a href="#buzon">Buzón interno</a></li>
+          <li><a href="#ayuda">Ayuda contextual y soporte técnico</a></li>
           <li><a href="#flujos">Flujos operativos recomendados</a></li>
           <li><a href="#faq">Preguntas frecuentes</a></li>
         </ol>
@@ -460,9 +464,13 @@
       <h3>4.3 Asistencia</h3>
       <figure class="shot">
         <img src="assets/42-student-asistencia.png" alt="Asistencia del alumno">
-        <figcaption>Figura 4.3 — Porcentaje y detalle de sesiones.</figcaption>
+        <figcaption>Figura 4.3 — Perfil de asistencia: resumen, gráficos e historial por encuentro.</figcaption>
       </figure>
-      <p>Consultá el estado por sesión (presente, ausente, tarde, justificado). No se edita desde el panel alumno.</p>
+      <ul>
+        <li>Ves presentes, ausencias y justificadas (con motivo si lo cargó el staff).</li>
+        <li>Los gráficos resumen por curso y por tipo de marca.</li>
+        <li><strong>Solo consulta:</strong> el alumno no marca ni edita su propia asistencia.</li>
+      </ul>
 
       <h3>4.4 Mis notas</h3>
       <figure class="shot">
@@ -500,8 +508,12 @@
       <h3>5.1 Inicio</h3>
       <figure class="shot">
         <img src="assets/30-teacher-inicio.png" alt="Inicio docente">
-        <figcaption>Figura 5.1 — Resumen de cursos y alumnos a cargo.</figcaption>
+        <figcaption>Figura 5.1 — Espacio de enseñanza: clase próxima, alumnos a cargo e inscriptos por curso.</figcaption>
       </figure>
+      <p>
+        El inicio muestra el curso de la próxima clase, resumen de alumnos/cursos y accesos rápidos.
+        Si hay mensajes sin leer, aparece el aviso hacia el buzón.
+      </p>
 
       <h3>5.2 Mis cursos</h3>
       <figure class="shot">
@@ -510,11 +522,15 @@
       </figure>
       <p>Desde cada curso podés:</p>
       <ul>
-        <li><strong>Contenido:</strong> módulos, lecciones, videos y materiales.</li>
-        <li><strong>Asistencia:</strong> sesiones y marcar presentes / ausentes / tarde / justificado.</li>
+        <li><strong>Contenido:</strong> módulos, lecciones, videos (Drive) y materiales.</li>
+        <li><strong>Asistencia:</strong> un registro por alumno y fecha (Asistió / No asistió / Ausente justificado + motivo).</li>
         <li><strong>Notas:</strong> crear evaluaciones y cargar calificaciones con devolución.</li>
       </ul>
-      <p>El detalle de estas tres herramientas está en la <a href="#admin-gestion-curso">sección 6.6</a> (misma UI para staff).</p>
+      <p>El detalle de estas tres herramientas está en la <a href="#admin-gestion-curso">sección 6.7</a> (misma UI para staff).</p>
+      <div class="note">
+        No hace falta “crear encuentro” aparte: al guardar un registro el sistema asocia la fecha
+        (y el nombre opcional del encuentro) automáticamente.
+      </div>
 
       <h3>5.3 Comunicaciones y anuncios</h3>
       <figure class="shot">
@@ -680,20 +696,38 @@
       </ol>
 
       <h4>Asistencia</h4>
+      <p class="section-label">Ruta: /campus/admin/cursos/[id]/asistencia (igual para docente desde Mis cursos)</p>
       <figure class="shot">
         <img src="assets/21-admin-curso-asistencia.png" alt="Gestión de asistencia">
-        <figcaption>Figura 6.10 — Sesiones y planilla de asistencia.</figcaption>
+        <figcaption>Figura 6.10 — Pestaña Asistencia: vistas Registros y Por alumno.</figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="assets/21b-admin-asistencia-nuevo-registro.png" alt="Nuevo registro de asistencia">
+        <figcaption>Figura 6.11 — Nuevo registro: fecha, alumno y estado (justificado exige motivo).</figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="assets/21c-admin-asistencia-por-alumno.png" alt="Asistencia por alumno">
+        <figcaption>Figura 6.12 — Vista Por alumno: historial agrupado por persona.</figcaption>
       </figure>
       <ol class="steps">
-        <li>Creá una sesión (fecha, horario, link de reunión si aplica).</li>
-        <li>Marcá cada alumno: presente / ausente / tarde / justificado.</li>
-        <li>Podés usar “marcar todos presentes” y luego ajustar excepciones.</li>
+        <li>Abrí el curso → pestaña <strong>Asistencia</strong>.</li>
+        <li>Pulsá <strong>Nuevo registro de asistencia</strong> (o el +).</li>
+        <li>Elegí <strong>fecha</strong>, alumno y estado:
+          Asistió · No asistió · Ausente justificado.</li>
+        <li>Si es justificado, completá el <strong>motivo</strong> (obligatorio) y guardá.</li>
+        <li>Repetí por cada alumno de esa clase. El listado Registros se completa al instante.</li>
+        <li>Usá <strong>Por alumno</strong> para ver el historial de una persona.</li>
       </ol>
+      <div class="warn">
+        <strong>Permisos:</strong> docentes y admin/coordinación cargan registros.
+        Solo <strong>superadmin</strong> puede editar o borrar un registro ya guardado.
+        El alumno solo consulta su panel.
+      </div>
 
       <h4>Calificaciones</h4>
       <figure class="shot">
         <img src="assets/22-admin-curso-calificaciones.png" alt="Planilla de calificaciones">
-        <figcaption>Figura 6.11 — Evaluaciones y carga de notas con feedback.</figcaption>
+        <figcaption>Figura 6.13 — Evaluaciones y carga de notas con feedback.</figcaption>
       </figure>
       <ol class="steps">
         <li>Creá una evaluación (nombre, tipo, puntaje máximo).</li>
@@ -706,26 +740,26 @@
       <h4>Certificados</h4>
       <figure class="shot">
         <img src="assets/15-admin-certificados.png" alt="Emisión de certificados">
-        <figcaption>Figura 6.12 — Emisión manual para inscripciones con 100 % de progreso.</figcaption>
+        <figcaption>Figura 6.14 — Emisión manual para inscripciones con 100 % de progreso.</figcaption>
       </figure>
       <p>Emití el certificado cuando el alumno completó el programa; se genera un código verificable públicamente.</p>
 
       <h4>Reportes</h4>
       <figure class="shot">
         <img src="assets/16-admin-reportes.png" alt="Reportes del campus">
-        <figcaption>Figura 6.13 — KPIs, tablas de desempeño y exportación CSV.</figcaption>
+        <figcaption>Figura 6.15 — KPIs, tablas de desempeño y exportación CSV.</figcaption>
       </figure>
 
       <h4>Comunicaciones</h4>
       <figure class="shot">
         <img src="assets/17-admin-comunicaciones.png" alt="Comunicaciones admin">
-        <figcaption>Figura 6.14 — Hub: buzón, redacción, anuncios y feed.</figcaption>
+        <figcaption>Figura 6.16 — Hub: buzón, redacción, anuncios y feed.</figcaption>
       </figure>
 
       <h4>Auditoría (solo superadmin)</h4>
       <figure class="shot">
         <img src="assets/18-admin-auditoria.png" alt="Auditoría">
-        <figcaption>Figura 6.15 — Registro de acciones del sistema con filtros.</figcaption>
+        <figcaption>Figura 6.17 — Registro de acciones del sistema con filtros.</figcaption>
       </figure>
 
       <!-- ========== BUZÓN ========== -->
@@ -740,6 +774,18 @@
         <li><strong>Staff / docentes:</strong> pueden redactar desde <code>/campus/buzon/redactar</code>.</li>
       </ul>
 
+      <!-- ========== AYUDA ========== -->
+      <h2 id="ayuda" class="chapter-break">7bis. Ayuda contextual y soporte técnico</h2>
+      <figure class="shot">
+        <img src="assets/50-ayuda-contextual.png" alt="Ayuda contextual del Campus">
+        <figcaption>Figura 7.2 — Pestaña Guía rápida (notch) con pasos según la pantalla actual.</figcaption>
+      </figure>
+      <ul>
+        <li>En el panel, la pestaña lateral / notch de <strong>ayuda</strong> muestra una guía corta de la pantalla donde estás.</li>
+        <li>Desde ahí podés abrir <strong>Soporte técnico</strong>: envía un mensaje al equipo Emerge con la ruta actual.</li>
+        <li>En el login público, <strong>Contactanos</strong> abre WhatsApp de soporte (si está configurado).</li>
+      </ul>
+
       <!-- ========== FLUJOS ========== -->
       <h2 id="flujos" class="chapter-break">8. Flujos operativos recomendados</h2>
 
@@ -747,11 +793,11 @@
       <ol class="steps">
         <li>Admin → Cursos → Nuevo curso (borrador).</li>
         <li>Asignar docente/tutor.</li>
-        <li>Cargar Contenido (módulos y lecciones).</li>
+        <li>Cargar Contenido (módulos y lecciones; videos de Drive se reproducen en el Campus).</li>
         <li>Definir precio y cohorte.</li>
         <li>Publicar el curso.</li>
         <li>Ingresar alumnos (manual o Excel) e inscribir.</li>
-        <li>Crear sesiones de asistencia y evaluaciones.</li>
+        <li>Cargar asistencia con <strong>Nuevo registro</strong> después de cada clase; crear evaluaciones.</li>
         <li>Al cierre: emitir certificados y revisar reportes.</li>
       </ol>
 
@@ -764,15 +810,15 @@
         <li>Crear todos los listos → Descargar CSV / Excel de claves
             (<code>credenciales-diplomatura.xlsx</code>).</li>
         <li>Enviar credenciales + link
-            <code>https://emerge-group-consultora.vercel.app/campus/login</code>.</li>
+            <code>https://www.emergegroupconsultora.com.ar/campus/login</code>.</li>
       </ol>
 
       <h3>8.3 Clase en vivo (asistencia)</h3>
       <ol class="steps">
         <li>Docente o admin abre Asistencia del curso.</li>
-        <li>Crea la sesión del día (con link Meet/Zoom si aplica).</li>
-        <li>Marca asistencia al cierre.</li>
-        <li>El alumno lo ve reflejado en su panel.</li>
+        <li>Pulsá <strong>Nuevo registro de asistencia</strong>.</li>
+        <li>Fecha del día + cada alumno: Asistió / No asistió / Justificado (con motivo).</li>
+        <li>El alumno lo ve en su panel (solo lectura), con gráficos e historial.</li>
       </ol>
 
       <!-- ========== FAQ ========== -->
@@ -794,11 +840,24 @@
         Si usás scripts, corré <code>npm run alumnos:provision</code> después del CSV.
       </p>
 
+      <h4>¿Quién carga la asistencia?</h4>
+      <p>
+        Docente, tutor, admin o coordinador con <strong>Nuevo registro</strong> por alumno y fecha.
+        No se toma sola desde Zoom. Solo superadmin edita o borra un registro ya guardado.
+        El alumno solo consulta.
+      </p>
+
+      <h4>¿Para qué sirve la pestaña de ayuda?</h4>
+      <p>
+        Muestra pasos cortos de la pantalla actual y el acceso a <strong>Soporte técnico</strong>.
+        En el login, <strong>Contactanos</strong> abre WhatsApp.
+      </p>
+
       <h4>No puedo entrar / el logo se ve mal</h4>
       <p>
-        Usá el enlace <strong>Contactanos</strong> del login (WhatsApp).
-        Verificá que te hayan pasado la contraseña temporal del Excel de credenciales
-        y el link de producción correcto.
+        Usá el enlace <strong>Contactanos</strong> del login (WhatsApp) o Soporte técnico dentro del panel.
+        Verificá la contraseña temporal y el link
+        <code>https://www.emergegroupconsultora.com.ar/campus/login</code>.
       </p>
 
       <h4>El alumno no ve el contenido</h4>
@@ -809,12 +868,12 @@
 
       <footer class="doc-end">
         <p>
-          <strong>Campus Emerge Group — Manual de Usuario v1.1</strong><br>
-          Capturas: entorno local + login de producción · Septiembre 2026<br>
-          Login prod:
-          <a href="https://emerge-group-consultora.vercel.app/campus/login">emerge-group-consultora.vercel.app/campus/login</a><br>
-          Regenerar capturas: <code>npm run manual:capture</code>
-          · solo login: <code>node scripts/capture-manual-login.mjs</code>
+          <strong>Campus Emerge Group — Manual de Usuario v1.2</strong><br>
+          Capturas regeneradas: septiembre 2026 (asistencia por registro, ayuda contextual, paneles actuales)<br>
+          Campus:
+          <a href="https://www.emergegroupconsultora.com.ar/campus">www.emergegroupconsultora.com.ar/campus</a><br>
+          Regenerar capturas: <code>npm run seed:manual</code> + <code>npm run manual:capture</code><br>
+          Solo login: <code>MANUAL_LOGIN_URL=https://www.emergegroupconsultora.com.ar node scripts/capture-manual-login.mjs</code>
         </p>
       </footer>
     </div>

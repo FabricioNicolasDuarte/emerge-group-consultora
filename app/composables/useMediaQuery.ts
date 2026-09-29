@@ -1,5 +1,10 @@
 export function useMediaQuery(query: string) {
-  const matches = ref(false)
+  const getMatch = () => {
+    if (!import.meta.client || typeof window === 'undefined') return false
+    return window.matchMedia(query).matches
+  }
+
+  const matches = ref(getMatch())
 
   onMounted(() => {
     if (!import.meta.client) return

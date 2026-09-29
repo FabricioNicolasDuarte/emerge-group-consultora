@@ -425,6 +425,11 @@
   color: var(--campus-muted);
 }
 
+.mgmt-pill--warn {
+  background: rgba(220, 38, 38, 0.12);
+  color: #b91c1c;
+}
+
 .mgmt-pill--soft {
   background: rgba(37, 99, 235, 0.1);
   color: var(--eg-action);
@@ -509,6 +514,13 @@
   text-align: center;
   color: var(--campus-muted);
   font-size: 0.92rem;
+}
+
+.mgmt-hint {
+  margin: 0.55rem 0 0;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: var(--campus-muted);
 }
 
 /* Students cards */

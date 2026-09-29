@@ -85,7 +85,7 @@ export function useStudentCampusData() {
       certificates.value = certificateRows
       liveSessions.value = sessionRows
       attendanceSummary.value = summaryRows
-      recentAttendance.value = attendanceRows.slice(0, 8)
+      recentAttendance.value = attendanceRows
       grades.value = gradeRows
       courseAverages.value = averageRows
     } finally {

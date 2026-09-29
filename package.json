@@ -12,6 +12,7 @@
     "db:types": "npx supabase gen types typescript --project-id vxbuafyolbvbxktqbqao --schema public > app/types/database.types.ts",
     "test:smoke": "node scripts/smoke-test-comms.mjs",
     "test:integration": "node scripts/integration-test-campus.mjs",
+    "test:ux": "node scripts/test-ux-campus.mjs",
     "seed:test-users": "node scripts/seed-test-users.mjs",
     "seed:demo": "node scripts/seed-demo-campus.mjs",
     "seed:manual": "node scripts/seed-manual-showcase.mjs",

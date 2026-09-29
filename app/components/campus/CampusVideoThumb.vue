@@ -35,6 +35,7 @@ watch(() => props.url, () => {
       :alt="title"
       class="campus-video-thumb__img"
       loading="lazy"
+      decoding="async"
       @error="broken = true"
     >
     <div v-else class="campus-video-thumb__fallback" aria-hidden="true">
@@ -58,6 +59,7 @@ watch(() => props.url, () => {
       :alt="title"
       class="campus-video-thumb__img"
       loading="lazy"
+      decoding="async"
       @error="broken = true"
     >
     <div v-else class="campus-video-thumb__fallback" aria-hidden="true">
@@ -78,6 +80,7 @@ watch(() => props.url, () => {
       :alt="title"
       class="campus-video-thumb__img"
       loading="lazy"
+      decoding="async"
       @error="broken = true"
     >
     <div v-else class="campus-video-thumb__fallback" aria-hidden="true">
