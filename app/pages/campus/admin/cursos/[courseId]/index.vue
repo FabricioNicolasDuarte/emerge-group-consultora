@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Icon } from '@iconify/vue'
+import type { AdminCourseRow } from '~/types/academic'
 
 definePageMeta({
   layout: 'campus-panel',
@@ -17,6 +18,9 @@ const {
   courseAsistenciaPath,
   courseCalificacionesPath,
 } = useCampusStaffPaths()
+const admin = useAdminCampusData()
+const { hasRole, profile, fetchProfile } = useCampusAuth()
+const canManageCourseMeta = computed(() => hasRole('superadmin', 'admin', 'coordinador'))
 
 const { fetchCourseById, fetchModules, fetchLessonsForCourse } = useCourseContent()
 const { fetchCourseStudents, fetchCourseSessions } = useCourseTracking()
@@ -24,6 +28,7 @@ const { fetchCourseStudents, fetchCourseSessions } = useCourseTracking()
 const course = ref<Awaited<ReturnType<typeof fetchCourseById>>>(null)
 const loading = ref(true)
 const errorMessage = ref('')
+const successMessage = ref('')
 
 useTrackFenixLoader(loading)
 
@@ -100,7 +105,51 @@ async function loadData() {
   }
 }
 
-onMounted(loadData)
+onMounted(async () => {
+  await fetchProfile()
+  await loadData()
+})
+
+function onEditThisCourse() {
+  if (!course.value || !canManageCourseMeta.value) return
+  const row: AdminCourseRow = {
+    id: course.value.id,
+    title: course.value.title,
+    slug: course.value.slug,
+    description: course.value.description || '',
+    category: course.value.category || 'General',
+    status: course.value.status,
+    module_count: stats.modules,
+    enrollment_count: stats.students,
+    price_amount: course.value.price_amount ?? 0,
+    price_currency: course.value.price_currency ?? 'ARS',
+    cohort_start_date: course.value.cohort_start_date ?? null,
+    cohort_end_date: course.value.cohort_end_date ?? null,
+    enrollment_cap: course.value.enrollment_cap ?? null,
+    enrollment_starts_at: course.value.enrollment_starts_at ?? null,
+    enrollment_ends_at: course.value.enrollment_ends_at ?? null,
+    created_at: '',
+  }
+  admin.openEditCourse(row)
+}
+
+async function onDeleteThisCourse() {
+  if (!course.value || !canManageCourseMeta.value) return
+  await admin.onDeleteCourse({
+    id: course.value.id,
+    title: course.value.title,
+    slug: course.value.slug,
+    description: course.value.description || '',
+    category: course.value.category || 'General',
+    status: course.value.status,
+    module_count: stats.modules,
+    enrollment_count: stats.students,
+    created_at: '',
+  })
+  if (!admin.errorMessage) {
+    await navigateTo(panelPath.value)
+  }
+}
 </script>
 
 <template>
@@ -118,12 +167,32 @@ onMounted(loadData)
           label="Vista alumno"
           :to="`/campus/cursos/${course.slug}`"
         />
+        <CampusAdminCampusTableIconBtn
+          v-if="course && canManageCourseMeta"
+          icon="mdi:pencil-outline"
+          label="Editar título"
+          with-label
+          @click="onEditThisCourse"
+        />
+        <CampusAdminCampusTableIconBtn
+          v-if="course && canManageCourseMeta"
+          icon="mdi:trash-can-outline"
+          label="Eliminar curso"
+          with-label
+          danger
+          @click="onDeleteThisCourse"
+        />
       </template>
     </CampusPageHeader>
 
     <CampusCourseManagementNav v-if="course" :course-id="courseId" active="resumen" />
 
-    <p v-if="errorMessage" class="campus-banner campus-banner--error">{{ errorMessage }}</p>
+    <p v-if="errorMessage || admin.errorMessage" class="campus-banner campus-banner--error">
+      {{ errorMessage || admin.errorMessage }}
+    </p>
+    <p v-if="successMessage || admin.successMessage" class="campus-banner campus-banner--success">
+      {{ successMessage || admin.successMessage }}
+    </p>
     <p v-if="loading" class="mgmt-empty campus-glass">Cargando resumen…</p>
 
     <template v-if="!loading && course">
@@ -162,5 +231,7 @@ onMounted(loadData)
         </NuxtLink>
       </section>
     </template>
+
+    <CampusAdminCampusModals />
   </div>
 </template>

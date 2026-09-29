@@ -97,13 +97,15 @@ const admin = useAdminCampusData()
           <template v-if="admin.canManageCourses">
             <CampusAdminCampusTableIconBtn
               icon="mdi:pencil-outline"
-              label="Editar curso"
+              label="Editar"
+              with-label
               :disabled="admin.formLoading"
               @click="admin.openEditCourse(course)"
             />
             <CampusAdminCampusTableIconBtn
               icon="mdi:trash-can-outline"
-              label="Eliminar curso"
+              label="Eliminar"
+              with-label
               danger
               :disabled="admin.formLoading"
               @click="admin.onDeleteCourse(course)"

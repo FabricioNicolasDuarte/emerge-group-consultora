@@ -14,7 +14,7 @@ definePageMeta({
 const route = useRoute()
 const courseId = computed(() => route.params.courseId as string)
 const { panelPath, panelLabel } = useCampusBackLink()
-const { hasRole, authUserId } = useCampusAuth()
+const { hasRole, authUserId, profile } = useCampusAuth()
 const supabase = useSupabaseClient()
 const isAssignedTeacher = ref(false)
 const canMutateContent = computed(
@@ -43,6 +43,13 @@ async function refreshContentPermission() {
   }
   isAssignedTeacher.value = Boolean(data)
 }
+
+watch(
+  () => profile.value?.role_slugs?.join(','),
+  () => {
+    void refreshContentPermission()
+  },
+)
 
 const {
   fetchCourseById,
@@ -480,13 +487,15 @@ onMounted(loadData)
           <CampusAdminCampusTableIconBtn
             v-if="canMutateContent"
             icon="mdi:pencil-outline"
-            label="Editar módulo"
+            label="Editar título"
+            with-label
             @click="onEditModule(mod)"
           />
           <CampusAdminCampusTableIconBtn
             v-if="canMutateContent"
             icon="mdi:trash-can-outline"
-            label="Eliminar módulo"
+            label="Eliminar"
+            with-label
             danger
             @click="onDeleteModule(mod.id)"
           />
