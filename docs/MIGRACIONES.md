@@ -17,6 +17,7 @@ Ejecutá en **Supabase → SQL Editor**, **en este orden**:
 | 9 | `20260328130000_attendance_detail_names.sql` | Detalle de asistencia con nombre de alumno |
 | 10 | `20260329100000_teacher_content_and_attendance_ux.sql` | Docentes/staff editan contenido; alumnos solo ven publicadas; asistencia corregible |
 | 11 | `20260329110000_staff_delete_courses.sql` | Admin/coordinación pueden eliminar cursos |
+| 12 | `20260329120000_fix_audit_course_delete.sql` | Fix FK al borrar curso (audit_logs) |
 
 Si algo falla por permisos en vistas, re-ejecutá `20260326310000_fix_admin_panel.sql`.
 
