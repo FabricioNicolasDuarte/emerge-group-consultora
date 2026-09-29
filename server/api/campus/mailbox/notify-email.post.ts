@@ -5,6 +5,12 @@ import {
   getMailConfig,
   sendTransactionalEmail,
 } from '../../../utils/mail'
+import {
+  EMAIL_BRAND,
+  brandedSubject,
+  escapeEmailHtml,
+  renderBrandedEmail,
+} from '../../../utils/email-brand'
 
 export default defineEventHandler(async (event) => {
   const claims = await serverSupabaseUser(event) as Record<string, unknown> | null
@@ -45,12 +51,25 @@ export default defineEventHandler(async (event) => {
     ? `${config.siteUrl}/campus/buzon/${threadId}`
     : `${config.siteUrl}/campus/buzon`
 
-  const senderName = sender?.full_name || 'Campus Emerge'
+  const senderName = sender?.full_name || EMAIL_BRAND.product
   const safePreview = preview.slice(0, 280) || 'Abrí el Campus para leer el mensaje completo.'
   const replyTo = threadId ? buildCampusReplyTo(threadId) : null
   const subjectLine = threadId
-    ? `[Campus Emerge] ${subject} #${threadId}`
-    : `[Campus Emerge] ${subject}`
+    ? brandedSubject(`${subject} #${threadId}`)
+    : brandedSubject(subject)
+
+  const text = [
+    `${senderName} te envió un mensaje en el ${EMAIL_BRAND.product} (${EMAIL_BRAND.name}).`,
+    '',
+    `Asunto: ${subject}`,
+    '',
+    safePreview,
+    '',
+    'Podés responder este correo y la respuesta llegará al Campus, o abrir tu buzón:',
+    inboxUrl,
+    '',
+    `— Equipo ${EMAIL_BRAND.product}`,
+  ].join('\n')
 
   try {
     const result = await sendTransactionalEmail({
@@ -62,22 +81,20 @@ export default defineEventHandler(async (event) => {
             'X-Campus-Thread-Id': threadId,
           }
         : undefined,
-      text: `${senderName} te envió un mensaje en el Campus Emerge.\n\nAsunto: ${subject}\n\n${safePreview}\n\nPodés responder este correo y la respuesta llegará al Campus, o abrir tu buzón: ${inboxUrl}`,
-      html: `
-        <div style="font-family:Arial,sans-serif;line-height:1.5;color:#0d2c54;max-width:560px">
-          <p style="margin:0 0 12px"><strong>${senderName}</strong> te envió un mensaje en el Campus Emerge.</p>
-          <p style="margin:0 0 8px"><strong>Asunto:</strong> ${subject.replace(/</g, '&lt;')}</p>
-          <p style="margin:0 0 18px;color:#5b6b7c">${safePreview.replace(/</g, '&lt;')}</p>
-          <p style="margin:0 0 14px;font-size:13px;color:#5b6b7c">
+      text,
+      html: renderBrandedEmail({
+        title: 'Nuevo mensaje en tu buzón',
+        bodyHtml: `
+          <p style="margin:0 0 12px"><strong>${escapeEmailHtml(senderName)}</strong> te envió un mensaje.</p>
+          <p style="margin:0 0 8px"><strong>Asunto:</strong> ${escapeEmailHtml(subject)}</p>
+          <p style="margin:0 0 12px;color:${EMAIL_BRAND.muted}">${escapeEmailHtml(safePreview)}</p>
+          <p style="margin:0;font-size:14px;color:${EMAIL_BRAND.muted}">
             Podés <strong>responder este correo</strong> y tu respuesta llegará al buzón del Campus.
           </p>
-          <p style="margin:0">
-            <a href="${inboxUrl}" style="display:inline-block;background:#2563eb;color:#fff;text-decoration:none;padding:10px 16px;border-radius:999px;font-weight:700">
-              Abrir buzón
-            </a>
-          </p>
-        </div>
-      `,
+        `,
+        cta: { label: 'Abrir buzón', url: inboxUrl },
+        footerNote: `${EMAIL_BRAND.name} · Notificación del ${EMAIL_BRAND.product}.`,
+      }),
     })
     return result
   } catch (error: unknown) {

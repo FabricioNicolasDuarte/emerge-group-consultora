@@ -1,19 +1,17 @@
 import { serverSupabaseUser } from '#supabase/server'
 import { getMailConfig, sendTransactionalEmail } from '../../utils/mail'
+import {
+  EMAIL_BRAND,
+  brandedSubject,
+  escapeEmailHtml,
+  renderBrandedEmail,
+} from '../../utils/email-brand'
 
 type SupportBody = {
   subject?: string
   message?: string
   pagePath?: string
   pageTitle?: string
-}
-
-function escapeHtml(value: string) {
-  return value
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
 }
 
 export default defineEventHandler(async (event) => {
@@ -63,9 +61,9 @@ export default defineEventHandler(async (event) => {
     // optional auth context
   }
 
-  const safeSubject = `[Soporte Campus] ${subject}`.slice(0, 180)
+  const safeSubject = brandedSubject(`Soporte · ${subject}`).slice(0, 180)
   const text = [
-    'Soporte técnico Campus Emerge',
+    `Soporte técnico — ${EMAIL_BRAND.product}`,
     `De: ${fromUser}`,
     pagePath ? `Página: ${pageTitle || ''} ${pagePath}`.trim() : '',
     '',
@@ -77,14 +75,18 @@ export default defineEventHandler(async (event) => {
     replyTo,
     subject: safeSubject,
     text,
-    html: `
-      <div style="font-family:Arial,sans-serif;line-height:1.5;color:#0d2c54;max-width:640px">
-        <p style="margin:0 0 8px"><strong>Soporte técnico — Campus Emerge</strong></p>
-        <p style="margin:0 0 8px"><strong>De:</strong> ${escapeHtml(fromUser)}</p>
-        ${pagePath ? `<p style="margin:0 0 8px"><strong>Página:</strong> ${escapeHtml(pageTitle || '')} <code>${escapeHtml(pagePath)}</code></p>` : ''}
-        <p style="margin:16px 0 0;white-space:pre-wrap">${escapeHtml(message)}</p>
-      </div>
-    `,
+    html: renderBrandedEmail({
+      title: 'Solicitud de soporte técnico',
+      bodyHtml: `
+        <p style="margin:0 0 8px"><strong>De:</strong> ${escapeEmailHtml(fromUser)}</p>
+        ${pagePath
+          ? `<p style="margin:0 0 8px"><strong>Página:</strong> ${escapeEmailHtml(pageTitle || '')} <code style="font-size:13px">${escapeEmailHtml(pagePath)}</code></p>`
+          : ''}
+        <p style="margin:16px 0 0;white-space:pre-wrap">${escapeEmailHtml(message)}</p>
+      `,
+      signOff: EMAIL_BRAND.product,
+      footerNote: `${EMAIL_BRAND.name} · Ticket generado desde la plataforma.`,
+    }),
   })
 
   return { sent: true as const }

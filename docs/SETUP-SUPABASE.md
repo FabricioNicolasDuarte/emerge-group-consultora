@@ -54,6 +54,11 @@ NUXT_PUBLIC_SUPABASE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 npm run dev
 ```
 
+### Correos con marca Emerge Group (español, sin Supabase)
+
+Restablecimiento y avisos del campus salen por SMTP de la app con plantilla de marca.  
+Para Auth nativo de Supabase (confirm / invite): **`docs/EMAILS-AUTH-ES.md`**.
+
 ---
 
 ## Paso 4 — Crear tu usuario administrador

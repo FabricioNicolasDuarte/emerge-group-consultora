@@ -40,7 +40,9 @@ export function getMailConfig() {
       port: smtpPort,
       user: smtpUser,
       pass: smtpPass,
-      from: smtpFrom.includes('<') ? smtpFrom : `Campus Emerge <${smtpFrom}>`,
+      from: smtpFrom.includes('<')
+        ? smtpFrom
+        : `Emerge Group · Campus <${smtpFrom}>`,
       fromEmail,
     },
     resend: {

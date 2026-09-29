@@ -1,15 +1,20 @@
 import { createClient } from '@supabase/supabase-js'
 import { sendTransactionalEmail, getMailConfig } from '../../../utils/mail'
+import {
+  EMAIL_BRAND,
+  brandedSubject,
+  escapeEmailHtml,
+  renderBrandedEmail,
+} from '../../../utils/email-brand'
 
 /**
- * Recuperación de contraseña vía nuestro SMTP (Gmail),
- * evitando el rate limit del mailer built-in de Supabase (~2/hora).
+ * Recuperación de contraseña vía SMTP propio (Gmail),
+ * con marca Emerge Group — evita rate limit del mailer de Supabase.
  */
 export default defineEventHandler(async (event) => {
   const body = await readBody<{ email?: string }>(event)
   const email = String(body?.email || '').trim().toLowerCase()
 
-  // Respuesta uniforme (no filtrar si el mail existe).
   const ok = { sent: true as const }
 
   if (!email || !email.includes('@')) {
@@ -45,7 +50,6 @@ export default defineEventHandler(async (event) => {
     options: { redirectTo },
   })
 
-  // Usuario inexistente: no revelar; igual "ok".
   if (error || !data?.properties?.hashed_token) {
     return ok
   }
@@ -53,22 +57,31 @@ export default defineEventHandler(async (event) => {
   const token = data.properties.hashed_token
   const resetUrl = `${site}/campus/restablecer-contrasena#recovery_token=${token}`
 
+  const text = [
+    `Pediste restablecer tu contraseña del ${EMAIL_BRAND.product} (${EMAIL_BRAND.name}).`,
+    '',
+    'Abrí este enlace (válido por un tiempo limitado):',
+    resetUrl,
+    '',
+    'Si no fuiste vos, ignorá este correo. Tu contraseña actual no se modifica.',
+    '',
+    `— Equipo ${EMAIL_BRAND.product}`,
+  ].join('\n')
+
   try {
     await sendTransactionalEmail({
       to: email,
-      subject: 'Restablecer contraseña — Campus Emerge',
-      text: `Pediste restablecer tu contraseña del Campus Emerge.\n\nAbrí este enlace (válido por un tiempo limitado):\n${resetUrl}\n\nSi no fuiste vos, ignorá este correo.`,
-      html: `
-        <div style="font-family:Arial,sans-serif;line-height:1.5;color:#0d2c54;max-width:560px">
-          <p style="margin:0 0 12px">Pediste restablecer tu contraseña del <strong>Campus Emerge</strong>.</p>
-          <p style="margin:0 0 18px">
-            <a href="${resetUrl}" style="display:inline-block;background:#2563eb;color:#fff;text-decoration:none;padding:10px 16px;border-radius:999px;font-weight:700">
-              Definir nueva contraseña
-            </a>
-          </p>
-          <p style="margin:0;font-size:13px;color:#5b6b7c">Si no fuiste vos, ignorá este correo.</p>
-        </div>
-      `,
+      subject: brandedSubject('Restablecé tu contraseña'),
+      text,
+      html: renderBrandedEmail({
+        title: 'Restablecer contraseña',
+        bodyHtml: `
+          <p style="margin:0 0 12px">Recibimos un pedido para cambiar la contraseña de tu cuenta en el <strong>${escapeEmailHtml(EMAIL_BRAND.product)}</strong>.</p>
+          <p style="margin:0;color:${EMAIL_BRAND.muted};font-size:14px">Si no pediste este cambio, ignorá el mensaje. Tu contraseña actual no se modifica.</p>
+        `,
+        cta: { label: 'Definir nueva contraseña', url: resetUrl },
+        footerNote: `${EMAIL_BRAND.name} · Enlace de un solo uso, con vencimiento corto.`,
+      }),
     })
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'No se pudo enviar el correo'
